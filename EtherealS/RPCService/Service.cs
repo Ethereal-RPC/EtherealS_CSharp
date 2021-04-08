@@ -16,14 +16,17 @@ namespace EtherealS.RPCService
         private ServiceConfig config;
         private int paramStart;
         private object instance;
+        private Tuple<string, string, string> key;
         public Dictionary<string, MethodInfo> Methods { get => methods; set => methods = value; }
         public ServiceConfig Config { get => config; set => config = value; }
         public object Instance { get => instance; set => instance = value; }
+        public Tuple<string, string, string> Key { get => key; set => key = value; }
 
-        public void Register(object instance,ServiceConfig config)
+        public void Register(Tuple<string, string, string> key,object instance,ServiceConfig config)
         {
             this.config = config;
             this.instance = instance;
+            this.key = key;
             if (config.TokenEnable) paramStart = 1;
             else paramStart = 0;
 
@@ -45,13 +48,12 @@ namespace EtherealS.RPCService
                         ParameterInfo[] parameters = method.GetParameters();
                         if (rpcAttribute.Paramters == null)
                         {
-                            for (int i = paramStart; i < parameters.Length; i++)
+                            if (paramStart == 1 && (parameters[0].ParameterType.IsAssignableFrom(typeof(BaseUserToken))))
                             {
-                                if(i == 1 && (parameters[i].ParameterType.IsAssignableFrom(typeof(BaseUserToken))))
-                                {
-                                    throw new RPCException($"{method.Name}方法中的首参数并非继承于BaseUserToken!");
-                                }
-
+                                throw new RPCException($"{method.Name}方法中的首参数并非继承于BaseUserToken!");
+                            }
+                            for (int i = paramStart; i < parameters.Length; i++)
+                            {   
                                 try
                                 {
                                     methodid.Append("-" + config.Type.AbstractName[parameters[i].ParameterType]);
@@ -65,9 +67,9 @@ namespace EtherealS.RPCService
                         else
                         {
                             string[] types_name = rpcAttribute.Paramters;
-                            if(parameters.Length == types_name.Length)
+                            if(parameters.Length == types_name.Length + paramStart)
                             {
-                                for (int i = paramStart; i < parameters.Length; i++)
+                                for (int i = 0; i < types_name.Length; i++)
                                 {
                                     if(config.Type.AbstractType.ContainsKey(types_name[i]))
                                     {
@@ -76,9 +78,14 @@ namespace EtherealS.RPCService
                                     else throw new RPCException($"C#对应的{types_name[i]}类型参数尚未注册"); 
                                 }
                             }
-                            else throw new RPCException($"方法体{method.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length}个,Method:{parameters.Length}个");
+                            else throw new RPCException($"方法体{method.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length + paramStart}个,Method:{parameters.Length}个");
                         }
-                        Methods.TryAdd(methodid.ToString(), method);
+                        string name =  methodid.ToString();
+                        if (methods.TryGetValue(name,out MethodInfo methodInfo))
+                        {
+                            throw new RPCException($"服务方法{name}已存在，无法重复注册！");
+                        }
+                        Methods.TryAdd(name, method);
                         methodid.Length = 0;
                     }
                 }

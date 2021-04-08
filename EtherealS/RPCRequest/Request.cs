@@ -10,17 +10,17 @@ namespace EtherealS.RPCRequest
     public class Request : DispatchProxy
     {
         private string requestname;
-        private Tuple<string, string> clientkey;
+        private Tuple<string, string> serverkey;
         private RequestConfig config;
         public static Request Register<T>(string requestname, Tuple<string, string> clientkey, RequestConfig config)
         {
             Request proxy = Create<T, Request>() as Request;
             proxy.requestname = requestname;
-            proxy.clientkey = clientkey ?? throw new ArgumentNullException(nameof(clientkey));
+            proxy.serverkey = clientkey ?? throw new ArgumentNullException(nameof(clientkey));
             proxy.config = config;
             return proxy;
         }
-        protected override object Invoke(MethodInfo targetMethod, object[] args)
+        protected override object Invoke(MethodInfo targetMethod, object[] args)    
         {
             Annotation.RPCRequest rpcAttribute = targetMethod.GetCustomAttribute<Annotation.RPCRequest>();
             if (rpcAttribute != null)
@@ -72,9 +72,9 @@ namespace EtherealS.RPCRequest
                 ServerRequestModel request = new ServerRequestModel("2.0", requestname, methodid.ToString(), obj);
                 if (args[0] != null && (args[0] as BaseUserToken).Net != null)
                 {
-                    if (NetCore.Get(clientkey, out NetConfig netConfig))
+                    if (NetCore.Get(serverkey, out NetConfig netConfig))
                     {
-                        throw new RPCException(RPCException.ErrorCode.NotFoundNetConfig,
+                        throw new RPCException(RPCException.ErrorCode.NotFoundBaseUserToken,
                             $"{requestname}服务在发送请求时，NetConfig为空！");
                     }
                     netConfig.ServerRequestSend((args[0] as BaseUserToken), request);

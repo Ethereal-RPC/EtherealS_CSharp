@@ -7,14 +7,6 @@ namespace EtherealS.Model
 {
     public abstract class BaseUserToken
     {
-        #region --委托--
-        public delegate BaseUserToken CreateInstance();
-        #endregion
-
-        #region --事件--
-
-        #endregion
-
         #region --字段--
         private Tuple<string, string> serverKey;
         private object net;

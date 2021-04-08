@@ -15,6 +15,7 @@ namespace EtherealS.RPCNet
         public delegate void ClientRequestReceiveVoidDelegate(Tuple<string, string> key, BaseUserToken token, ClientRequestModel request);
         public delegate void ServerRequestSendDelegate(BaseUserToken token, ServerRequestModel request);
         public delegate void ClientResponseSendDelegate(BaseUserToken token, ClientResponseModel response);
+        public delegate BaseUserToken CreateInstance();
         #endregion
 
         #region --事件--
@@ -22,15 +23,13 @@ namespace EtherealS.RPCNet
         #endregion
 
         #region --字段--
-        private ClientRequestReceiveDelegate clientRequestReceive;
-        private ClientRequestReceiveVoidDelegate clientRequestReceiveVoid;
+        private ClientRequestReceiveDelegate clientRequestReceive = ServiceCore.ClientRequestReceive;
         private ServerRequestSendDelegate serverRequestSend;
         private ClientResponseSendDelegate clientResponseSend;
         #endregion
 
         #region --属性-
         public ClientRequestReceiveDelegate ClientRequestReceive { get => clientRequestReceive; set => clientRequestReceive = value; }
-        public ClientRequestReceiveVoidDelegate ClientRequestReceiveVoid { get => clientRequestReceiveVoid; set => clientRequestReceiveVoid = value; }
         public ServerRequestSendDelegate ServerRequestSend { get => serverRequestSend; set => serverRequestSend = value; }
         public ClientResponseSendDelegate ClientResponseSend { get => clientResponseSend; set => clientResponseSend = value; }
         public ConcurrentDictionary<object, BaseUserToken> Tokens { get => tokens; set => tokens = value; }

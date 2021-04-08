@@ -28,7 +28,7 @@ namespace EtherealS.RPCNet
             return null;
         }
 
-        public static void Register(string ip, string port,BaseUserToken.CreateInstance createMethod)
+        public static void Register(string ip, string port,NetConfig.CreateInstance createMethod)
         {
             if (createMethod is null)
             {
@@ -44,8 +44,6 @@ namespace EtherealS.RPCNet
             }
             if (!configs.TryGetValue(new Tuple<string, string>(ip, port), out NetConfig value))
             {
-                config.ClientRequestReceive = ServiceCore.ClientRequestReceive;
-                config.ClientRequestReceiveVoid = ServiceCore.ClientRequestReceiveVoid;
                 configs.Add(new Tuple<string, string>(ip, port),config);
             }
             else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}服务的NetConfig已经注册");

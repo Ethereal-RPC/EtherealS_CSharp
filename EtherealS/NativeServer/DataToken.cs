@@ -79,7 +79,6 @@ namespace EtherealS.NativeNetwork
                         {
                             netConfig.ClientRequestReceive(serverKey,token,request);
                         }
-                        else netConfig.ClientRequestReceiveVoid(serverKey,token,request);
                     }
                     else
                     {

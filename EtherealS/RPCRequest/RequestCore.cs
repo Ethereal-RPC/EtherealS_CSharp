@@ -7,13 +7,13 @@ namespace EtherealS.RPCRequest
     public class RequestCore
     {
         private static Dictionary<Tuple<string, string, string>, Request> requests { get; } = new Dictionary<Tuple<string, string, string>, Request>();
-        public static bool Get(string requestname,string ip,string port, out Request config)
+        public static bool Get(string requestname,string ip,string port, out Request reqeust)
         {
-            return Get(new Tuple<string, string, string>(requestname, ip, port),out config);
+            return Get(new Tuple<string, string, string>(requestname, ip, port),out reqeust);
         }
-        public static bool Get(Tuple<string, string, string> key, out Request config)
+        public static bool Get(Tuple<string, string, string> key, out Request reqeust)
         {
-            return requests.TryGetValue(key, out config);
+            return requests.TryGetValue(key, out reqeust);
         }
         public static R Register<R>(string servicename, string ip, string port,RPCType type)
         {
@@ -51,11 +51,12 @@ namespace EtherealS.RPCRequest
             }
             Tuple<string, string, string> key = new Tuple<string, string, string>(servicename, ip, port);
             requests.TryGetValue(key,out Request request);
-            if(request == null)
+            if (request == null)
             {
-                request = Request.Register<R>(servicename,new Tuple<string, string>(ip,port),config);
+                request = Request.Register<R>(servicename, new Tuple<string, string>(ip, port), config);
                 requests[key] = request;
             }
+            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{key}已注册，无法重复注册！");
             return (R)(request as object);
         }
         public static void UnRegister(Tuple<string, string, string> key)

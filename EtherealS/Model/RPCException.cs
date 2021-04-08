@@ -4,7 +4,7 @@ namespace EtherealS.Model
 {
     class RPCException : Exception
     {
-        public enum ErrorCode { NotFoundBaseUserTokenInstanceMethod, NotFoundNetConfig,NotFoundMethod,NotFoundService,RegisterError }
+        public enum ErrorCode { NotFoundBaseUserTokenInstanceMethod, NotFoundNetConfig,NotFoundMethod,NotFoundService,RegisterError,NotFoundBaseUserToken }
         private ErrorCode errorCode;
 
         public ErrorCode Error { get => errorCode; set => errorCode = value; }

@@ -1,12 +1,24 @@
-﻿using EtherealS.RPCNet;
+﻿using EtherealS.NativeServer;
+using EtherealS.RPCNet;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
+using System.Net.Sockets;
 
 namespace EtherealS.Model
 {
     public abstract class BaseUserToken
     {
+        #region --委托--
+        public delegate void ConnectDelegate(BaseUserToken token);
+        public delegate void DisConnectDelegate(BaseUserToken token);
+        #endregion
+
+        #region --事件--
+        public event ConnectDelegate ConnectEvent;
+        public event ConnectDelegate DisConnectEvent;
+        #endregion
+
         #region --字段--
         private Tuple<string, string> serverKey;
         private object net;
@@ -20,7 +32,7 @@ namespace EtherealS.Model
 
         #region --方法--
 
-        public bool AddIntoTokens(bool replace = false)
+        public bool Register(bool replace = false)
         {
             if (replace)
             {
@@ -29,7 +41,7 @@ namespace EtherealS.Model
             }
             else return NetCore.GetTokens(serverKey).TryAdd(Key, this);
         }
-        public bool RemoveFromTokens()
+        public bool UnRegister()
         {
             return NetCore.GetTokens(serverKey).TryRemove(Key, out BaseUserToken value);
         }
@@ -50,6 +62,16 @@ namespace EtherealS.Model
                 return false;
             }
         }
+
+        public bool DisConnect()
+        {
+            if(ServerCore.Get(serverKey, out ServerListener server))
+            {
+                return server.CloseClientSocket((SocketAsyncEventArgs)net);
+            }
+            return true;
+        }
+
         public static ConcurrentDictionary<object, BaseUserToken> GetTokens(Tuple<string, string> serverkey)
         {
             return NetCore.GetTokens(serverkey);
@@ -66,12 +88,12 @@ namespace EtherealS.Model
         #region --虚方法--
         public virtual void OnConnect()
         {
-
+            if(ConnectEvent != null)ConnectEvent(this);
         }
 
         public virtual void OnDisConnect()
         {
-
+            if(DisConnectEvent != null)DisConnectEvent(this);
         }
         #endregion
     }

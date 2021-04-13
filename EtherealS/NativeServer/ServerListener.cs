@@ -7,10 +7,10 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace EtherealS.NativeNetwork
+namespace EtherealS.NativeServer
 {
 
-    public sealed class SocketListener
+    public sealed class ServerListener
     { 
 
         private Socket listenSocket;
@@ -19,7 +19,7 @@ namespace EtherealS.NativeNetwork
 
         private int numConnectedSockets;
 
-        private SocketAsyncEventArgsPool readWritePool;
+        private DataTokenPool readWritePool;
 
         private Semaphore semaphoreAcceptedClients;
 
@@ -31,21 +31,18 @@ namespace EtherealS.NativeNetwork
 
         public Socket ListenSocket { get=>listenSocket; set => listenSocket = value; }
 
-        public SocketListener(Tuple<string, string> serverKey, ServerConfig config)
+        public ServerListener(Tuple<string, string> serverKey, ServerConfig config)
         {
             this.serverKey = serverKey;
             this.config = config;
             this.numConnectedSockets = 0;
-            this.readWritePool = new SocketAsyncEventArgsPool(config.NumConnections);
+            this.readWritePool = new DataTokenPool(config.NumConnections);
             this.semaphoreAcceptedClients = new Semaphore(config.NumConnections, config.NumConnections);
             for (int i = 0; i < config.NumConnections; i++)
             {
-                SocketAsyncEventArgs receiveEventArg = new SocketAsyncEventArgs();
-                receiveEventArg.Completed += OnReceiveCompleted;
-                receiveEventArg.SetBuffer(new Byte[config.BufferSize], 0, config.BufferSize);
-                DataToken token = new DataToken(receiveEventArg, serverKey, config);
-                receiveEventArg.UserToken = token;
-                this.readWritePool.Push(receiveEventArg);
+                DataToken token = new DataToken(serverKey,config);
+                token.EventArgs.Completed += OnReceiveCompleted;
+                this.readWritePool.Push(token);
             }
 
             IPAddress[] addressList = Dns.GetHostEntry(serverKey.Item1).AddressList;
@@ -81,7 +78,7 @@ namespace EtherealS.NativeNetwork
                 thread.Start();
             }
         }
-        private void CloseClientSocket(SocketAsyncEventArgs e)
+        public bool CloseClientSocket(SocketAsyncEventArgs e)
         {
             try
             {
@@ -101,12 +98,13 @@ namespace EtherealS.NativeNetwork
                 {
                     netConfig.Tokens.TryRemove((e.UserToken as DataToken).Token.Key, out BaseUserToken value);
                 }
-                else throw new RPCException(RPCException.ErrorCode.NotFoundNetConfig, "Î´ÕÒµ½NetConfig");
+                else throw new RPCException(RPCException.ErrorCode.RuntimeError, "Î´ÕÒµ½NetConfig");
             }
             (e.UserToken as DataToken).DisConnect();
-            this.readWritePool.Push(e);
+            this.readWritePool.Push(e.UserToken as DataToken);
             Interlocked.Decrement(ref this.numConnectedSockets);
             Console.WriteLine("A client has been disconnected from the server. There are {0} clients connected to the server", this.numConnectedSockets);
+            return true;
         }
         private void OnAcceptCompleted(object sender, SocketAsyncEventArgs e)
         {
@@ -121,19 +119,18 @@ namespace EtherealS.NativeNetwork
             {
                 if (s.Connected)
                 {
-                    SocketAsyncEventArgs readEventArgs = this.readWritePool.Pop();
-                    if (readEventArgs != null)
+                    DataToken token = this.readWritePool.Pop();
+                    if (token != null)
                     {
                         // Get the socket for the accepted client connection and put it into the 
                         // ReadEventArg object User user.
-                        readEventArgs.AcceptSocket = s;
-                        (readEventArgs.UserToken as DataToken).Connect(config.CreateMethod.Invoke(), s);
+                        token.Connect(s);
                         Interlocked.Increment(ref this.numConnectedSockets);
                         Console.WriteLine("Client connection accepted. There are {0} clients connected to the server",
                             this.numConnectedSockets);
-                        if (!s.ReceiveAsync(readEventArgs))
+                        if (!s.ReceiveAsync(token.EventArgs))
                         {
-                            ProcessReceive(readEventArgs);
+                            ProcessReceive(token.EventArgs);
                         }
                     }
                     else
@@ -223,9 +220,9 @@ namespace EtherealS.NativeNetwork
             this.listenSocket.Close();
             mutex.ReleaseMutex();
         }
-        public void SendClientResponse(BaseUserToken token,ClientResponseModel response)
+        private void SendClientResponse(BaseUserToken token,ClientResponseModel response)
         {
-            if (token!=null && token.Net != null && (token.Net as Socket).Connected)
+            if (token!=null && token.Net != null && (token.Net as SocketAsyncEventArgs).AcceptSocket.Connected)
             {
 #if DEBUG
                 Console.WriteLine("---------------------------------------------------------");
@@ -249,12 +246,12 @@ namespace EtherealS.NativeNetwork
                 Buffer.BlockCopy(bodyBytes, 0, sendBuffer, headerBytes.Length + pattern.Length + future.Length, bodyBytes.Length);
                 SocketAsyncEventArgs sendEventArgs = new SocketAsyncEventArgs();
                 sendEventArgs.SetBuffer(sendBuffer, 0, sendBuffer.Length);
-                (token.Net as Socket).SendAsync(sendEventArgs);
+                (token.Net as SocketAsyncEventArgs).AcceptSocket.SendAsync(sendEventArgs);
             }
         }
-        internal void SendServerRequest(BaseUserToken token,ServerRequestModel request)
+        private void SendServerRequest(BaseUserToken token,ServerRequestModel request)
         {
-            if (token != null && token.Net != null && (token.Net as Socket).Connected)
+            if (token != null && token.Net != null && (token.Net as SocketAsyncEventArgs).AcceptSocket.Connected)
             {
 #if DEBUG
                 Console.WriteLine("---------------------------------------------------------");
@@ -278,7 +275,7 @@ namespace EtherealS.NativeNetwork
                 Buffer.BlockCopy(bodyBytes, 0, sendBuffer, headerBytes.Length + pattern.Length + future.Length, bodyBytes.Length);
                 SocketAsyncEventArgs sendEventArgs = new SocketAsyncEventArgs();
                 sendEventArgs.SetBuffer(sendBuffer, 0, sendBuffer.Length);
-                (token.Net as Socket).SendAsync(sendEventArgs);
+                (token.Net as SocketAsyncEventArgs).AcceptSocket.SendAsync(sendEventArgs);
             }
             else
             {
@@ -288,7 +285,7 @@ namespace EtherealS.NativeNetwork
         #region IDisposable Members
         bool isDipose = false;
 
-        ~SocketListener()
+        ~ServerListener()
         {
             Dispose(false);
         }

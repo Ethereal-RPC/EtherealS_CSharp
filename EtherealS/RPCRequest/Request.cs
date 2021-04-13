@@ -74,7 +74,7 @@ namespace EtherealS.RPCRequest
                 {
                     if (NetCore.Get(serverkey, out NetConfig netConfig))
                     {
-                        throw new RPCException(RPCException.ErrorCode.NotFoundBaseUserToken,
+                        throw new RPCException(RPCException.ErrorCode.RuntimeError,
                             $"{requestname}服务在发送请求时，NetConfig为空！");
                     }
                     netConfig.ServerRequestSend((args[0] as BaseUserToken), request);

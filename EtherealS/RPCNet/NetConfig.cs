@@ -15,7 +15,6 @@ namespace EtherealS.RPCNet
         public delegate void ClientRequestReceiveVoidDelegate(Tuple<string, string> key, BaseUserToken token, ClientRequestModel request);
         public delegate void ServerRequestSendDelegate(BaseUserToken token, ServerRequestModel request);
         public delegate void ClientResponseSendDelegate(BaseUserToken token, ClientResponseModel response);
-        public delegate BaseUserToken CreateInstance();
         #endregion
 
         #region --事件--
@@ -23,7 +22,7 @@ namespace EtherealS.RPCNet
         #endregion
 
         #region --字段--
-        private ClientRequestReceiveDelegate clientRequestReceive = ServiceCore.ClientRequestReceive;
+        private ClientRequestReceiveDelegate clientRequestReceive;
         private ServerRequestSendDelegate serverRequestSend;
         private ClientResponseSendDelegate clientResponseSend;
         #endregion
@@ -49,6 +48,8 @@ namespace EtherealS.RPCNet
             }
             else return true;
         }
+
+
         #endregion
     }
 }

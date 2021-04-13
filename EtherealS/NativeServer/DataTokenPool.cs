@@ -2,19 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
 
-namespace EtherealS.NativeNetwork
+namespace EtherealS.NativeServer
 {
 
-    public sealed class SocketAsyncEventArgsPool
+    public sealed class DataTokenPool
     {
 
-        Stack<SocketAsyncEventArgs> pool;
+        Stack<DataToken> pool;
 
-        public SocketAsyncEventArgsPool(int capacity)
+        public DataTokenPool(int capacity)
         {
-            this.pool = new Stack<SocketAsyncEventArgs>(capacity);
+            this.pool = new Stack<DataToken>(capacity);
         }
-        public SocketAsyncEventArgs Pop()
+        public DataToken Pop()
         {
             lock (this.pool)
             {
@@ -29,7 +29,7 @@ namespace EtherealS.NativeNetwork
             }
         }
 
-        public void Push(SocketAsyncEventArgs item)
+        public void Push(DataToken item)
         {
             if (item == null) 
             { 

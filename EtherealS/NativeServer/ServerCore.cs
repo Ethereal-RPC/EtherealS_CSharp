@@ -5,17 +5,17 @@ using System.Threading;
 using EtherealS.Model;
 using EtherealS.RPCNet;
 
-namespace EtherealS.NativeNetwork
+namespace EtherealS.NativeServer
 {
-    public class AsyncServerCore
+    public class ServerCore
     {
-        private static Dictionary<Tuple<string, string>, SocketListener> socketservers { get; } = new Dictionary<Tuple<string, string>, SocketListener>();
+        private static Dictionary<Tuple<string, string>, ServerListener> socketservers { get; } = new Dictionary<Tuple<string, string>, ServerListener>();
 
-        public static SocketListener Register(string ip, string port,BaseUserToken.CreateInstance createMethod)
+        public static ServerListener Register(string ip, string port,ServerConfig.CreateInstance createMethod)
         {
             return Register(ip, port, new ServerConfig(createMethod),null);
         }
-        public static SocketListener Register(string ip, string port,ServerConfig config)
+        public static ServerListener Register(string ip, string port,ServerConfig config)
         {
             return Register(ip, port,config,null);
         }
@@ -25,14 +25,14 @@ namespace EtherealS.NativeNetwork
         /// <param name="serverIp">远程服务IP</param>
         /// <param name="port">远程服务端口</param>
         /// <returns>客户端</returns>
-        public static SocketListener Register(string ip, string port, ServerConfig config,SocketListener socketserver)
+        public static ServerListener Register(string ip, string port, ServerConfig config,ServerListener socketserver)
         {
             Tuple<string, string> key = new Tuple<string, string>(ip, port);
             if (!socketservers.TryGetValue(key, out socketserver))
-            {
+            { 
                 try
                 {
-                    if(socketserver == null) socketserver = new SocketListener(key, config);
+                    if(socketserver == null) socketserver = new ServerListener(key, config);
                     socketservers[key] = socketserver;
                 }
                 catch (SocketException e)
@@ -44,15 +44,18 @@ namespace EtherealS.NativeNetwork
             }
             return socketserver;
         }
-        public static SocketListener Get(string ip,string port)
+        public static bool Get(string ip,string port, out ServerListener socketserver)
         {
-            return Get(new Tuple<string, string>(ip,port));
+            return Get(new Tuple<string, string>(ip,port),out socketserver);
         }
-        public static SocketListener Get(Tuple<string, string> key)
+        public static bool Get(Tuple<string, string> key, out ServerListener socketserver)
         {
-            SocketListener socketserver;
-            socketservers.TryGetValue(key, out socketserver);
-            return socketserver;
+            return socketservers.TryGetValue(key,out socketserver);
+        }
+
+        public static bool UnRegister(Tuple<string,string> key)
+        {
+            return socketservers.Remove(key);
         }
     }
 }

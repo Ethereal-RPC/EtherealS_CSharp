@@ -14,7 +14,7 @@ namespace EtherealS_Test
             string ip = "127.0.0.1";
             string port = "28015";
             EtherealS.RPCNet.NetCore.Register(ip,port);
-            EtherealS.RPCService.ServiceCore.Register(new Service(),"ServerService",ip,port,types);
+            EtherealS.RPCService.ServiceCore.Register(new Service(),ip,port, "ServerService",types);
             EtherealS.NativeServer.ServerCore.Register(ip, port,() => new Token()).Start();
             return true;
         }

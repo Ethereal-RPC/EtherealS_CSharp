@@ -12,7 +12,7 @@ namespace EtherealS.RPCRequest
         private string requestname;
         private Tuple<string, string> serverkey;
         private RequestConfig config;
-        public static Request Register<T>(string requestname, Tuple<string, string> clientkey, RequestConfig config)
+        public static Request Register<T>(Tuple<string, string> clientkey, string requestname, RequestConfig config)
         {
             Request proxy = Create<T, Request>() as Request;
             proxy.requestname = requestname;

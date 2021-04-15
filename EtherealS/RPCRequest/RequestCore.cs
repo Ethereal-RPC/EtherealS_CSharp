@@ -7,25 +7,25 @@ namespace EtherealS.RPCRequest
     public class RequestCore
     {
         private static Dictionary<Tuple<string, string, string>, Request> requests { get; } = new Dictionary<Tuple<string, string, string>, Request>();
-        public static bool Get(string requestname,string ip,string port, out Request reqeust)
+        public static bool Get(string ip,string port, string requestname, out Request reqeust)
         {
-            return Get(new Tuple<string, string, string>(requestname, ip, port),out reqeust);
+            return Get(new Tuple<string, string, string>( ip, port, requestname),out reqeust);
         }
         public static bool Get(Tuple<string, string, string> key, out Request reqeust)
         {
             return requests.TryGetValue(key, out reqeust);
         }
-        public static R Register<R>(string servicename, string ip, string port,RPCType type)
+        public static R Register<R>(string ip, string port, string servicename, RPCType type)
         {
             if (type is null)
             {
                 throw new ArgumentException("参数为空", nameof(type));
             }
             RequestConfig config = new RequestConfig(type);
-            return Register<R>(servicename, ip, port, config);
+            return Register<R>( ip, port, servicename, config);
         }
 
-        public static R Register<R>(string servicename,string ip, string port,RequestConfig config)
+        public static R Register<R>(string ip, string port, string servicename,RequestConfig config)
         {
             if (string.IsNullOrEmpty(servicename))
             {
@@ -49,11 +49,11 @@ namespace EtherealS.RPCRequest
             {
                 throw new ArgumentNullException(nameof(config.Type));
             }
-            Tuple<string, string, string> key = new Tuple<string, string, string>(servicename, ip, port);
+            Tuple<string, string, string> key = new Tuple<string, string, string>(ip, port, servicename);
             requests.TryGetValue(key,out Request request);
             if (request == null)
             {
-                request = Request.Register<R>(servicename, new Tuple<string, string>(ip, port), config);
+                request = Request.Register<R>(new Tuple<string, string>(ip, port), servicename ,config);
                 requests[key] = request;
             }
             else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{key}已注册，无法重复注册！");

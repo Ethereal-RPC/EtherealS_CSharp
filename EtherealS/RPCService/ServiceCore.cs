@@ -14,11 +14,11 @@ namespace EtherealS.RPCService
         {
             return services.TryGetValue(key, out service);
         }
-        public static void Register(object instance, string servicename, string ip, string port,RPCType type)
+        public static void Register(object instance, string ip, string port, string servicename, RPCType type)
         {
-            Register(instance,servicename,ip,port,new ServiceConfig(type));
+            Register(instance,ip,port, servicename, new ServiceConfig(type));
         }
-        public static void Register(object instance,string servicename, string ip, string port, ServiceConfig config)
+        public static void Register(object instance, string ip, string port, string servicename ,ServiceConfig config)
         {
             if (string.IsNullOrEmpty(servicename))
             {
@@ -40,7 +40,7 @@ namespace EtherealS.RPCService
                 throw new ArgumentNullException(nameof(config.Type));
             }
 
-            Tuple<string, string, string> key = new Tuple<string, string, string>(servicename, ip, port);
+            Tuple<string, string, string> key = new Tuple<string, string, string>(ip, port,servicename);
             services.TryGetValue(key, out Service service);
             if (service == null)
             {
@@ -66,22 +66,22 @@ namespace EtherealS.RPCService
                 }
             }
         }
-        public static void Register<T>(string servicename, string hostname, string port, ServiceConfig config) where T : new()
+        public static void Register<T>( string hostname, string port, string servicename, ServiceConfig config) where T : new()
         {
-            Register(new T(), servicename, hostname, port, config);
+            Register(new T(), hostname, port, servicename, config);
         }
-        public static void Register<T>(string servicename, string hostname, string port,RPCType type) where T : new()
+        public static void Register<T>( string hostname, string port, string servicename, RPCType type) where T : new()
         {
-            Register(new T(), servicename, hostname, port, new ServiceConfig(type));
+            Register(new T(),hostname, port, servicename, new ServiceConfig(type));
         }
         public static void UnRegister(Tuple<string, string, string> key)
         {
             services.TryRemove(key, out Service value);
         }
 
-        public static bool Get(string servicename, string hostname, string port, out Service proxy)
+        public static bool Get(string hostname, string port, string servicename,out Service proxy)
         {
-            return services.TryGetValue(new Tuple<string, string, string>(servicename, hostname, port), out proxy);
+            return services.TryGetValue(new Tuple<string, string, string>(hostname, port, servicename), out proxy);
         }
     }
 }

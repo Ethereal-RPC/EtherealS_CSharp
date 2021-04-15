@@ -14,7 +14,7 @@ namespace EtherealS.NativeServer
         #endregion
         private SocketAsyncEventArgs eventArgs;
         private DotNetty.Buffers.IByteBuffer buffer;
-        private int dynamicAdjustBufferCount = -1;
+        private int dynamicAdjustBufferCount = 1;
         //下面两部分只负责接收部分，发包构造部分并没有使用，修改时请注意！
         //下面这部分用于拆包分析   
         private static int headsize = 32;//头包长度
@@ -31,6 +31,7 @@ namespace EtherealS.NativeServer
         {
             this.serverKey = serverKey;
             this.config = config;
+            dynamicAdjustBufferCount = config.DynamicAdjustBufferCount;
             eventArgs = new SocketAsyncEventArgs();
             eventArgs.UserToken = this;
             buffer = DotNetty.Buffers.UnpooledByteBufferAllocator.Default.DirectBuffer(config.BufferSize, config.MaxBufferSize);
@@ -55,7 +56,7 @@ namespace EtherealS.NativeServer
         }
         public void ProcessData()
         {
-            buffer.ResetReaderIndex();
+            buffer.ResetReaderIndex();  
             buffer.SetWriterIndex(eventArgs.BytesTransferred + buffer.WriterIndex);
             while (buffer.ReaderIndex < buffer.WriterIndex)
             {
@@ -84,7 +85,7 @@ namespace EtherealS.NativeServer
                             if (!NetCore.Get(serverKey, out NetConfig netConfig))
                             {
                                 throw new RPCException(RPCException.ErrorCode.RuntimeError, "未找到NetCore");
-                            }
+                            } 
                             if (pattern == 0 && request != null)
                             {
                                 netConfig.ClientRequestReceive(serverKey, token, request);
@@ -141,9 +142,10 @@ namespace EtherealS.NativeServer
             buffer.ResetReaderIndex();
             buffer.ResetWriterIndex();
             //充分退出，说明可能存在一定的空间浪费
-            if (buffer.Capacity > config.BufferSize && config.DynamicAdjustBufferCount != -1  && dynamicAdjustBufferCount-- == 0)
+            if (buffer.Capacity > config.BufferSize && dynamicAdjustBufferCount-- == 0)
             {
                 buffer.AdjustCapacity(config.BufferSize);
+                dynamicAdjustBufferCount = config.DynamicAdjustBufferCount;
                 EventArgs.SetBuffer(buffer.Array,0,buffer.Capacity);
             }
             else EventArgs.SetBuffer(0, buffer.Capacity);

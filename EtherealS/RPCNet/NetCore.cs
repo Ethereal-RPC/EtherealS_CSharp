@@ -57,7 +57,7 @@ namespace EtherealS.RPCNet
             Console.WriteLine($"{DateTime.Now}::{key.Item1}:{key.Item2}::[客-请求]\n{request}");
             Console.WriteLine("--------------------------------------------------");
 #endif
-            if (ServiceCore.Get(new Tuple<string, string, string>(request.Service,key.Item1, key.Item2), out Service service))
+            if (ServiceCore.Get(new Tuple<string, string, string>(key.Item1, key.Item2,request.Service), out Service service))
             {
                 if (service.Methods.TryGetValue(request.MethodId, out MethodInfo method))
                 {

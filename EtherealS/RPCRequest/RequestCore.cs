@@ -7,9 +7,9 @@ namespace EtherealS.RPCRequest
     public class RequestCore
     {
         private static Dictionary<Tuple<string, string, string>, Request> requests { get; } = new Dictionary<Tuple<string, string, string>, Request>();
-        public static bool Get(string ip,string port, string requestname, out Request reqeust)
+        public static bool Get(string ip,string port, string servicename, out Request reqeust)
         {
-            return Get(new Tuple<string, string, string>( ip, port, requestname),out reqeust);
+            return Get(new Tuple<string, string, string>( ip, port, servicename),out reqeust);
         }
         public static bool Get(Tuple<string, string, string> key, out Request reqeust)
         {

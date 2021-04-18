@@ -9,13 +9,13 @@ namespace EtherealS.RPCRequest
 {
     public class Request : DispatchProxy
     {
-        private string requestname;
+        private string servicename;
         private Tuple<string, string> serverkey;
         private RequestConfig config;
-        public static Request Register<T>(Tuple<string, string> clientkey, string requestname, RequestConfig config)
+        public static Request Register<T>(Tuple<string, string> clientkey, string servicename, RequestConfig config)
         {
             Request proxy = Create<T, Request>() as Request;
-            proxy.requestname = requestname;
+            proxy.servicename = servicename;
             proxy.serverkey = clientkey ?? throw new ArgumentNullException(nameof(clientkey));
             proxy.config = config;
             return proxy;
@@ -69,13 +69,13 @@ namespace EtherealS.RPCRequest
                     }
 
                 }
-                ServerRequestModel request = new ServerRequestModel("2.0", requestname, methodid.ToString(), obj);
+                ServerRequestModel request = new ServerRequestModel("2.0", servicename, methodid.ToString(), obj);
                 if (args[0] != null && (args[0] as BaseUserToken).Net != null)
                 {
                     if (NetCore.Get(serverkey, out NetConfig netConfig))
                     {
                         throw new RPCException(RPCException.ErrorCode.RuntimeError,
-                            $"{requestname}服务在发送请求时，NetConfig为空！");
+                            $"{servicename}服务在发送请求时，NetConfig为空！");
                     }
                     netConfig.ServerRequestSend((args[0] as BaseUserToken), request);
                     return null;

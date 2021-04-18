@@ -85,7 +85,7 @@ namespace EtherealS.NativeServer
                             if (!NetCore.Get(serverKey, out NetConfig netConfig))
                             {
                                 throw new RPCException(RPCException.ErrorCode.RuntimeError, "未找到NetCore");
-                            } 
+                            }
                             if (pattern == 0 && request != null)
                             {
                                 netConfig.ClientRequestReceive(serverKey, token, request);

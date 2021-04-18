@@ -16,17 +16,19 @@ namespace EtherealS.RPCService
         private ServiceConfig config;
         private int paramStart;
         private object instance;
-        private Tuple<string, string, string> key;
+        private Tuple<string, string> clientkey;
+        private string service_name;
         public Dictionary<string, MethodInfo> Methods { get => methods; set => methods = value; }
         public ServiceConfig Config { get => config; set => config = value; }
         public object Instance { get => instance; set => instance = value; }
-        public Tuple<string, string, string> Key { get => key; set => key = value; }
+        public Tuple<string, string> Clientkey { get => clientkey; set => clientkey = value; }
 
-        public void Register(Tuple<string, string, string> key,object instance,ServiceConfig config)
+        public void Register(Tuple<string, string> clientkey, string service_name,object instance,ServiceConfig config)
         {
             this.config = config;
             this.instance = instance;
-            this.key = key;
+            this.clientkey = clientkey;
+            this.service_name = service_name;
             if (config.TokenEnable) paramStart = 1;
             else paramStart = 0;
 

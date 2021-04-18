@@ -67,6 +67,7 @@ namespace EtherealS.NativeServer
                 netConfig.ClientResponseSend = SendClientResponse;
                 netConfig.ServerRequestSend = SendServerRequest;
             }
+            else throw new RPCException(RPCException.ErrorCode.RegisterError,$"{serverKey}无法找到NetConfig");
         }
 
         public void Start()
@@ -230,7 +231,7 @@ namespace EtherealS.NativeServer
                 Console.WriteLine("---------------------------------------------------------");
 #endif
                 //构造data数据
-                byte[] bodyBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response));
+                byte[] bodyBytes = config.Encoding.GetBytes(JsonConvert.SerializeObject(response));
                 //构造表头数据，固定4个字节的长度，表示内容的长度
                 byte[] headerBytes = BitConverter.GetBytes(bodyBytes.Length);
                 byte[] pattern = { 1 };
@@ -247,6 +248,10 @@ namespace EtherealS.NativeServer
                 sendEventArgs.SetBuffer(sendBuffer, 0, sendBuffer.Length);
                 (token.Net as SocketAsyncEventArgs).AcceptSocket.SendAsync(sendEventArgs);
             }
+            else
+            {
+                throw new SocketException((Int32)SocketError.NotConnected);
+            }
         }
         private void SendServerRequest(BaseUserToken token,ServerRequestModel request)
         {
@@ -258,7 +263,7 @@ namespace EtherealS.NativeServer
                 Console.WriteLine("---------------------------------------------------------");
 #endif
                 //构造data数据
-                byte[] bodyBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request));
+                byte[] bodyBytes = config.Encoding.GetBytes(JsonConvert.SerializeObject(request));
                 //构造表头数据，固定4个字节的长度，表示内容的长度
                 byte[] headerBytes = BitConverter.GetBytes(bodyBytes.Length);
                 byte[] pattern = { 0 };

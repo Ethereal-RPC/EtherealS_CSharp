@@ -47,7 +47,7 @@ namespace EtherealS.RPCService
                 try
                 {
                     service = new Service();
-                    service.Register(key,instance,config);
+                    service.Register(new Tuple<string, string>(ip,port),servicename,instance,config);
                     services[key] = service;
                     Console.WriteLine($"{servicename}-{ip}-{port} Load Success!");
                 }

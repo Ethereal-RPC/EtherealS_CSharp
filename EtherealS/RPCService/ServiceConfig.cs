@@ -14,13 +14,11 @@ namespace EtherealS.RPCService
         #endregion
 
         #region --字段--
-        private bool tokenEnable = true;
         private RPCType type;
         private bool authoritable = false;
         #endregion
 
         #region --属性--
-        public bool TokenEnable { get => tokenEnable; set => tokenEnable = value; }
         public RPCType Type { get => type; set => type = value; }
         public bool Authoritable { get => authoritable; set => authoritable = value; }
         #endregion
@@ -34,7 +32,6 @@ namespace EtherealS.RPCService
         public ServiceConfig(RPCType type, bool tokenEnable)
         {
             this.type = type;
-            this.tokenEnable = tokenEnable;
         }
         public bool OnInterceptor(Service service, MethodInfo method, BaseUserToken token)
         {

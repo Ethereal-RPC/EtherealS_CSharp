@@ -61,12 +61,12 @@ namespace EtherealS.RPCNet
             {
                 if (service.Methods.TryGetValue(request.MethodId, out MethodInfo method))
                 {
-                    if (NetCore.Get(key, out NetConfig netConfig))
+                    if (Get(key, out NetConfig netConfig))
                     {
                         if (netConfig.OnInterceptor(service, method, token) &&
                             service.Config.OnInterceptor(service, method, token))
                         {
-                            if (service.Config.TokenEnable && request.Params.Length >= 1) request.Params[0] = token;
+                            if (method.GetParameters().Length != request.Params.Length) request.Params[0] = token;
                             object result = method.Invoke(service.Instance, request.Params);
                             Type return_type = method.ReturnType;
                             if (return_type != typeof(void))

@@ -66,6 +66,17 @@ namespace EtherealS.RPCNet
                         if (netConfig.OnInterceptor(service, method, token) &&
                             service.Config.OnInterceptor(service, method, token))
                         {
+                            //转换参数
+                            string[] param_id = request.MethodId.Split('-');
+                            for (int i = 1; i < param_id.Length; i++)
+                            {
+                                if (service.Config.Type.TypeConvert.TryGetValue(param_id[i], out RPCType.ConvertDelegage convert))
+                                {
+                                    request.Params[i] = convert((string)request.Params[i]);
+                                }
+                                else throw new RPCException($"RPC中的{param_id[i]}类型转换器在TypeConvert字典中尚未被注册");
+                            }
+
                             if (method.GetParameters().Length == request.Params.Length) request.Params[0] = token;
                             else
                             {

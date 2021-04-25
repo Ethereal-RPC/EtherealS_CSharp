@@ -14,7 +14,6 @@ namespace EtherealS.RPCService
         //string连接的时候使用引用要比tuple慢很多
         private Dictionary<string, MethodInfo> methods = new Dictionary<string, MethodInfo>();
         private ServiceConfig config;
-        private int paramStart;
         private object instance;
         private Tuple<string, string> clientkey;
         private string service_name;
@@ -47,11 +46,7 @@ namespace EtherealS.RPCService
                         ParameterInfo[] parameters = method.GetParameters();
                         if (rpcAttribute.Paramters == null)
                         {
-                            if (paramStart == 1 && (parameters[0].ParameterType.IsAssignableFrom(typeof(BaseUserToken))))
-                            {
-                                throw new RPCException($"{method.Name}方法中的首参数并非继承于BaseUserToken!");
-                            }
-                            for (int i = paramStart; i < parameters.Length; i++)
+                            for (int i = 1; i < parameters.Length; i++)
                             {   
                                 try
                                 {
@@ -66,7 +61,7 @@ namespace EtherealS.RPCService
                         else
                         {
                             string[] types_name = rpcAttribute.Paramters;
-                            if(parameters.Length == types_name.Length + paramStart)
+                            if(parameters.Length == types_name.Length + 1)
                             {
                                 for (int i = 0; i < types_name.Length; i++)
                                 {
@@ -77,7 +72,7 @@ namespace EtherealS.RPCService
                                     else throw new RPCException($"C#对应的{types_name[i]}类型参数尚未注册"); 
                                 }
                             }
-                            else throw new RPCException($"方法体{method.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length + paramStart}个,Method:{parameters.Length}个");
+                            else throw new RPCException($"方法体{method.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length + 1}个,Method:{parameters.Length}个");
                         }
                         string name =  methodid.ToString();
                         if (methods.TryGetValue(name,out MethodInfo methodInfo))
@@ -87,21 +82,6 @@ namespace EtherealS.RPCService
                         Methods.TryAdd(name, method);
                         methodid.Length = 0;
                     }
-                }
-            }
-        }
-
-        public void ConvertParams(string methodId,object[] parameters)
-        {
-            string[] param_id = methodId.Split('-');
-            if (param_id.Length > 1) {
-                for (int i = paramStart; i < param_id.Length; i++)
-                {
-                    if (config.Type.TypeConvert.TryGetValue(param_id[i], out RPCType.ConvertDelegage convert))
-                    {
-                        parameters[i] = convert((string)parameters[i]);
-                    }
-                    else throw new RPCException($"RPC中的{param_id[i]}类型转换器在TypeConvert字典中尚未被注册");
                 }
             }
         }

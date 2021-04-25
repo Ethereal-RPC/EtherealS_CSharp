@@ -15,7 +15,7 @@ namespace EtherealS.RPCRequest
         {
             return requests.TryGetValue(key, out reqeust);
         }
-        public static R Register<R>(string ip, string port, string servicename, RPCType type)
+        public static R Register<R>(string ip, string port, string servicename, RPCTypeConfig type)
         {
             if (type is null)
             {
@@ -45,9 +45,9 @@ namespace EtherealS.RPCRequest
                 throw new ArgumentException("参数为空", nameof(port));
             }
 
-            if (config.Type is null)
+            if (config.Types is null)
             {
-                throw new ArgumentNullException(nameof(config.Type));
+                throw new ArgumentNullException(nameof(config.Types));
             }
             Tuple<string, string, string> key = new Tuple<string, string, string>(ip, port, servicename);
             requests.TryGetValue(key,out Request request);

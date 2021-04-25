@@ -14,7 +14,7 @@ namespace EtherealS.RPCService
         {
             return services.TryGetValue(key, out service);
         }
-        public static void Register(object instance, string ip, string port, string servicename, RPCType type)
+        public static void Register(object instance, string ip, string port, string servicename, RPCTypeConfig type)
         {
             Register(instance,ip,port, servicename, new ServiceConfig(type));
         }
@@ -35,9 +35,9 @@ namespace EtherealS.RPCService
                 throw new ArgumentException("参数为空", nameof(port));
             }
 
-            if (config.Type is null)
+            if (config.Types is null)
             {
-                throw new ArgumentNullException(nameof(config.Type));
+                throw new ArgumentNullException(nameof(config.Types));
             }
 
             Tuple<string, string, string> key = new Tuple<string, string, string>(ip, port,servicename);
@@ -70,7 +70,7 @@ namespace EtherealS.RPCService
         {
             Register(new T(), hostname, port, servicename, config);
         }
-        public static void Register<T>( string hostname, string port, string servicename, RPCType type) where T : new()
+        public static void Register<T>( string hostname, string port, string servicename, RPCTypeConfig type) where T : new()
         {
             Register(new T(),hostname, port, servicename, new ServiceConfig(type));
         }

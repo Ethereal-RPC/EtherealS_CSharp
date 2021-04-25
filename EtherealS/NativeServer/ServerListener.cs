@@ -231,7 +231,7 @@ namespace EtherealS.NativeServer
                 Console.WriteLine("---------------------------------------------------------");
 #endif
                 //构造data数据
-                byte[] bodyBytes = config.Encoding.GetBytes(JsonConvert.SerializeObject(response));
+                byte[] bodyBytes = config.Encoding.GetBytes(config.ClientResponseModelSerialize(response));
                 //构造表头数据，固定4个字节的长度，表示内容的长度
                 byte[] headerBytes = BitConverter.GetBytes(bodyBytes.Length);
                 byte[] pattern = { 1 };
@@ -263,7 +263,7 @@ namespace EtherealS.NativeServer
                 Console.WriteLine("---------------------------------------------------------");
 #endif
                 //构造data数据
-                byte[] bodyBytes = config.Encoding.GetBytes(JsonConvert.SerializeObject(request));
+                byte[] bodyBytes = config.Encoding.GetBytes(config.ServerRequestModelSerialize(request));
                 //构造表头数据，固定4个字节的长度，表示内容的长度
                 byte[] headerBytes = BitConverter.GetBytes(bodyBytes.Length);
                 byte[] pattern = { 0 };

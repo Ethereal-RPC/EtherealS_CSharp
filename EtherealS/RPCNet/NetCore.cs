@@ -70,9 +70,9 @@ namespace EtherealS.RPCNet
                             string[] param_id = request.MethodId.Split('-');
                             for (int i = 1; i < param_id.Length; i++)
                             {
-                                if (service.Config.Type.TypeConvert.TryGetValue(param_id[i], out RPCType.ConvertDelegage convert))
+                                if (service.Config.Types.RPCTypesByName.TryGetValue(param_id[i], out RPCType type))
                                 {
-                                    request.Params[i] = convert((string)request.Params[i]);
+                                    request.Params[i] = type.Deserialize((string)request.Params[i]);
                                 }
                                 else throw new RPCException($"RPC中的{param_id[i]}类型转换器在TypeConvert字典中尚未被注册");
                             }
@@ -91,8 +91,8 @@ namespace EtherealS.RPCNet
                             Type return_type = method.ReturnType;
                             if (return_type != typeof(void))
                             {
-                                service.Config.Type.AbstractName.TryGetValue(return_type, out string type);
-                                netConfig.ClientResponseSend(token, new ClientResponseModel("2.0", JsonConvert.SerializeObject(result), type, request.Id, request.Service, null));
+                                service.Config.Types.RPCTypesByType.TryGetValue(return_type, out RPCType type);
+                                netConfig.ClientResponseSend(token, new ClientResponseModel("2.0", JsonConvert.SerializeObject(result), type.Name, request.Id, request.Service, null));
                             }
                         }
                     }

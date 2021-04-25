@@ -50,7 +50,7 @@ namespace EtherealS.RPCService
                             {   
                                 try
                                 {
-                                    methodid.Append("-" + config.Type.AbstractName[parameters[i].ParameterType]);
+                                    methodid.Append("-" + config.Types.RPCTypesByType[parameters[i].ParameterType]);
                                 }
                                 catch (Exception)
                                 {
@@ -65,7 +65,7 @@ namespace EtherealS.RPCService
                             {
                                 for (int i = 0; i < types_name.Length; i++)
                                 {
-                                    if(config.Type.AbstractType.ContainsKey(types_name[i]))
+                                    if(config.Types.RPCTypesByName.ContainsKey(types_name[i]))
                                     {
                                         methodid.Append("-").Append(types_name[i]);
                                     }

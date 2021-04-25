@@ -80,7 +80,7 @@ namespace EtherealS.NativeServer
                         ClientRequestModel request = null;
                         try
                         {
-                            request = JsonConvert.DeserializeObject<ClientRequestModel>(buffer.GetString(buffer.ReaderIndex + headsize, body_length, config.Encoding));
+                            request = config.ClientRequestModelDeserialize(buffer.GetString(buffer.ReaderIndex + headsize, body_length, config.Encoding));
                             buffer.SetReaderIndex(buffer.ReaderIndex + length);
                             if (!NetCore.Get(serverKey, out NetConfig netConfig))
                             {

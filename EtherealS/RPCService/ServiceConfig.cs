@@ -14,24 +14,24 @@ namespace EtherealS.RPCService
         #endregion
 
         #region --字段--
-        private RPCType type;
+        private RPCTypeConfig types;
         private bool authoritable = false;
         #endregion
 
         #region --属性--
-        public RPCType Type { get => type; set => type = value; }
+        public RPCTypeConfig Types { get => types; set => types = value; }
         public bool Authoritable { get => authoritable; set => authoritable = value; }
         #endregion
 
         #region --方法--
-        public ServiceConfig(RPCType type)
+        public ServiceConfig(RPCTypeConfig type)
         {
-            this.type = type;
+            this.types = type;
         }
 
-        public ServiceConfig(RPCType type, bool tokenEnable)
+        public ServiceConfig(RPCTypeConfig type, bool tokenEnable)
         {
-            this.type = type;
+            this.types = type;
         }
         public bool OnInterceptor(Service service, MethodInfo method, BaseUserToken token)
         {

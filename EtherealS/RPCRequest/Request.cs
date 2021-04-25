@@ -39,15 +39,13 @@ namespace EtherealS.RPCRequest
                         ParameterInfo[] parameters = targetMethod.GetParameters();
                         for (int i = 1; i < param_count; i++)
                         {
-                            try
+                            if(config.Types.RPCTypesByType.TryGetValue(parameters[i].ParameterType,out RPCType type))
                             {
-                                methodid.Append("-" + config.Type.AbstractName[parameters[i].ParameterType]);
-                                obj[i - 1] = JsonConvert.SerializeObject(args[i]);
+                                
+                                methodid.Append("-" + type.Name);
+                                obj[i - 1] = type.Serialize(args[i]);
                             }
-                            catch (Exception)
-                            {
-                                throw new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册");
-                            }
+                            else throw new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册");
                         }
                     }
                     else
@@ -57,12 +55,12 @@ namespace EtherealS.RPCRequest
                         {
                             for (int i = 1; i < param_count; i++)
                             {
-                                if (config.Type.AbstractType.ContainsKey(types_name[i]))
+                                if (config.Types.RPCTypesByName.TryGetValue(types_name[i], out RPCType type))
                                 {
-                                    methodid.Append("-" + types_name[i]);
-                                    obj[i - 1] = JsonConvert.SerializeObject(args[i]);
+                                    methodid.Append("-" + type.Name);
+                                    obj[i - 1] = type.Serialize(args[i]);
                                 }
-                                else throw new RPCException($"C#对应的{types_name[i]}-{args[i].GetType()}类型参数尚未注册");
+                                else throw new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册");
                             }
                         }
                         else throw new RPCException($"方法体{targetMethod.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length}个,Method:{param_count}个");

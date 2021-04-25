@@ -9,7 +9,7 @@ namespace EtherealS_Test
     {
         public bool test()
         { 
-            RPCType types = new RPCType();
+            RPCTypeConfig types = new RPCTypeConfig();
             types.Add<string>("String");
             string ip = "127.0.0.1";
             string port = "28015";

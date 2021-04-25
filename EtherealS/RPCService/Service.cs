@@ -29,9 +29,6 @@ namespace EtherealS.RPCService
             this.instance = instance;
             this.clientkey = clientkey;
             this.service_name = service_name;
-            if (config.TokenEnable) paramStart = 1;
-            else paramStart = 0;
-
             //检查权限接口是否开启并实现
             if (config.Authoritable && !(instance is IAuthoritable))
             {

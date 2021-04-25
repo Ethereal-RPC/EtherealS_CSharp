@@ -39,7 +39,7 @@ namespace EtherealS.RPCRequest
                         ParameterInfo[] parameters = targetMethod.GetParameters();
                         for (int i = 1; i < param_count; i++)
                         {
-                            if(config.Types.RPCTypesByType.TryGetValue(parameters[i].ParameterType,out RPCType type))
+                            if(config.Types.TypesByType.TryGetValue(parameters[i].ParameterType,out RPCType type))
                             {
                                 
                                 methodid.Append("-" + type.Name);
@@ -55,7 +55,7 @@ namespace EtherealS.RPCRequest
                         {
                             for (int i = 1; i < param_count; i++)
                             {
-                                if (config.Types.RPCTypesByName.TryGetValue(types_name[i], out RPCType type))
+                                if (config.Types.TypesByName.TryGetValue(types_name[i], out RPCType type))
                                 {
                                     methodid.Append("-" + type.Name);
                                     obj[i - 1] = type.Serialize(args[i]);

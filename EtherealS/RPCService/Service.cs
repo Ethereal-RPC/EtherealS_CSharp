@@ -46,11 +46,13 @@ namespace EtherealS.RPCService
                         ParameterInfo[] parameters = method.GetParameters();
                         if (rpcAttribute.Paramters == null)
                         {
-                            for (int i = 1; i < parameters.Length; i++)
+                            int start = 0;
+                            if (parameters.Length > 0 && parameters[0].GetType().IsAssignableFrom(typeof(BaseUserToken)) && rpcAttribute.Token) start = 1;
+                            for (int i = start; i < parameters.Length; i++)
                             {   
                                 try
                                 {
-                                    methodid.Append("-" + config.Types.RPCTypesByType[parameters[i].ParameterType]);
+                                    methodid.Append("-" + config.Types.TypesByType[parameters[i].ParameterType]);
                                 }
                                 catch (Exception)
                                 {
@@ -65,7 +67,7 @@ namespace EtherealS.RPCService
                             {
                                 for (int i = 0; i < types_name.Length; i++)
                                 {
-                                    if(config.Types.RPCTypesByName.ContainsKey(types_name[i]))
+                                    if(config.Types.TypesByName.ContainsKey(types_name[i]))
                                     {
                                         methodid.Append("-").Append(types_name[i]);
                                     }

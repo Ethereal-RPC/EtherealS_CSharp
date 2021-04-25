@@ -66,33 +66,33 @@ namespace EtherealS.RPCNet
                         if (netConfig.OnInterceptor(service, method, token) &&
                             service.Config.OnInterceptor(service, method, token))
                         {
-                            //转换参数
-                            string[] param_id = request.MethodId.Split('-');
-                            for (int i = 1; i < param_id.Length; i++)
+                            string[] params_id = request.MethodId.Split('-');
+                            for (int i = 1; i < params_id.Length; i++)
                             {
-                                if (service.Config.Types.RPCTypesByName.TryGetValue(param_id[i], out RPCType type))
+                                if (service.Config.Types.TypesByName.TryGetValue(params_id[i], out RPCType type))
                                 {
                                     request.Params[i] = type.Deserialize((string)request.Params[i]);
                                 }
-                                else throw new RPCException($"RPC中的{param_id[i]}类型转换器在TypeConvert字典中尚未被注册");
+                                else throw new RPCException($"RPC中的{params_id[i]}类型中尚未被注册");
                             }
 
                             if (method.GetParameters().Length == request.Params.Length) request.Params[0] = token;
-                            else
+                            else if (request.Params.Length > 1)
                             {
-                                object[] param = new object[request.Params.Length - 1];
-                                for (int i = 0; i < param.Length; i++)
+                                object[] new_params = new object[request.Params.Length - 1];
+                                for (int i = 0; i < new_params.Length; i++)
                                 {
-                                    param[i] = request.Params[i + 1];
-                                    request.Params = param;
+                                    new_params[i] = request.Params[i + 1];
+                                    request.Params = new_params;
                                 }
                             }
+
                             object result = method.Invoke(service.Instance, request.Params);
                             Type return_type = method.ReturnType;
                             if (return_type != typeof(void))
                             {
-                                service.Config.Types.RPCTypesByType.TryGetValue(return_type, out RPCType type);
-                                netConfig.ClientResponseSend(token, new ClientResponseModel("2.0", JsonConvert.SerializeObject(result), type.Name, request.Id, request.Service, null));
+                                service.Config.Types.TypesByType.TryGetValue(return_type, out RPCType type);
+                                netConfig.ClientResponseSend(token, new ClientResponseModel("2.0", type.Serialize(result), type.Name, request.Id, request.Service, null));
                             }
                         }
                     }

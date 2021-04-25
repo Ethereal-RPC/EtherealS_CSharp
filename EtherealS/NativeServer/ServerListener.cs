@@ -238,7 +238,7 @@ namespace EtherealS.NativeServer
                 //预备未来的一些数据
                 byte[] future = new byte[27];
                 //总计需要
-                byte[] sendBuffer = new byte[headerBytes.Length + pattern.Length + future.Length + bodyBytes.Length];
+                byte[] sendBuffer = new byte[32 + bodyBytes.Length];
                 //拷贝到同一个byte[]数组中
                 Buffer.BlockCopy(headerBytes, 0, sendBuffer, 0, headerBytes.Length);
                 Buffer.BlockCopy(pattern, 0, sendBuffer, headerBytes.Length, pattern.Length);
@@ -270,7 +270,7 @@ namespace EtherealS.NativeServer
                 //预备未来的一些数据
                 byte[] future = new byte[27];
                 //总计需要
-                byte[] sendBuffer = new byte[headerBytes.Length + pattern.Length + future.Length + bodyBytes.Length];
+                byte[] sendBuffer = new byte[32 + bodyBytes.Length];
                 ///拷贝到同一个byte[]数组中
                 Buffer.BlockCopy(headerBytes, 0, sendBuffer, 0, headerBytes.Length);
                 Buffer.BlockCopy(pattern, 0, sendBuffer, headerBytes.Length, pattern.Length);

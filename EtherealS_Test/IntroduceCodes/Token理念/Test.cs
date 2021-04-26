@@ -6,5 +6,6 @@ namespace EtherealS_Test.IntroduceCodes
 {
     class Test
     {
+        
     }
 }

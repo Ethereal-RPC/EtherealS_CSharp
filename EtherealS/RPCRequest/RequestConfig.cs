@@ -2,9 +2,15 @@
 
 namespace EtherealS.RPCRequest
 {
+    /// <summary>
+    /// 服务请求配置项
+    /// </summary>
     public class RequestConfig
     {
         #region --字段--
+        /// <summary>
+        /// 中间层抽象数据类配置项
+        /// </summary>
         private RPCTypeConfig types;
         #endregion
 

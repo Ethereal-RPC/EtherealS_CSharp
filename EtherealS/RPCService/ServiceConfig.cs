@@ -3,6 +3,9 @@ using EtherealS.Model;
 
 namespace EtherealS.RPCService
 {
+    /// <summary>
+    /// 服务配置项
+    /// </summary>
     public class ServiceConfig
     {
         #region --委托--
@@ -10,11 +13,20 @@ namespace EtherealS.RPCService
         #endregion
 
         #region --事件--
+        /// <summary>
+        /// 拦截器事件
+        /// </summary>
         public event InterceptorDelegate InterceptorEvent;
         #endregion
 
         #region --字段--
+        /// <summary>
+        /// 中间层抽象数据类配置项
+        /// </summary>
         private RPCTypeConfig types;
+        /// <summary>
+        /// 权限检查开启开关
+        /// </summary>
         private bool authoritable = false;
         #endregion
 

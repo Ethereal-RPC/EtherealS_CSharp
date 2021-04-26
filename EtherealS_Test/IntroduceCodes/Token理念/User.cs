@@ -5,6 +5,7 @@ using System.Text;
 
 namespace EtherealS_Test.IntroduceCodes
 {
+    /*User继承Token基类，只需简单实现Key[唯一凭据即可]，另若无需存储，Key置空操作即可。*/
     public class User : BaseUserToken
     {
         #region --字段--

@@ -5,6 +5,7 @@ using System.Text;
 
 namespace EtherealS_Test.IntroduceCodes
 {
+    /* 客户端远程请求接口 */
     public interface UserRequest
     {
         [RPCRequest]

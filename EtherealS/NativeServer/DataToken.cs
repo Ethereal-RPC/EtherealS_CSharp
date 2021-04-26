@@ -14,7 +14,7 @@ namespace EtherealS.NativeServer
         #endregion
         private SocketAsyncEventArgs eventArgs;
         private DotNetty.Buffers.IByteBuffer buffer;
-        private int dynamicAdjustBufferCount = 1;
+        private uint dynamicAdjustBufferCount = 1;
         //下面两部分只负责接收部分，发包构造部分并没有使用，修改时请注意！
         //下面这部分用于拆包分析   
         private static int headsize = 32;//头包长度

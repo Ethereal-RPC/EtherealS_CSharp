@@ -7,10 +7,6 @@ namespace EtherealS_Test
 {
     public class Service
     {
-        [RPCService]
-        public string Hello(Token token,string str)
-        {
-            return str + "你好！";
-        }
+
     }
 }

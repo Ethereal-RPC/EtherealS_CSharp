@@ -2,12 +2,30 @@
 
 namespace EtherealS.Model
 {
+    /// <summary>
+    /// 客户端请求模型
+    /// </summary>
     public class ClientRequestModel
     {
+        /// <summary>
+        /// Ethereal-RPC 版本
+        /// </summary>
         private string jsonRpc;
+        /// <summary>
+        /// 方法ID
+        /// </summary>
         private string methodId;
+        /// <summary>
+        /// 方法参数
+        /// </summary>
         private object[] @params;
+        /// <summary>
+        /// 请求ID
+        /// </summary>
         private string id;
+        /// <summary>
+        /// 请求服务
+        /// </summary>
         private string service;
 
         public string JsonRpc { get => jsonRpc; set => jsonRpc = value; }

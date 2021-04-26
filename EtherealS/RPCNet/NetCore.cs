@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 namespace EtherealS.RPCNet
 {
     /// <summary>
-    /// 客户端工厂
+    /// 网关核心
     /// </summary>
     public class NetCore
     {

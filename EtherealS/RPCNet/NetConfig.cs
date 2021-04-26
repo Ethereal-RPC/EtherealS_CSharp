@@ -6,8 +6,14 @@ using EtherealS.RPCService;
 
 namespace EtherealS.RPCNet
 {
+    /// <summary>
+    /// Ethereal网关
+    /// </summary>
     public class NetConfig
     {
+        /// <summary>
+        /// Tokens映射表
+        /// </summary>
         private ConcurrentDictionary<object, BaseUserToken> tokens = new ConcurrentDictionary<object, BaseUserToken>();
         #region --委托--
         public delegate bool InterceptorDelegate(Service service,MethodInfo method,BaseUserToken token);
@@ -18,12 +24,24 @@ namespace EtherealS.RPCNet
         #endregion
 
         #region --事件--
+        /// <summary>
+        /// 网络级拦截器事件
+        /// </summary>
         public event InterceptorDelegate InterceptorEvent;
         #endregion
 
         #region --字段--
+        /// <summary>
+        /// 收到客户端请求委托实现
+        /// </summary>
         private ClientRequestReceiveDelegate clientRequestReceive;
+        /// <summary>
+        /// 发送服务器请求委托实现
+        /// </summary>
         private ServerRequestSendDelegate serverRequestSend;
+        /// <summary>
+        /// 客户端请求返回委托实现
+        /// </summary>
         private ClientResponseSendDelegate clientResponseSend;
         #endregion
 

@@ -1,10 +1,22 @@
 ﻿namespace EtherealS.Model
 {
+    /// <summary>
+    /// 网络传输错误类
+    /// </summary>
     public class Error
     {
         public enum ErrorCode { Intercepted }
+        /// <summary>
+        /// 错误代码
+        /// </summary>
         public ErrorCode Code { get; set; }
+        /// <summary>
+        /// 错误信息
+        /// </summary>
         public string Message { get; set; }
+        /// <summary>
+        /// 绑定数据
+        /// </summary>
         public string Data { get; set; }
 
         public Error(ErrorCode code, string message, string data)

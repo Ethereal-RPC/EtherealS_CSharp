@@ -46,9 +46,7 @@ namespace EtherealS.RPCService
                         ParameterInfo[] parameters = method.GetParameters();
                         if (rpcAttribute.Paramters == null)
                         {
-                            int start = 0;
-                            if (parameters.Length > 0 && parameters[0].GetType().IsAssignableFrom(typeof(BaseUserToken)) && rpcAttribute.Token) start = 1;
-                            for (int i = start; i < parameters.Length; i++)
+                            for (int i = 1; i < parameters.Length; i++)
                             {   
                                 try
                                 {

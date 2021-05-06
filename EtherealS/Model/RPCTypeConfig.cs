@@ -22,51 +22,20 @@ namespace EtherealS.Model
         {
 
         }
-        /// <summary>
-        /// 注册RPCType
-        /// </summary>
-        /// <typeparam name="T">映射类</typeparam>
-        /// <param name="typeName">映射名</param>
         public void Add<T>(string typeName)
         {
-            try
-            {
-                RPCType type = new RPCType();
-                
-                type.Type = typeof(T);
-                type.Serialize = obj => JsonConvert.SerializeObject(obj);
-                type.Deserialize = obj => JsonConvert.DeserializeObject<T>(obj);
-                TypesByName.Add(typeName, type);
-                TypesByType.Add(typeof(T), type);
-            }
-            catch (Exception)
-            {
-                if (TypesByName.ContainsKey(typeName) || TypesByType.ContainsKey(typeof(T))) Console.WriteLine($"注册类型:{typeof(T)}转{typeName}发生异常");
-            }
+            Add<T>(typeName, obj => JsonConvert.SerializeObject(obj), obj => JsonConvert.DeserializeObject<T>(obj));
         }
-        /// <summary>
-        /// 注册RPCType
-        /// </summary>
-        /// <typeparam name="T">映射类</typeparam>
-        /// <param name="typeName">映射名</param>
-        /// <param name="serializDelegage">序列化委托实现</param>
-        /// <param name="deserializeDelegage">逆序列化委托实现</param>
         public void Add<T>(string typeName, RPCType.SerializeDelegage serializDelegage, RPCType.DeserializeDelegage deserializeDelegage)
         {
-            try
-            {
-                RPCType type = new RPCType();
-                if (serializDelegage == null) type.Serialize = obj => JsonConvert.SerializeObject(obj);
-                else type.Serialize = serializDelegage;
-                if (deserializeDelegage == null) type.Deserialize = obj => JsonConvert.DeserializeObject<T>(obj);
-                else type.Deserialize = deserializeDelegage;
-                TypesByName.Add(typeName, type);
-                TypesByType.Add(typeof(T), type);
-            }
-            catch (Exception)
-            {
-                if (TypesByName.ContainsKey(typeName) || TypesByType.ContainsKey(typeof(T))) Console.WriteLine($"注册类型:{typeof(T)}转{typeName}发生异常");
-            }
+            RPCType type = new RPCType();
+            type.Name = typeName;
+            type.Type = typeof(T);
+            if (serializDelegage == null) type.Serialize = obj => JsonConvert.SerializeObject(obj);
+            else type.Serialize = serializDelegage;
+            if (deserializeDelegage == null) type.Deserialize = obj => JsonConvert.DeserializeObject<T>(obj);
+            else type.Deserialize = deserializeDelegage;
+            Add(type);
         }
         /// <summary>
         /// 注册RPCType

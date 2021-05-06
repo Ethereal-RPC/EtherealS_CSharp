@@ -67,18 +67,29 @@ namespace EtherealS.NativeServer
                 netConfig.ClientResponseSend = SendClientResponse;
                 netConfig.ServerRequestSend = SendServerRequest;
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError,$"{serverKey}无法找到NetConfig");
+            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError,$"{serverKey}无法找到NetConfig"));
         }
 
         public void Start()
         {
             for (int i = 0; i < config.NumChannels; i++)
             {
-                Thread thread = new Thread(() => StartAccept(null));
+                Thread thread = new Thread(() =>
+                {
+                    try
+                    {
+                        StartAccept(null);
+                    }
+                    catch(Exception e)
+                    {
+                        config.OnException(e);
+                    }
+                });
                 thread.Name = i.ToString();
                 thread.Start();
             }
         }
+
         public bool CloseClientSocket(SocketAsyncEventArgs e)
         {
             try
@@ -99,7 +110,7 @@ namespace EtherealS.NativeServer
                 {
                     netConfig.Tokens.TryRemove((e.UserToken as DataToken).Token.Key, out BaseUserToken value);
                 }
-                else throw new RPCException(RPCException.ErrorCode.RuntimeError, "未找到NetConfig");
+                else config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, "未找到NetConfig"));
             }
             (e.UserToken as DataToken).DisConnect();
             this.readWritePool.Push(e.UserToken as DataToken);
@@ -143,7 +154,6 @@ namespace EtherealS.NativeServer
             }
             catch (SocketException ex)
             {
-                DataToken token = e.UserToken as DataToken;
                 Console.WriteLine("Error when processing data received from {0}:\r\n{1}", e.RemoteEndPoint, ex.ToString());
             }
             catch (Exception ex)
@@ -225,11 +235,10 @@ namespace EtherealS.NativeServer
         {
             if (token!=null && token.Net != null && (token.Net as SocketAsyncEventArgs).AcceptSocket.Connected)
             {
-#if DEBUG
-                Console.WriteLine("---------------------------------------------------------");
-                Console.WriteLine($"{DateTime.Now}::{serverKey.Item1}:{serverKey.Item2}::[服-返回]\n{response}");
-                Console.WriteLine("---------------------------------------------------------");
-#endif
+                string log = "--------------------------------------------------\n" +
+                            $"{DateTime.Now}::{serverKey.Item1}:{serverKey.Item2}::[服-返回]\n{response}" +
+                            "--------------------------------------------------\n";
+                config.OnLog(RPCLog.LogCode.Runtime, log);
                 //构造data数据
                 byte[] bodyBytes = config.Encoding.GetBytes(config.ClientResponseModelSerialize(response));
                 //构造表头数据，固定4个字节的长度，表示内容的长度
@@ -257,11 +266,10 @@ namespace EtherealS.NativeServer
         {
             if (token != null && token.Net != null && (token.Net as SocketAsyncEventArgs).AcceptSocket.Connected)
             {
-#if DEBUG
-                Console.WriteLine("---------------------------------------------------------");
-                Console.WriteLine($"{DateTime.Now}::{serverKey.Item1}:{serverKey.Item2}::[服-指令]\n{request}");
-                Console.WriteLine("---------------------------------------------------------");
-#endif
+                string log = "--------------------------------------------------\n" +
+                            $"{DateTime.Now}::{serverKey.Item1}:{serverKey.Item2}::[服-指令]\n{request}" +
+                            "--------------------------------------------------\n";
+                config.OnLog(RPCLog.LogCode.Runtime, log);
                 //构造data数据
                 byte[] bodyBytes = config.Encoding.GetBytes(config.ServerRequestModelSerialize(request));
                 //构造表头数据，固定4个字节的长度，表示内容的长度

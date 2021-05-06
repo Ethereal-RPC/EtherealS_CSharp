@@ -12,7 +12,7 @@ namespace EtherealS.Extension.Authority
         /// <summary>
         /// 权限检查默认实现函数
         /// </summary>
-        /// <param name="service">服务信息</param>
+        /// <param name="service">服务信息</param>  
         /// <param name="method">方法信息</param>
         /// <param name="token">Token信息</param>
         /// <returns></returns>

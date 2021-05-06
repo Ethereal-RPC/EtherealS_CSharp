@@ -29,11 +29,11 @@ namespace EtherealS.RPCNet
             }
             return null;
         }
-        public static void Register(string ip, string port)
+        public static NetConfig Register(string ip, string port)
         {
-            Register(ip,port,new NetConfig());
+            return Register(ip,port,new NetConfig());
         }
-        public static void Register(string ip, string port, NetConfig config)
+        public static NetConfig Register(string ip, string port, NetConfig config)
         {
             if (config is null)
             {
@@ -44,7 +44,8 @@ namespace EtherealS.RPCNet
                 if (config.ClientRequestReceive == null) config.ClientRequestReceive = ClientRequestReceive;
                 configs.Add(new Tuple<string, string>(ip, port),config);
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}服务的NetConfig已经注册");
+            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}服务的NetConfig已经注册"));
+            return config;
         }
         public static bool UnRegister(string ip, string port)
         {
@@ -52,17 +53,16 @@ namespace EtherealS.RPCNet
         }
         private static void ClientRequestReceive(Tuple<string, string> key, BaseUserToken token, ClientRequestModel request)
         {
-#if DEBUG
-            Console.WriteLine("--------------------------------------------------");
-            Console.WriteLine($"{DateTime.Now}::{key.Item1}:{key.Item2}::[客-请求]\n{request}");
-            Console.WriteLine("--------------------------------------------------");
-#endif
-            if (ServiceCore.Get(new Tuple<string, string, string>(key.Item1, key.Item2,request.Service), out Service service))
+            if (Get(key, out NetConfig netConfig))
             {
-                if (service.Methods.TryGetValue(request.MethodId, out MethodInfo method))
+                if (ServiceCore.Get(new Tuple<string, string, string>(key.Item1, key.Item2, request.Service), out Service service))
                 {
-                    if (Get(key, out NetConfig netConfig))
+                    if (service.Methods.TryGetValue(request.MethodId, out MethodInfo method))
                     {
+                        string log = "--------------------------------------------------\n" +
+                            $"{DateTime.Now}::{key.Item1}:{key.Item2}::[客-请求]\n{request}\n" +
+                            "--------------------------------------------------\n";
+                        service.Config.OnLog(RPCLog.LogCode.Runtime, log);
                         if (netConfig.OnInterceptor(service, method, token) &&
                             service.Config.OnInterceptor(service, method, token))
                         {
@@ -73,7 +73,7 @@ namespace EtherealS.RPCNet
                                 {
                                     request.Params[i] = type.Deserialize((string)request.Params[i]);
                                 }
-                                else throw new RPCException($"RPC中的{params_id[i]}类型中尚未被注册");
+                                else service.Config.OnException(new RPCException($"RPC中的{params_id[i]}类型中尚未被注册"));
                             }
 
                             if (method.GetParameters().Length == request.Params.Length) request.Params[0] = token;
@@ -96,11 +96,11 @@ namespace EtherealS.RPCNet
                             }
                         }
                     }
-                    else throw new RPCException(RPCException.ErrorCode.RegisterError, $"未找到NetConfig[{key.Item1}:{key.Item2}]");
+                    else service.Config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"未找到方法[{key.Item1}:{key.Item2}:{request.Service}:{request.MethodId}]"));
                 }
-                else throw new RPCException(RPCException.ErrorCode.RegisterError, $"未找到方法[{key.Item1}:{key.Item2}:{request.Service}:{request.MethodId}]");
+                else netConfig.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"未找到服务[{key.Item1}:{key.Item2}:{request.Service}]"));
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"未找到服务[{key.Item1}:{key.Item2}:{request.Service}]");
+            else throw new RPCException(RPCException.ErrorCode.RuntimeError, $"未找到NetConfig[{key.Item1}:{key.Item2}]");
         }
     }
 }

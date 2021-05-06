@@ -56,7 +56,7 @@ namespace EtherealS.RPCRequest
                 request = Request.Register<R>(new Tuple<string, string>(ip, port), servicename ,config);
                 requests[key] = request;
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{key}已注册，无法重复注册！");
+            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{key}已注册，无法重复注册！"));
             return (R)(request as object);
         }
         public static void UnRegister(Tuple<string, string, string> key)

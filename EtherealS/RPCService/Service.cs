@@ -45,11 +45,11 @@ namespace EtherealS.RPCService
                             {   
                                 try
                                 {
-                                    methodid.Append("-" + config.Types.TypesByType[parameters[i].ParameterType]);
+                                    methodid.Append("-" + config.Types.TypesByType[parameters[i].ParameterType].Name);
                                 }
                                 catch (Exception)
                                 {
-                                    throw new RPCException($"{method.Name}方法中的{parameters[i].ParameterType}类型参数尚未注册");
+                                    config.OnException(new RPCException($"{method.Name}方法中的{parameters[i].ParameterType}类型参数尚未注册"));
                                 }
                             }
                         }
@@ -64,15 +64,15 @@ namespace EtherealS.RPCService
                                     {
                                         methodid.Append("-").Append(types_name[i]);
                                     }
-                                    else throw new RPCException($"C#对应的{types_name[i]}类型参数尚未注册"); 
+                                    else config.OnException(new RPCException($"C#对应的{types_name[i]}类型参数尚未注册")); 
                                 }
                             }
-                            else throw new RPCException($"方法体{method.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length + 1}个,Method:{parameters.Length}个");
+                            else config.OnException(new RPCException($"方法体{method.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length + 1}个,Method:{parameters.Length}个"));
                         }
                         string name =  methodid.ToString();
                         if (methods.TryGetValue(name,out MethodInfo methodInfo))
                         {
-                            throw new RPCException($"服务方法{name}已存在，无法重复注册！");
+                            config.OnException(new RPCException($"服务方法{name}已存在，无法重复注册！"));
                         }
                         Methods.TryAdd(name, method);
                         methodid.Length = 0;

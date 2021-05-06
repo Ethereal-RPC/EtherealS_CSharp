@@ -1,4 +1,4 @@
-﻿using EtherealS.Annotation;
+﻿using EtherealS.Attribute;
 using System;
 using System.Collections.Generic;
 using System.Text;

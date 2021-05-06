@@ -14,11 +14,19 @@ namespace EtherealS.RPCService
         {
             return services.TryGetValue(key, out service);
         }
-        public static void Register(object instance, string ip, string port, string servicename, RPCTypeConfig type)
+        public static Service Register(object instance, string ip, string port, string servicename, RPCTypeConfig type)
         {
-            Register(instance,ip,port, servicename, new ServiceConfig(type));
+            return Register(instance,ip,port, servicename, new ServiceConfig(type));
         }
-        public static void Register(object instance, string ip, string port, string servicename ,ServiceConfig config)
+        public static Service Register<T>(string hostname, string port, string servicename, ServiceConfig config) where T : new()
+        {
+            return Register(new T(), hostname, port, servicename, config);
+        }
+        public static Service Register<T>(string hostname, string port, string servicename, RPCTypeConfig type) where T : new()
+        {
+            return Register(new T(), hostname, port, servicename, new ServiceConfig(type));
+        }
+        public static Service Register(object instance, string ip, string port, string servicename, ServiceConfig config)
         {
             if (string.IsNullOrEmpty(servicename))
             {
@@ -47,33 +55,20 @@ namespace EtherealS.RPCService
                 try
                 {
                     service = new Service();
-                    service.Register(new Tuple<string, string>(ip,port),servicename,instance,config);
+                    service.Register(new Tuple<string, string>(ip, port), servicename, instance, config);
                     services[key] = service;
-                    Console.WriteLine($"{servicename}-{ip}-{port} Load Success!");
-                }
-                catch (RPCException e)
-                {
-                    Console.WriteLine($"{servicename}-{ip}-{port} Load Fail!");
-                    Console.WriteLine(e.Message + "\n" + e.StackTrace);
-                    UnRegister(key);
+                    config.OnLog(RPCLog.LogCode.Register,$"{key.Item1}-{key.Item2}-{key.Item3}注册成功！");
+                    return service;
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"{servicename}-{ip}-{port} Load Fail!");
-                    Console.WriteLine("发生异常报错,销毁注册");
-                    Console.WriteLine(e.Message + "\n" + e.StackTrace);
-                    UnRegister(key);
+                    config.OnException(e);
                 }
             }
+            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{key.Item1}-{key.Item2}-{key.Item3}已注册！"));
+            return null;
         }
-        public static void Register<T>( string hostname, string port, string servicename, ServiceConfig config) where T : new()
-        {
-            Register(new T(), hostname, port, servicename, config);
-        }
-        public static void Register<T>( string hostname, string port, string servicename, RPCTypeConfig type) where T : new()
-        {
-            Register(new T(),hostname, port, servicename, new ServiceConfig(type));
-        }
+
         public static void UnRegister(Tuple<string, string, string> key)
         {
             services.TryRemove(key, out Service value);

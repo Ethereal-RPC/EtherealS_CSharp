@@ -50,6 +50,7 @@ namespace EtherealS.NativeServer
             buffer.ResetReaderIndex();
             buffer.ResetWriterIndex();
             token = config.CreateMethod();
+            token.ServerKey = serverKey;
             eventArgs.AcceptSocket = socket;
             token.Net = eventArgs;
             token.OnConnect();
@@ -84,7 +85,7 @@ namespace EtherealS.NativeServer
                             buffer.SetReaderIndex(buffer.ReaderIndex + length);
                             if (!NetCore.Get(serverKey, out NetConfig netConfig))
                             {
-                                throw new RPCException(RPCException.ErrorCode.RuntimeError, "未找到NetCore");
+                                config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, "未找到NetCore"));
                             }
                             if (pattern == 0 && request != null)
                             {
@@ -94,7 +95,8 @@ namespace EtherealS.NativeServer
                         catch
                         {
                             token.DisConnect();
-                            throw new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey}-{EventArgs.RemoteEndPoint}:用户数据错误，已自动断开连接！");
+                            config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError,
+                                $"{serverKey}-{EventArgs.RemoteEndPoint}:用户数据错误，已自动断开连接！"));
                         }
                     }
                     else
@@ -119,7 +121,7 @@ namespace EtherealS.NativeServer
                             else
                             {
                                 token.DisConnect();
-                                throw new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey}-{EventArgs.RemoteEndPoint}:用户请求数据量太大，中止接收！");
+                                config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey}-{EventArgs.RemoteEndPoint}:用户请求数据量太大，中止接收！"));
                             }
                         }
                         EventArgs.SetBuffer(buffer.WriterIndex, buffer.Capacity - count);

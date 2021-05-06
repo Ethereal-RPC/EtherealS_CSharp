@@ -1,6 +1,7 @@
 ﻿using EtherealS.Model;
 using EtherealS.RPCNet;
 using Newtonsoft.Json;
+using System;
 using System.Text;
 
 namespace EtherealS.NativeServer
@@ -34,6 +35,18 @@ namespace EtherealS.NativeServer
         /// <param name="obj">待序列化ClientResponseModel对象</param>
         /// <returns>序列化文本</returns>
         public delegate string ClientResponseModelSerializeDelegate(ClientResponseModel obj);
+
+        public delegate void OnExceptionDelegate(Exception exception);
+
+        public delegate void OnLogDelegate(RPCLog log);
+        #endregion
+
+        #region --事件--
+        public event OnLogDelegate LogEvent;
+        /// <summary>
+        /// 抛出异常事件
+        /// </summary>
+        public event OnExceptionDelegate ExceptionEvent;
         #endregion
 
         #region --字段--
@@ -81,6 +94,7 @@ namespace EtherealS.NativeServer
         /// ClientResponseModel序列化委托实现
         /// </summary>
         private ClientResponseModelSerializeDelegate clientResponseModelSerialize;
+
         #endregion
 
         #region --属性--
@@ -95,14 +109,40 @@ namespace EtherealS.NativeServer
         public ServerRequestModelSerializeDelegate ServerRequestModelSerialize { get => serverRequestModelSerialize; set => serverRequestModelSerialize = value; }
         public ClientRequestModelDeserializeDelegate ClientRequestModelDeserialize { get => clientRequestModelDeserialize; set => clientRequestModelDeserialize = value; }
         public ClientResponseModelSerializeDelegate ClientResponseModelSerialize { get => clientResponseModelSerialize; set => clientResponseModelSerialize = value; }
+
         #endregion
 
+        #region --方法--
         public ServerConfig(CreateInstance createMethod)
         {
             this.createMethod = createMethod;
-            serverRequestModelSerialize = (obj)=>JsonConvert.SerializeObject(obj);
+            serverRequestModelSerialize = (obj) => JsonConvert.SerializeObject(obj);
             clientResponseModelSerialize = (obj) => JsonConvert.SerializeObject(obj);
             clientRequestModelDeserialize = (obj) => JsonConvert.DeserializeObject<ClientRequestModel>(obj);
         }
+        internal void OnException(RPCException.ErrorCode code, string message)
+        {
+            OnException(new RPCException(code, message));
+        }
+        internal void OnException(Exception e)
+        {
+            if (ExceptionEvent != null)
+            {
+                ExceptionEvent(e);
+            }
+        }
+
+        internal void OnLog(RPCLog.LogCode code, string message)
+        {
+            OnLog(new RPCLog(code, message));
+        }
+        internal void OnLog(RPCLog log)
+        {
+            if (LogEvent != null)
+            {
+                LogEvent(log);
+            }
+        }
+        #endregion
     }
 }

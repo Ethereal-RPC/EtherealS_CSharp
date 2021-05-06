@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using EtherealS.Model;
 
 namespace EtherealS.RPCService
@@ -10,6 +11,8 @@ namespace EtherealS.RPCService
     {
         #region --委托--
         public delegate bool InterceptorDelegate(Service service, MethodInfo method, BaseUserToken token);
+        public delegate void OnExceptionDelegate(Exception exception);
+        public delegate void OnLogDelegate(RPCLog log);
         #endregion
 
         #region --事件--
@@ -17,6 +20,7 @@ namespace EtherealS.RPCService
         /// 拦截器事件
         /// </summary>
         public event InterceptorDelegate InterceptorEvent;
+        public event OnLogDelegate LogEvent;
         #endregion
 
         #region --字段--
@@ -24,14 +28,11 @@ namespace EtherealS.RPCService
         /// 中间层抽象数据类配置项
         /// </summary>
         private RPCTypeConfig types;
-        /// <summary>
-        /// 权限检查开启开关
-        /// </summary>
-        private bool authoritable = false;
         #endregion
 
         #region --属性--
         public RPCTypeConfig Types { get => types; set => types = value; }
+        public event OnExceptionDelegate ExceptionEvent;
         #endregion
 
         #region --方法--
@@ -44,7 +45,7 @@ namespace EtherealS.RPCService
         {
             this.types = type;
         }
-        public bool OnInterceptor(Service service, MethodInfo method, BaseUserToken token)
+        internal bool OnInterceptor(Service service, MethodInfo method, BaseUserToken token)
         {
             if (InterceptorEvent != null)
             {
@@ -56,8 +57,29 @@ namespace EtherealS.RPCService
             }
             else return true;
         }
+        internal void OnException(RPCException.ErrorCode code,string message)
+        {
+            OnException(new RPCException(code, message));
+        }
+        internal void OnException(Exception e)
+        {
+            if (ExceptionEvent != null)
+            {
+                ExceptionEvent(e);
+            }
+        }
 
-
+        internal void OnLog(RPCLog.LogCode code,string message)
+        {
+            OnLog(new RPCLog(code, message));
+        }
+        internal void OnLog(RPCLog log)
+        {
+            if (LogEvent != null)
+            {
+                LogEvent(log);
+            }
+        }
         #endregion
     }
 }

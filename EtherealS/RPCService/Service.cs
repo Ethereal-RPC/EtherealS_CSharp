@@ -28,16 +28,11 @@ namespace EtherealS.RPCService
             this.instance = instance;
             this.clientkey = clientkey;
             this.service_name = service_name;
-            //检查权限接口是否开启并实现
-            if (config.Authoritable && !(instance is IAuthoritable))
-            {
-                throw new RPCException($"{instance.GetType().FullName} 服务已开启权限系统，但尚未实现权限接口");
-            }
 
             StringBuilder methodid = new StringBuilder();
             foreach (MethodInfo method in instance.GetType().GetMethods())
             {
-                Annotation.RPCService rpcAttribute = method.GetCustomAttribute<Annotation.RPCService>();
+                Attribute.RPCService rpcAttribute = method.GetCustomAttribute<Attribute.RPCService>();
                 if (rpcAttribute != null)
                 {
                     if (!method.IsAbstract)

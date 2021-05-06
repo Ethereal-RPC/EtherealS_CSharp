@@ -32,7 +32,6 @@ namespace EtherealS.RPCService
 
         #region --属性--
         public RPCTypeConfig Types { get => types; set => types = value; }
-        public bool Authoritable { get => authoritable; set => authoritable = value; }
         #endregion
 
         #region --方法--

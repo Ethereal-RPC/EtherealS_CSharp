@@ -1,13 +1,13 @@
 ﻿using System;
 using EtherealS.Extension.Authority;
 
-namespace EtherealS.Annotation
+namespace EtherealS.Attribute
 {
     /// <summary>
     /// 作为服务器服务方法的标注类
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class RPCService : Attribute,IAuthoritable
+    public class RPCService : System.Attribute, IAuthoritable
     {
         /// <summary>
         /// 提供自定义MethodId的抽象参数名

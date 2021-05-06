@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using EtherealS.Annotation;
 using EtherealS.Model;
 using EtherealS.RPCService;
 
@@ -19,7 +18,7 @@ namespace EtherealS.Extension.Authority
         /// <returns></returns>
         public static bool ServiceCheck(Service service, MethodInfo method, BaseUserToken token)
         {
-            Annotation.RPCService annotation = method.GetCustomAttribute<Annotation.RPCService>();
+            Attribute.RPCService annotation = method.GetCustomAttribute<Attribute.RPCService>();
             if (annotation.Authority != null)
             {
                 if ((token as IAuthorityCheck).Check(annotation))
@@ -28,7 +27,7 @@ namespace EtherealS.Extension.Authority
                 }
                 else return false;
             }
-            else if (service.Config.Authoritable)
+            else
             {
                 if ((token as IAuthorityCheck).Check((IAuthoritable)service.Instance))
                 {
@@ -36,7 +35,6 @@ namespace EtherealS.Extension.Authority
                 }
                 else return false;
             }
-            else return true;
         }
     }
 }

@@ -22,7 +22,7 @@ namespace EtherealS.RPCRequest
         }
         protected override object Invoke(MethodInfo targetMethod, object[] args)    
         {
-            Annotation.RPCRequest rpcAttribute = targetMethod.GetCustomAttribute<Annotation.RPCRequest>();
+            Attribute.RPCRequest rpcAttribute = targetMethod.GetCustomAttribute<Attribute.RPCRequest>();
             if (rpcAttribute != null)
             {
                 //这里要连接字符串，发现StringBuilder效率高一些.

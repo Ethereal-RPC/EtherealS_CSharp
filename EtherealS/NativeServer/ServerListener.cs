@@ -92,30 +92,33 @@ namespace EtherealS.NativeServer
 
         public bool CloseClientSocket(SocketAsyncEventArgs e)
         {
-            try
+            if(e.AcceptSocket != null && e.AcceptSocket.Connected)
             {
-                e.AcceptSocket.Shutdown(SocketShutdown.Both);
-            }
-            catch
-            {
-                
-            }
-            e.AcceptSocket.Close();
-            e.AcceptSocket.Dispose();
-            e.AcceptSocket = null;
-            this.semaphoreAcceptedClients.Release();
-            if (config.AutoManageTokens)
-            {
-                if (NetCore.Get(serverKey, out NetConfig netConfig))
+                try
                 {
-                    netConfig.Tokens.TryRemove((e.UserToken as DataToken).Token.Key, out BaseUserToken value);
+                    e.AcceptSocket.Shutdown(SocketShutdown.Both);
                 }
-                else config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, "未找到NetConfig"));
+                catch
+                {
+
+                }
+                if (config.AutoManageTokens)
+                {
+                    if (NetCore.Get(serverKey, out NetConfig netConfig))
+                    {
+                        if ((e.UserToken as DataToken).Token != null) netConfig.Tokens.TryRemove((e.UserToken as DataToken).Token.Key, out BaseUserToken value);
+                    }
+                    else config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, "未找到NetConfig"));
+                }
+                (e.UserToken as DataToken).DisConnect();
+                e.AcceptSocket.Close();
+                e.AcceptSocket.Dispose();
+                e.AcceptSocket = null;
+                this.semaphoreAcceptedClients.Release();
+                this.readWritePool.Push(e.UserToken as DataToken);
+                Interlocked.Decrement(ref this.numConnectedSockets);
+                Console.WriteLine("A client has been disconnected from the server. There are {0} clients connected to the server", this.numConnectedSockets);
             }
-            (e.UserToken as DataToken).DisConnect();
-            this.readWritePool.Push(e.UserToken as DataToken);
-            Interlocked.Decrement(ref this.numConnectedSockets);
-            Console.WriteLine("A client has been disconnected from the server. There are {0} clients connected to the server", this.numConnectedSockets);
             return true;
         }
         private void OnAcceptCompleted(object sender, SocketAsyncEventArgs e)
@@ -204,19 +207,25 @@ namespace EtherealS.NativeServer
             {
                 if (e.SocketError == SocketError.Success)
                 {
-
-                    (e.UserToken as DataToken).ProcessData();
-                    if (!e.AcceptSocket.ReceiveAsync(e))
+                    try
                     {
-                        // Read the next block of data sent by client.
-                        this.ProcessReceive(e);
+                        (e.UserToken as DataToken).ProcessData();
+                        if (!e.AcceptSocket.ReceiveAsync(e))
+                        {
+                            // Read the next block of data sent by client.
+                            this.ProcessReceive(e);
+                        }
+                    }
+                    catch
+                    {
+                        CloseClientSocket(e);
                     }
                 }
                 else
                 {
                     CloseClientSocket(e);
                 }
-            }   
+            }
             else
             {
                 CloseClientSocket(e);
@@ -267,7 +276,7 @@ namespace EtherealS.NativeServer
             if (token != null && token.Net != null && (token.Net as SocketAsyncEventArgs).AcceptSocket.Connected)
             {
                 string log = "--------------------------------------------------\n" +
-                            $"{DateTime.Now}::{serverKey.Item1}:{serverKey.Item2}::[服-指令]\n{request}" +
+                            $"{DateTime.Now}::{serverKey.Item1}:{serverKey.Item2}::[服-指令]\n{request}\n" +
                             "--------------------------------------------------\n";
                 config.OnLog(RPCLog.LogCode.Runtime, log);
                 //构造data数据

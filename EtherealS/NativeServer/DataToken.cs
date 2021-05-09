@@ -42,8 +42,12 @@ namespace EtherealS.NativeServer
             buffer.ResetReaderIndex();
             buffer.ResetWriterIndex();
             if(buffer.Capacity != config.BufferSize)buffer.AdjustCapacity(config.BufferSize);
-            token.OnDisConnect();
-            token = null;
+            if(token != null)
+            {
+                token.OnDisConnect();
+                token.Net = null;
+                token = null;
+            }
         }
         public void Connect(Socket socket)
         {
@@ -94,7 +98,6 @@ namespace EtherealS.NativeServer
                         }
                         catch
                         {
-                            token.DisConnect();
                             config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError,
                                 $"{serverKey}-{EventArgs.RemoteEndPoint}:用户数据错误，已自动断开连接！"));
                         }
@@ -104,7 +107,7 @@ namespace EtherealS.NativeServer
                         //迁移数据至缓冲区头
                         if (buffer.ReaderIndex != 0)
                         {
-                            Buffer.BlockCopy(buffer.Array, 0, buffer.Array, buffer.ReaderIndex, count);
+                            Buffer.BlockCopy(buffer.Array, buffer.ReaderIndex, buffer.Array,0 , count);
                             buffer.ResetReaderIndex();
                             buffer.SetWriterIndex(count);
                         }
@@ -124,7 +127,7 @@ namespace EtherealS.NativeServer
                                 config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey}-{EventArgs.RemoteEndPoint}:用户请求数据量太大，中止接收！"));
                             }
                         }
-                        EventArgs.SetBuffer(buffer.WriterIndex, buffer.Capacity - count);
+                        EventArgs.SetBuffer(count, buffer.Capacity - count);
                         return;
                     }
                 }
@@ -133,11 +136,11 @@ namespace EtherealS.NativeServer
                     //头包凑不够，迁移数据至缓冲区头
                     if (buffer.ReaderIndex != 0)
                     {
-                        Buffer.BlockCopy(buffer.Array, 0, buffer.Array, buffer.ReaderIndex, buffer.WriterIndex - buffer.ReaderIndex);
+                        Buffer.BlockCopy(buffer.Array, buffer.ReaderIndex, buffer.Array, 0, count);
                         buffer.ResetReaderIndex();
                         buffer.SetWriterIndex(count);
                     }
-                    EventArgs.SetBuffer(buffer.WriterIndex, buffer.Capacity - count);
+                    EventArgs.SetBuffer(count, buffer.Capacity - count);
                     return;
                 }
             }

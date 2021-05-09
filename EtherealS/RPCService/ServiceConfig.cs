@@ -67,6 +67,7 @@ namespace EtherealS.RPCService
             {
                 ExceptionEvent(e);
             }
+            throw e;
         }
 
         internal void OnLog(RPCLog.LogCode code,string message)

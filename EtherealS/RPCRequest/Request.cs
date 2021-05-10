@@ -70,12 +70,12 @@ namespace EtherealS.RPCRequest
                 ServerRequestModel request = new ServerRequestModel("2.0", servicename, methodid.ToString(), obj);
                 if (args[0] != null && (args[0] as BaseUserToken).Net != null)
                 {
-                    if (!NetCore.Get(serverkey, out NetConfig netConfig))
+                    if (!NetCore.Get(serverkey, out Net net))
                     {
                         config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError,
                             $"{servicename}服务在发送请求时，NetConfig为空！"));
                     }
-                    netConfig.ServerRequestSend((args[0] as BaseUserToken), request);
+                    net.ServerRequestSend((args[0] as BaseUserToken), request);
                     return null;
                 }
                 return null;

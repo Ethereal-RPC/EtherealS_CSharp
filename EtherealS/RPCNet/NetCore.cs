@@ -14,93 +14,35 @@ namespace EtherealS.RPCNet
     /// </summary>
     public class NetCore
     {
-        private static Dictionary<Tuple<string, string>, NetConfig> configs { get; } = new Dictionary<Tuple<string, string>, NetConfig>();
+        private static Dictionary<Tuple<string, string>, Net> nets { get; } = new Dictionary<Tuple<string, string>, Net>();
 
-        public static bool Get(Tuple<string, string> key, out NetConfig config)
+        public static bool Get(Tuple<string, string> key, out Net net)
         {
-            return configs.TryGetValue(key,out config);
+            return nets.TryGetValue(key,out net);
         }
 
-        public static ConcurrentDictionary<object, BaseUserToken> GetTokens(Tuple<string, string> key)
-        {
-            if (configs.TryGetValue(key, out NetConfig config))
-            {
-                return config.Tokens;
-            }
-            return null;
-        }
-        public static NetConfig Register(string ip, string port)
+        public static Net Register(string ip, string port)
         {
             return Register(ip,port,new NetConfig());
         }
-        public static NetConfig Register(string ip, string port, NetConfig config)
+        public static Net Register(string ip, string port, NetConfig config)
         {
             if (config is null)
             {
                 throw new ArgumentNullException(nameof(config));
             }
-            if (!configs.TryGetValue(new Tuple<string, string>(ip, port), out NetConfig value))
+            if (!nets.TryGetValue(new Tuple<string, string>(ip, port), out Net net))
             {
-                if (config.ClientRequestReceive == null) config.ClientRequestReceive = ClientRequestReceive;
-                configs.Add(new Tuple<string, string>(ip, port),config);
+                net = new Net();
+                net.Config = config;
+                nets.Add(new Tuple<string, string>(ip, port),net);
             }
             else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}服务的NetConfig已经注册"));
-            return config;
+            return net;
         }
         public static bool UnRegister(string ip, string port)
         {
-            return configs.Remove(new Tuple<string, string>(ip, port));
-        }
-        private static void ClientRequestReceive(Tuple<string, string> key, BaseUserToken token, ClientRequestModel request)
-        {
-            if (Get(key, out NetConfig netConfig))
-            {
-                if (ServiceCore.Get(new Tuple<string, string, string>(key.Item1, key.Item2, request.Service), out Service service))
-                {
-                    if (service.Methods.TryGetValue(request.MethodId, out MethodInfo method))
-                    {
-                        string log = "--------------------------------------------------\n" +
-                            $"{DateTime.Now}::{key.Item1}:{key.Item2}::[客-请求]\n{request}\n" +
-                            "--------------------------------------------------\n";
-                        service.Config.OnLog(RPCLog.LogCode.Runtime, log);
-                        if (netConfig.OnInterceptor(service, method, token) &&
-                            service.Config.OnInterceptor(service, method, token))
-                        {
-                            string[] params_id = request.MethodId.Split('-');
-                            for (int i = 1; i < params_id.Length; i++)
-                            {
-                                if (service.Config.Types.TypesByName.TryGetValue(params_id[i], out RPCType type))
-                                {
-                                    request.Params[i] = type.Deserialize((string)request.Params[i]);
-                                }
-                                else service.Config.OnException(new RPCException($"RPC中的{params_id[i]}类型中尚未被注册"));
-                            }
-
-                            if (method.GetParameters().Length == request.Params.Length) request.Params[0] = token;
-                            else if (request.Params.Length > 1)
-                            {
-                                object[] new_params = new object[request.Params.Length - 1];
-                                for (int i = 0; i < new_params.Length; i++)
-                                {
-                                    new_params[i] = request.Params[i + 1];
-                                    request.Params = new_params;
-                                }
-                            }
-
-                            object result = method.Invoke(service.Instance, request.Params);
-                            Type return_type = method.ReturnType;
-                            if (return_type != typeof(void))
-                            {
-                                service.Config.Types.TypesByType.TryGetValue(return_type, out RPCType type);
-                                netConfig.ClientResponseSend(token, new ClientResponseModel("2.0", type.Serialize(result), type.Name, request.Id, request.Service, null));
-                            }
-                        }
-                    }
-                    else service.Config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"未找到方法[{key.Item1}:{key.Item2}:{request.Service}:{request.MethodId}]"));
-                }
-                else netConfig.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"未找到服务[{key.Item1}:{key.Item2}:{request.Service}]"));
-            }
-            else throw new RPCException(RPCException.ErrorCode.RuntimeError, $"未找到NetConfig[{key.Item1}:{key.Item2}]");
+            return nets.Remove(new Tuple<string, string>(ip, port));
         }
     }
 }

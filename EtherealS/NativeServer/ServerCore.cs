@@ -9,6 +9,9 @@ namespace EtherealS.NativeServer
 {
     public class ServerCore
     {
+        /// <summary>
+        /// Server映射表
+        /// </summary>
         private static Dictionary<Tuple<string, string>, ServerListener> socketservers { get; } = new Dictionary<Tuple<string, string>, ServerListener>();
 
         public static ServerListener Register(string ip, string port,ServerConfig.CreateInstance createMethod)

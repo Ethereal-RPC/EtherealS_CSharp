@@ -87,13 +87,13 @@ namespace EtherealS.NativeServer
                         {
                             request = config.ClientRequestModelDeserialize(buffer.GetString(buffer.ReaderIndex + headsize, body_length, config.Encoding));
                             buffer.SetReaderIndex(buffer.ReaderIndex + length);
-                            if (!NetCore.Get(serverKey, out NetConfig netConfig))
+                            if (!NetCore.Get(serverKey, out Net net))
                             {
                                 config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, "未找到NetCore"));
                             }
                             if (pattern == 0 && request != null)
                             {
-                                netConfig.ClientRequestReceive(serverKey, token, request);
+                                net.ClientRequestReceive(token, request);
                             }
                         }
                         catch

@@ -61,12 +61,16 @@ namespace EtherealS.Model
         /// <returns></returns>
         public bool Register(bool replace = false)
         {
+            if(!NetCore.Get(serverKey, out Net net))
+            {
+                throw new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey.Item1}-{serverKey.Item2}Net未找到");
+            }
             if (replace)
             {
-                NetCore.GetTokens(serverKey).TryRemove(Key, out BaseUserToken token);
-                return NetCore.GetTokens(serverKey).TryAdd(Key, this);
+                net.Tokens.TryRemove(Key, out BaseUserToken token);
+                return net.Tokens.TryAdd(Key, this);
             }
-            else return NetCore.GetTokens(serverKey).TryAdd(Key, this);
+            else return net.Tokens.TryAdd(Key, this);
         }
         /// <summary>
         /// 从Tokens表中注销Token信息
@@ -74,7 +78,11 @@ namespace EtherealS.Model
         /// <returns></returns>
         public bool UnRegister()
         {
-            return NetCore.GetTokens(serverKey).TryRemove(Key, out BaseUserToken value);
+            if (!NetCore.Get(serverKey, out Net net))
+            {
+                throw new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey.Item1}-{serverKey.Item2}Net未找到");
+            }
+            return net.Tokens.TryRemove(Key, out BaseUserToken value);
         }
         /// <summary>
         /// 得到该Token所属的Tokens表单
@@ -82,7 +90,11 @@ namespace EtherealS.Model
         /// <returns></returns>
         public ConcurrentDictionary<object, BaseUserToken> GetTokens()
         {
-            return NetCore.GetTokens(serverKey);
+            if (!NetCore.Get(serverKey, out Net net))
+            {
+                throw new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey.Item1}-{serverKey.Item2}Net未找到");
+            }
+            return net.Tokens;
         }
         /// <summary>
         /// 得到特定的Token信息
@@ -93,7 +105,11 @@ namespace EtherealS.Model
         /// <returns></returns>
         public bool GetToken<T>(object key,out T value) where T:BaseUserToken
         {
-            if (NetCore.GetTokens(serverKey).TryGetValue(key, out BaseUserToken result))
+            if (!NetCore.Get(serverKey, out Net net))
+            {
+                throw new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey.Item1}-{serverKey.Item2}Net未找到");
+            }
+            if (net.Tokens.TryGetValue(key, out BaseUserToken result))
             {
                 value = (T)result;
                 return true;
@@ -123,10 +139,12 @@ namespace EtherealS.Model
         /// <returns></returns>
         public static ConcurrentDictionary<object, BaseUserToken> GetTokens(Tuple<string, string> serverkey)
         {
-            return NetCore.GetTokens(serverkey);
+            if (!NetCore.Get(serverkey, out Net net))
+            {
+                throw new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverkey.Item1}-{serverkey.Item2}Net未找到");
+            }
+            return net.Tokens;
         }
-
-
 
         #endregion
 

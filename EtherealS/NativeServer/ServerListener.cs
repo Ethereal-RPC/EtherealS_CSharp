@@ -62,10 +62,10 @@ namespace EtherealS.NativeServer
             }
             this.listenSocket.Listen(config.NumConnections);
 
-            if(NetCore.Get(serverKey,out NetConfig netConfig))
+            if(NetCore.Get(serverKey,out Net net))
             {
-                netConfig.ClientResponseSend = SendClientResponse;
-                netConfig.ServerRequestSend = SendServerRequest;
+                net.ClientResponseSend = SendClientResponse;
+                net.ServerRequestSend = SendServerRequest;
             }
             else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError,$"{serverKey}无法找到NetConfig"));
         }
@@ -104,9 +104,9 @@ namespace EtherealS.NativeServer
                 }
                 if (config.AutoManageTokens)
                 {
-                    if (NetCore.Get(serverKey, out NetConfig netConfig))
+                    if (NetCore.Get(serverKey, out Net net))
                     {
-                        if ((e.UserToken as DataToken).Token != null) netConfig.Tokens.TryRemove((e.UserToken as DataToken).Token.Key, out BaseUserToken value);
+                        if ((e.UserToken as DataToken).Token != null) net.Tokens.TryRemove((e.UserToken as DataToken).Token.Key, out BaseUserToken value);
                     }
                     else config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, "未找到NetConfig"));
                 }

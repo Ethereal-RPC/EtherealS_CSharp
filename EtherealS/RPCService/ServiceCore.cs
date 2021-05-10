@@ -8,11 +8,14 @@ using System.Reflection;
 namespace EtherealS.RPCService
 {
     public class ServiceCore
-    { 
-        private static ConcurrentDictionary<Tuple<string, string, string>, Service> services { get; } = new ConcurrentDictionary<Tuple<string, string, string>, Service>();
+    {
         public static bool Get(Tuple<string, string, string> key, out Service service)
         {
-            return services.TryGetValue(key, out service);
+            if (NetCore.Get(new Tuple<string, string>(key.Item1, key.Item2), out Net net))
+            {
+                return net.Services.TryGetValue(key.Item3, out service);
+            }
+            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{key.Item1}-{key.Item2}Net未找到");
         }
         public static Service Register(object instance, string ip, string port, string servicename, RPCTypeConfig type)
         {
@@ -47,17 +50,19 @@ namespace EtherealS.RPCService
             {
                 throw new ArgumentNullException(nameof(config.Types));
             }
-
-            Tuple<string, string, string> key = new Tuple<string, string, string>(ip, port,servicename);
-            services.TryGetValue(key, out Service service);
+            if (!NetCore.Get(new Tuple<string, string>(ip, port), out Net net))
+            {
+                throw new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}Net未找到");
+            }
+            net.Services.TryGetValue(servicename, out Service service);
             if (service == null)
             {
                 try
                 {
                     service = new Service();
                     service.Register(new Tuple<string, string>(ip, port), servicename, instance, config);
-                    services[key] = service;
-                    config.OnLog(RPCLog.LogCode.Register,$"{key.Item1}-{key.Item2}-{key.Item3}注册成功！");
+                    net.Services[servicename] = service;
+                    config.OnLog(RPCLog.LogCode.Register,$"{ip}-{port}-{servicename}注册成功！");
                     return service;
                 }
                 catch (Exception e)
@@ -65,18 +70,26 @@ namespace EtherealS.RPCService
                     config.OnException(e);
                 }
             }
-            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{key.Item1}-{key.Item2}-{key.Item3}已注册！"));
+            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}-{servicename}已注册！"));
             return null;
         }
 
-        public static void UnRegister(Tuple<string, string, string> key)
+        public static bool UnRegister(Tuple<string, string, string> key)
         {
-            services.TryRemove(key, out Service value);
+            if (!NetCore.Get(new Tuple<string, string>(key.Item1, key.Item2), out Net net))
+            {
+                throw new RPCException(RPCException.ErrorCode.RegisterError, $"{key.Item1}-{key.Item2}Net未找到");
+            }
+            return net.Services.TryRemove(key.Item3, out Service value);
         }
 
-        public static bool Get(string hostname, string port, string servicename,out Service proxy)
+        public static bool Get(string ip, string port, string servicename,out Service proxy)
         {
-            return services.TryGetValue(new Tuple<string, string, string>(hostname, port, servicename), out proxy);
+            if (!NetCore.Get(new Tuple<string, string>(ip, port), out Net net))
+            {
+                throw new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}Net未找到");
+            }
+            return net.Services.TryGetValue(servicename, out proxy);
         }
     }
 }

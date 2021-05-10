@@ -1,19 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using EtherealS.Model;
+using EtherealS.RPCNet;
 
 namespace EtherealS.RPCRequest
 {
     public class RequestCore
     {
-        private static Dictionary<Tuple<string, string, string>, Request> requests { get; } = new Dictionary<Tuple<string, string, string>, Request>();
+
         public static bool Get(string ip,string port, string servicename, out Request reqeust)
         {
-            return Get(new Tuple<string, string, string>( ip, port, servicename),out reqeust);
+            if (NetCore.Get(new Tuple<string, string>(ip,port), out Net net))
+            {
+                return net.Requests.TryGetValue(servicename, out reqeust);
+            }
+            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}Net未找到");
         }
         public static bool Get(Tuple<string, string, string> key, out Request reqeust)
         {
-            return requests.TryGetValue(key, out reqeust);
+            if (NetCore.Get(new Tuple<string, string>(key.Item1, key.Item2), out Net net))
+            {
+                return net.Requests.TryGetValue(key.Item3, out reqeust);
+            }
+            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{key.Item1}-{key.Item2}Net未找到");
         }
         public static R Register<R>(string ip, string port, string servicename, RPCTypeConfig type)
         {
@@ -49,19 +58,26 @@ namespace EtherealS.RPCRequest
             {
                 throw new ArgumentNullException(nameof(config.Types));
             }
-            Tuple<string, string, string> key = new Tuple<string, string, string>(ip, port, servicename);
-            requests.TryGetValue(key,out Request request);
+            if (!NetCore.Get(new Tuple<string, string>(ip, port), out Net net))
+            {
+                throw new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}Net未找到");
+            }
+            net.Requests.TryGetValue(servicename,out Request request);
             if (request == null)
             {
                 request = Request.Register<R>(new Tuple<string, string>(ip, port), servicename ,config);
-                requests[key] = request;
+                net.Requests[servicename] = request;
             }
-            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{key}已注册，无法重复注册！"));
+            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}-{servicename}已注册，无法重复注册！"));
             return (R)(request as object);
         }
-        public static void UnRegister(Tuple<string, string, string> key)
+        public static bool UnRegister(Tuple<string, string, string> key)
         {
-            requests.Remove(key, out Request value);
+            if (NetCore.Get(new Tuple<string, string>(key.Item1, key.Item2), out Net net))
+            {
+                return net.Requests.Remove(key.Item3, out Request value);
+            }
+            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{key.Item1}-{key.Item2}Net未找到");
         }
     }
 }

@@ -11,10 +11,6 @@ namespace EtherealS.RPCNet
     /// </summary>
     public class NetConfig
     {
-        /// <summary>
-        /// Tokens映射表
-        /// </summary>
-        private ConcurrentDictionary<object, BaseUserToken> tokens = new ConcurrentDictionary<object, BaseUserToken>();
         #region --委托--
         public delegate bool InterceptorDelegate(Service service,MethodInfo method,BaseUserToken token);
         public delegate void ClientRequestReceiveDelegate(Tuple<string, string> key,BaseUserToken token, ClientRequestModel request);
@@ -22,6 +18,7 @@ namespace EtherealS.RPCNet
         public delegate void ServerRequestSendDelegate(BaseUserToken token, ServerRequestModel request);
         public delegate void ClientResponseSendDelegate(BaseUserToken token, ClientResponseModel response);
         public delegate void OnLogDelegate(RPCLog log);
+        public delegate void OnExceptionDelegate(Exception exception);
         #endregion
 
         #region --事件--
@@ -33,27 +30,10 @@ namespace EtherealS.RPCNet
         #endregion
 
         #region --字段--
-        /// <summary>
-        /// 收到客户端请求委托实现
-        /// </summary>
-        private ClientRequestReceiveDelegate clientRequestReceive;
-        /// <summary>
-        /// 发送服务器请求委托实现
-        /// </summary>
-        private ServerRequestSendDelegate serverRequestSend;
-        /// <summary>
-        /// 客户端请求返回委托实现
-        /// </summary>
-        private ClientResponseSendDelegate clientResponseSend;
-
-        public delegate void OnExceptionDelegate(Exception exception);
+        
         #endregion
 
-        #region --属性-
-        public ClientRequestReceiveDelegate ClientRequestReceive { get => clientRequestReceive; set => clientRequestReceive = value; }
-        public ServerRequestSendDelegate ServerRequestSend { get => serverRequestSend; set => serverRequestSend = value; }
-        public ClientResponseSendDelegate ClientResponseSend { get => clientResponseSend; set => clientResponseSend = value; }
-        public ConcurrentDictionary<object, BaseUserToken> Tokens { get => tokens; set => tokens = value; }
+        #region --属性--
         /// <summary>
         /// 抛出异常事件
         /// </summary>

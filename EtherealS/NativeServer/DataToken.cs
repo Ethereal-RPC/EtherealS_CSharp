@@ -23,13 +23,15 @@ namespace EtherealS.NativeServer
         private static int futuresize = 27;//后期看情况加
 
         private Tuple<string, string> serverKey;
+        private string netName;
         private ServerConfig config;
         public BaseUserToken Token  { get => token; set => token = value; }
         public SocketAsyncEventArgs EventArgs { get => eventArgs; set => eventArgs = value; }
 
-        public DataToken(Tuple<string, string> serverKey,ServerConfig config)
+        public DataToken(string netName,Tuple<string, string> serverKey,ServerConfig config)
         {
             this.serverKey = serverKey;
+            this.netName = netName;
             this.config = config;
             dynamicAdjustBufferCount = config.DynamicAdjustBufferCount;
             eventArgs = new SocketAsyncEventArgs();
@@ -87,7 +89,7 @@ namespace EtherealS.NativeServer
                         {
                             request = config.ClientRequestModelDeserialize(buffer.GetString(buffer.ReaderIndex + headsize, body_length, config.Encoding));
                             buffer.SetReaderIndex(buffer.ReaderIndex + length);
-                            if (!NetCore.Get(serverKey, out Net net))
+                            if (!NetCore.Get(netName, out Net net))
                             {
                                 config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, "未找到NetCore"));
                             }

@@ -1,4 +1,5 @@
 ﻿using EtherealS.Model;
+using EtherealS.NativeServer;
 using EtherealS.RPCRequest;
 using EtherealS.RPCService;
 using System;
@@ -44,7 +45,14 @@ namespace EtherealS.RPCNet
         /// 客户端请求返回委托实现
         /// </summary>
         private ClientResponseSendDelegate clientResponseSend;
-        private Tuple<string, string> serverKey;
+        /// <summary>
+        /// Server
+        /// </summary>
+        private ServerListener server;
+        /// <summary>
+        /// Net网关名
+        /// </summary>
+        private string name;
         #endregion
 
         #region --属性--
@@ -55,7 +63,9 @@ namespace EtherealS.RPCNet
         public ClientResponseSendDelegate ClientResponseSend { get => clientResponseSend; set => clientResponseSend = value; }
         public ConcurrentDictionary<string, Service> Services { get => services; }
         public Dictionary<string, Request> Requests { get => requests; }
-        public Tuple<string, string> ServerKey { get => serverKey; set => serverKey = value; }
+
+        public string Name { get => name; set => name = value; }
+        public ServerListener Server { get => server; set => server = value; }
         #endregion
 
         #region --方法--
@@ -71,7 +81,7 @@ namespace EtherealS.RPCNet
                 if (service.Methods.TryGetValue(request.MethodId, out MethodInfo method))
                 {
                     string log = "--------------------------------------------------\n" +
-                        $"{DateTime.Now}::{serverKey.Item1}:{serverKey.Item2}::[客-请求]\n{request}\n" +
+                        $"{DateTime.Now}::{name}::[客-请求]\n{request}\n" +
                         "--------------------------------------------------\n";
                     service.Config.OnLog(RPCLog.LogCode.Runtime, log);
                     if (Config.OnInterceptor(service, method, token) &&
@@ -107,9 +117,9 @@ namespace EtherealS.RPCNet
                         }
                     }
                 }
-                else service.Config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"未找到方法[{serverKey.Item1}:{serverKey.Item2}:{request.Service}:{request.MethodId}]"));
+                else service.Config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"未找到方法[{name}:{request.Service}:{request.MethodId}]"));
             }
-            else Config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"未找到服务[{serverKey.Item1}:{serverKey.Item2}:{request.Service}]"));
+            else Config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"未找到服务[{name}:{request.Service}]"));
         }
         #endregion
     }

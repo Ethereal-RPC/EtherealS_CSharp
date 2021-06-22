@@ -12,18 +12,18 @@ namespace EtherealS.RPCService
         private Dictionary<string, MethodInfo> methods = new Dictionary<string, MethodInfo>();
         private ServiceConfig config;
         private object instance;
-        private Tuple<string, string> clientkey;
+        private string netName;
         private string service_name;
         public Dictionary<string, MethodInfo> Methods { get => methods; set => methods = value; }
         public ServiceConfig Config { get => config; set => config = value; }
         public object Instance { get => instance; set => instance = value; }
-        public Tuple<string, string> Clientkey { get => clientkey; set => clientkey = value; }
+        public string NetName { get => netName; set => netName = value; }
 
-        public void Register(Tuple<string, string> clientkey, string service_name,object instance,ServiceConfig config)
+        public void Register(string netName, string service_name,object instance,ServiceConfig config)
         {
             this.config = config;
             this.instance = instance;
-            this.clientkey = clientkey;
+            this.netName = netName;
             this.service_name = service_name;
 
             StringBuilder methodid = new StringBuilder();
@@ -67,7 +67,7 @@ namespace EtherealS.RPCService
                             else config.OnException(new RPCException($"方法体{method.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length + 1}个,Method:{parameters.Length}个"));
                         }
                         string name =  methodid.ToString();
-                        if (methods.TryGetValue(name,out MethodInfo methodInfo))
+                        if (methods.TryGetValue(name,out MethodInfo item))
                         {
                             config.OnException(new RPCException($"服务方法{name}已存在，无法重复注册！"));
                         }

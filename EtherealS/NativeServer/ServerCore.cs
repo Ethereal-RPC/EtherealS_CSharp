@@ -9,18 +9,28 @@ namespace EtherealS.NativeServer
 {
     public class ServerCore
     {
-        /// <summary>
-        /// Server映射表
-        /// </summary>
-        private static Dictionary<Tuple<string, string>, ServerListener> socketservers { get; } = new Dictionary<Tuple<string, string>, ServerListener>();
-
-        public static ServerListener Register(string ip, string port,ServerConfig.CreateInstance createMethod)
+        public static bool Get(string netName, out ServerListener socketserver)
         {
-            return Register(ip, port, new ServerConfig(createMethod),null);
+            if (NetCore.Get(netName, out Net net))
+            {
+                return Get(net, out socketserver);
+            }
+            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{netName}Net未找到");
         }
-        public static ServerListener Register(string ip, string port,ServerConfig config)
+        public static bool Get(Net net, out ServerListener socketserver)
         {
-            return Register(ip, port,config,null);
+            socketserver = net.Server;
+            if (net.Server != null) return true;
+            else return false;
+        }
+
+        public static ServerListener Register(string ip, string port,Net net,ServerConfig.CreateInstance createMethod)
+        {
+            return Register(ip, port,net, new ServerConfig(createMethod),null);
+        }
+        public static ServerListener Register(string ip, string port, Net net,ServerConfig config)
+        {
+            return Register(ip, port,net,config,null);
         }
         /// <summary>
         /// 获取客户端
@@ -28,37 +38,32 @@ namespace EtherealS.NativeServer
         /// <param name="serverIp">远程服务IP</param>
         /// <param name="port">远程服务端口</param>
         /// <returns>客户端</returns>
-        public static ServerListener Register(string ip, string port, ServerConfig config,ServerListener socketserver)
+        public static ServerListener Register(string ip, string port, Net net,ServerConfig config,ServerListener socketserver)
         {
             Tuple<string, string> key = new Tuple<string, string>(ip, port);
-            if (!socketservers.TryGetValue(key, out socketserver))
-            { 
-                try
-                {
-                    if(socketserver == null) socketserver = new ServerListener(key, config);
-                    socketservers[key] = socketserver;
-                }
-                catch (SocketException e)
-                {
-                    Console.WriteLine("发生异常报错,销毁注册");
-                    Console.WriteLine(e.Message + "\n" + e.StackTrace);
-                    socketserver.Dispose();
-                }
+            if (net.Server == null)
+            {
+                if (socketserver == null) socketserver = new ServerListener(net, key, config);
+                net.Server = socketserver;
             }
             return socketserver;
         }
-        public static bool Get(string ip,string port, out ServerListener socketserver)
-        {
-            return Get(new Tuple<string, string>(ip,port),out socketserver);
-        }
-        public static bool Get(Tuple<string, string> key, out ServerListener socketserver)
-        {
-            return socketservers.TryGetValue(key,out socketserver);
-        }
 
-        public static bool UnRegister(Tuple<string,string> key)
+        public static bool UnRegister(string netName)
         {
-            return socketservers.Remove(key);
+            if (NetCore.Get(netName, out Net net))
+            {
+                return UnRegister(net);
+            }
+            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{netName}Net未找到");
+        }
+        public static bool UnRegister(Net net)
+        {
+            net.Server.Dispose();
+            net.Server = null;
+            net.ServerRequestSend = null;
+            net.ClientResponseSend = null;
+            return true;
         }
     }
 }

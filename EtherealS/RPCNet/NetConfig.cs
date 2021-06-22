@@ -23,17 +23,18 @@ namespace EtherealS.RPCNet
         /// </summary>
         public event InterceptorDelegate InterceptorEvent;
         public event OnLogDelegate LogEvent;
-        #endregion
-
-        #region --字段--
-        
-        #endregion
-
-        #region --属性--
         /// <summary>
         /// 抛出异常事件
         /// </summary>
         public event OnExceptionDelegate ExceptionEvent;
+        #endregion
+
+        #region --字段--
+
+        #endregion
+
+        #region --属性--
+
         #endregion
 
         #region --方法--

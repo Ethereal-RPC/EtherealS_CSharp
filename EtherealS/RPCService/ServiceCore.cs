@@ -9,60 +9,51 @@ namespace EtherealS.RPCService
 {
     public class ServiceCore
     {
-        public static bool Get(Tuple<string, string, string> key, out Service service)
+        public static bool Get(string netName,string serviceName, out Service service)
         {
-            if (NetCore.Get(new Tuple<string, string>(key.Item1, key.Item2), out Net net))
+            if (NetCore.Get(netName, out Net net))
             {
-                return net.Services.TryGetValue(key.Item3, out service);
+                return Get(net, serviceName, out service);
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{key.Item1}-{key.Item2}Net未找到");
+            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{netName}-{serviceName}Net未找到");
         }
-        public static Service Register(object instance, string ip, string port, string servicename, RPCTypeConfig type)
+        public static bool Get(Net net, string serviceName, out Service service)
         {
-            return Register(instance,ip,port, servicename, new ServiceConfig(type));
+            return net.Services.TryGetValue(serviceName, out service);
         }
-        public static Service Register<T>(string hostname, string port, string servicename, ServiceConfig config) where T : new()
+        public static Service Register(object instance, Net net, string servicename, RPCTypeConfig type)
         {
-            return Register(new T(), hostname, port, servicename, config);
+            return Register(instance,net, servicename, new ServiceConfig(type));
         }
-        public static Service Register<T>(string hostname, string port, string servicename, RPCTypeConfig type) where T : new()
+        public static Service Register<T>(Net net, string servicename, ServiceConfig config) where T : new()
         {
-            return Register(new T(), hostname, port, servicename, new ServiceConfig(type));
+            return Register(new T(), net, servicename, config);
         }
-        public static Service Register(object instance, string ip, string port, string servicename, ServiceConfig config)
+        public static Service Register<T>(Net net, string servicename, RPCTypeConfig type) where T : new()
+        {
+            return Register(new T(), net, servicename, new ServiceConfig(type));
+        }
+        public static Service Register(object instance, Net net, string servicename, ServiceConfig config)
         {
             if (string.IsNullOrEmpty(servicename))
             {
                 throw new ArgumentException("参数为空", nameof(servicename));
             }
 
-            if (string.IsNullOrEmpty(ip))
-            {
-                throw new ArgumentException("参数为空", nameof(ip));
-            }
-
-            if (string.IsNullOrEmpty(port))
-            {
-                throw new ArgumentException("参数为空", nameof(port));
-            }
-
             if (config.Types is null)
             {
                 throw new ArgumentNullException(nameof(config.Types));
             }
-            if (!NetCore.Get(new Tuple<string, string>(ip, port), out Net net))
-            {
-                throw new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}Net未找到");
-            }
+
             net.Services.TryGetValue(servicename, out Service service);
             if (service == null)
             {
                 try
                 {
                     service = new Service();
-                    service.Register(new Tuple<string, string>(ip, port), servicename, instance, config);
+                    service.Register(net.Name, servicename, instance, config);
                     net.Services[servicename] = service;
-                    config.OnLog(RPCLog.LogCode.Register,$"{ip}-{port}-{servicename}注册成功！");
+                    config.OnLog(RPCLog.LogCode.Register,$"{net.Name}-{servicename}注册成功！");
                     return service;
                 }
                 catch (Exception e)
@@ -70,26 +61,21 @@ namespace EtherealS.RPCService
                     config.OnException(e);
                 }
             }
-            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}-{servicename}已注册！"));
+            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{net.Name}-{servicename}已注册！"));
             return null;
         }
 
-        public static bool UnRegister(Tuple<string, string, string> key)
+        public static bool UnRegister(string netName,string serviceName)
         {
-            if (!NetCore.Get(new Tuple<string, string>(key.Item1, key.Item2), out Net net))
+            if (!NetCore.Get(netName, out Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.RegisterError, $"{key.Item1}-{key.Item2}Net未找到");
+                throw new RPCException(RPCException.ErrorCode.RegisterError, $"{netName}Net未找到");
             }
-            return net.Services.TryRemove(key.Item3, out Service value);
+            return UnRegister(net,serviceName);
         }
-
-        public static bool Get(string ip, string port, string servicename,out Service proxy)
+        public static bool UnRegister(Net net, string serviceName)
         {
-            if (!NetCore.Get(new Tuple<string, string>(ip, port), out Net net))
-            {
-                throw new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}Net未找到");
-            }
-            return net.Services.TryGetValue(servicename, out proxy);
+            return net.Services.TryRemove(serviceName, out Service value);
         }
     }
 }

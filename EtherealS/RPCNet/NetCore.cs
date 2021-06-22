@@ -14,35 +14,45 @@ namespace EtherealS.RPCNet
     /// </summary>
     public class NetCore
     {
-        private static Dictionary<Tuple<string, string>, Net> nets { get; } = new Dictionary<Tuple<string, string>, Net>();
+        private static Dictionary<string, Net> nets { get; } = new Dictionary<string, Net>();
 
-        public static bool Get(Tuple<string, string> key, out Net net)
+        public static bool Get(string name, out Net net)
         {
-            return nets.TryGetValue(key,out net);
+            return nets.TryGetValue(name,out net);
         }
 
-        public static Net Register(string ip, string port)
+        public static Net Register(string name)
         {
-            return Register(ip,port,new NetConfig());
+            return Register(name, new NetConfig());
         }
-        public static Net Register(string ip, string port, NetConfig config)
+        public static Net Register(string name, NetConfig config)
         {
             if (config is null)
             {
                 throw new ArgumentNullException(nameof(config));
             }
-            if (!nets.TryGetValue(new Tuple<string, string>(ip, port), out Net net))
+            if (!nets.TryGetValue(name, out Net net))
             {
                 net = new Net();
                 net.Config = config;
-                nets.Add(new Tuple<string, string>(ip, port),net);
+                nets.Add(name,net);
             }
-            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}服务的NetConfig已经注册"));
+            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{name} Net 已经注册"));
             return net;
         }
-        public static bool UnRegister(string ip, string port)
+        public static bool UnRegister(string name)
         {
-            return nets.Remove(new Tuple<string, string>(ip, port));
+            if (NetCore.Get(name, out Net net))
+            {
+                return UnRegister(net);
+            }
+            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{name} Net未找到");
+
+        }
+        public static bool UnRegister(Net net)
+        {
+            //**  这里应该执行一系列Net销毁操作
+            return nets.Remove(net.Name);
         }
     }
 }

@@ -29,9 +29,11 @@ namespace EtherealS.NativeServer
 
         private Tuple<string, string> serverKey;
 
+        private string netName;
+
         public Socket ListenSocket { get=>listenSocket; set => listenSocket = value; }
 
-        public ServerListener(Tuple<string, string> serverKey, ServerConfig config)
+        public ServerListener(Net net,Tuple<string, string> serverKey, ServerConfig config)
         {
             this.serverKey = serverKey;
             this.config = config;
@@ -40,7 +42,7 @@ namespace EtherealS.NativeServer
             this.semaphoreAcceptedClients = new Semaphore(config.NumConnections, config.NumConnections);
             for (int i = 0; i < config.NumConnections; i++)
             {
-                DataToken token = new DataToken(serverKey,config);
+                DataToken token = new DataToken(netName,serverKey,config);
                 token.EventArgs.Completed += OnReceiveCompleted;
                 this.readWritePool.Push(token);
             }
@@ -61,13 +63,9 @@ namespace EtherealS.NativeServer
                 this.listenSocket.Bind(localEndPoint);
             }
             this.listenSocket.Listen(config.NumConnections);
-
-            if(NetCore.Get(serverKey,out Net net))
-            {
-                net.ClientResponseSend = SendClientResponse;
-                net.ServerRequestSend = SendServerRequest;
-            }
-            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError,$"{serverKey}无法找到NetConfig"));
+            netName = net.Name;
+            net.ClientResponseSend = SendClientResponse;
+            net.ServerRequestSend = SendServerRequest;
         }
 
         public void Start()
@@ -104,7 +102,7 @@ namespace EtherealS.NativeServer
                 }
                 if (config.AutoManageTokens)
                 {
-                    if (NetCore.Get(serverKey, out Net net))
+                    if (NetCore.Get(netName, out Net net))
                     {
                         if ((e.UserToken as DataToken).Token != null) net.Tokens.TryRemove((e.UserToken as DataToken).Token.Key, out BaseUserToken value);
                     }
@@ -117,7 +115,7 @@ namespace EtherealS.NativeServer
                 this.semaphoreAcceptedClients.Release();
                 this.readWritePool.Push(e.UserToken as DataToken);
                 Interlocked.Decrement(ref this.numConnectedSockets);
-                Console.WriteLine("A client has been disconnected from the server. There are {0} clients connected to the server", this.numConnectedSockets);
+                config.OnLog(RPCLog.LogCode.Runtime,$"A client has been disconnected from the server. There are {this.numConnectedSockets} clients connected to the server");
             }
             return true;
         }
@@ -141,8 +139,7 @@ namespace EtherealS.NativeServer
                         // ReadEventArg object User user.
                         token.Connect(s);
                         Interlocked.Increment(ref this.numConnectedSockets);
-                        Console.WriteLine("Client connection accepted. There are {0} clients connected to the server",
-                            this.numConnectedSockets);
+                        config.OnLog(RPCLog.LogCode.Runtime, $"Client connection accepted. There are {this.numConnectedSockets} clients connected to the server");
                         if (!s.ReceiveAsync(token.EventArgs))
                         {
                             ProcessReceive(token.EventArgs);
@@ -150,18 +147,18 @@ namespace EtherealS.NativeServer
                     }
                     else
                     {
-                        Console.WriteLine("There are no more available sockets to allocate.");
+                        config.OnException(RPCException.ErrorCode.RuntimeError, "There are no more available sockets to allocate.");
                     }
                 }
                 else throw new SocketException((int)SocketError.NotConnected);
             }
             catch (SocketException ex)
             {
-                Console.WriteLine("Error when processing data received from {0}:\r\n{1}", e.RemoteEndPoint, ex.ToString());
+                config.OnException(RPCException.ErrorCode.RuntimeError, $"Error when processing data received from {e.RemoteEndPoint}:\r\n{ex.ToString()}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                config.OnException(RPCException.ErrorCode.RuntimeError, ex.ToString());
             }
             finally
             {
@@ -171,7 +168,7 @@ namespace EtherealS.NativeServer
 
         private void StartAccept(SocketAsyncEventArgs acceptEventArg)
         {
-            Console.WriteLine($"[线程]{Thread.CurrentThread.Name}:{serverKey.Item1}:{serverKey.Item2}线程任务已经开始运行");
+            config.OnLog(RPCLog.LogCode.Runtime, $"[线程]{Thread.CurrentThread.Name}:{serverKey.Item1}:{serverKey.Item2}线程任务已经开始运行");
             while (true)
             {
                 mutex.WaitOne();
@@ -186,7 +183,7 @@ namespace EtherealS.NativeServer
                     acceptEventArg.AcceptSocket = null;
                 }
                 this.semaphoreAcceptedClients.WaitOne();
-                Console.WriteLine($"[线程]{Thread.CurrentThread.Name}:开始异步等待{serverKey.Item1}:{serverKey.Item2}中Accpet请求");
+                config.OnLog(RPCLog.LogCode.Runtime, $"[线程]{Thread.CurrentThread.Name}:开始异步等待{serverKey.Item1}:{serverKey.Item2}中Accpet请求");
                 if (!this.listenSocket.AcceptAsync(acceptEventArg))
                 {
                     this.ProcessAccept(acceptEventArg);
@@ -196,7 +193,7 @@ namespace EtherealS.NativeServer
                     keepalive.Reset();
                     keepalive.WaitOne();
                 }
-                Console.WriteLine($"[线程]{Thread.CurrentThread.Name}:完成{serverKey.Item1}:{serverKey.Item2}中请求的Accpet");
+                config.OnLog(RPCLog.LogCode.Runtime, $"[线程]{Thread.CurrentThread.Name}:完成{serverKey.Item1}:{serverKey.Item2}中请求的Accpet");
                 mutex.ReleaseMutex();
             }
         }

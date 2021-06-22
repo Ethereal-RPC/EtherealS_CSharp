@@ -24,15 +24,16 @@ namespace EtherealS.RPCRequest
 
         #region --事件--
         public event OnLogDelegate LogEvent;
+        /// <summary>
+        /// 抛出异常事件
+        /// </summary>
+        public event OnExceptionDelegate ExceptionEvent;
         #endregion
 
         #region --属性--
         public RPCTypeConfig Types { get => types; set => types = value; }
 
-        /// <summary>
-        /// 抛出异常事件
-        /// </summary>
-        public event OnExceptionDelegate ExceptionEvent;
+
         #endregion
 
         #region --方法--

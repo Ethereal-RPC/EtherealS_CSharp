@@ -8,76 +8,46 @@ namespace EtherealS.RPCRequest
     public class RequestCore
     {
 
-        public static bool Get(string ip,string port, string servicename, out Request reqeust)
+        public static bool Get(string netName, string servicename, out Request reqeust)
         {
-            if (NetCore.Get(new Tuple<string, string>(ip,port), out Net net))
+            if (NetCore.Get(netName, out Net net))
             {
-                return net.Requests.TryGetValue(servicename, out reqeust);
+                return Get(net, servicename,out reqeust);
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}Net未找到");
+            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{netName}Net未找到");
         }
-        public static bool Get(Tuple<string, string, string> key, out Request reqeust)
+        public static bool Get(Net net, string servicename, out Request reqeust)
         {
-            if (NetCore.Get(new Tuple<string, string>(key.Item1, key.Item2), out Net net))
-            {
-                return net.Requests.TryGetValue(key.Item3, out reqeust);
-            }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{key.Item1}-{key.Item2}Net未找到");
+            return net.Requests.TryGetValue(servicename, out reqeust);
         }
-        public static R Register<R>(string ip, string port, string servicename, RPCTypeConfig type)
+        public static R Register<R>(Net net, string servicename, RPCTypeConfig type)
         {
-            if (type is null)
-            {
-                throw new ArgumentException("参数为空", nameof(type));
-            }
             RequestConfig config = new RequestConfig(type);
-            return Register<R>( ip, port, servicename, config);
+            return Register<R>(net, servicename, config);
         }
 
-        public static R Register<R>(string ip, string port, string servicename,RequestConfig config)
+        public static R Register<R>(Net net, string servicename, RequestConfig config)
         {
-            if (string.IsNullOrEmpty(servicename))
-            {
-                Console.WriteLine($"{servicename}-{ip}-{port} Load Fail!");
-                throw new ArgumentException("参数为空", nameof(servicename));
-            }
-
-            if (string.IsNullOrEmpty(ip))
-            {
-                Console.WriteLine($"{servicename}-{ip}-{port} Load Fail!");
-                throw new ArgumentException("参数为空", nameof(ip));
-            }
-
-            if (string.IsNullOrEmpty(port))
-            {
-                Console.WriteLine($"{servicename}-{ip}-{port} Load Fail!");
-                throw new ArgumentException("参数为空", nameof(port));
-            }
-
-            if (config.Types is null)
-            {
-                throw new ArgumentNullException(nameof(config.Types));
-            }
-            if (!NetCore.Get(new Tuple<string, string>(ip, port), out Net net))
-            {
-                throw new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}Net未找到");
-            }
-            net.Requests.TryGetValue(servicename,out Request request);
+            net.Requests.TryGetValue(servicename, out Request request);
             if (request == null)
             {
-                request = Request.Register<R>(new Tuple<string, string>(ip, port), servicename ,config);
+                request = Request.Register<R>(net.Name, servicename, config);
                 net.Requests[servicename] = request;
             }
-            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{ip}-{port}-{servicename}已注册，无法重复注册！"));
+            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{net.Name}-{servicename}已注册，无法重复注册！"));
             return (R)(request as object);
         }
-        public static bool UnRegister(Tuple<string, string, string> key)
+        public static bool UnRegister(string netName,string serviceName)
         {
-            if (NetCore.Get(new Tuple<string, string>(key.Item1, key.Item2), out Net net))
+            if (NetCore.Get(netName, out Net net))
             {
-                return net.Requests.Remove(key.Item3, out Request value);
+                return UnRegister(net, serviceName);
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{key.Item1}-{key.Item2}Net未找到");
+            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{netName}Net未找到");
+        }
+        public static bool UnRegister(Net net, string serviceName)
+        {
+            return net.Requests.Remove(serviceName, out Request value);
         }
     }
 }

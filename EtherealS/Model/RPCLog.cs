@@ -6,7 +6,7 @@ namespace EtherealS.Model
 {
     public class RPCLog
     {
-        public enum LogCode { Register, Runtime }
+        public enum LogCode { Core, Runtime }
 
         #region --字段--
         private string message;

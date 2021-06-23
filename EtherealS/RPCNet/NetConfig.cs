@@ -13,8 +13,8 @@ namespace EtherealS.RPCNet
     {
         #region --委托--
         public delegate bool InterceptorDelegate(Service service,MethodInfo method,BaseUserToken token);
-        public delegate void OnLogDelegate(RPCLog log);
-        public delegate void OnExceptionDelegate(Exception exception);
+        public delegate void OnLogDelegate(RPCLog log,Net net);
+        public delegate void OnExceptionDelegate(Exception exception,Net net);
         #endregion
 
         #region --事件--
@@ -50,28 +50,28 @@ namespace EtherealS.RPCNet
             }
             else return true;
         }
-        internal void OnException(RPCException.ErrorCode code, string message)
+        internal void OnException(RPCException.ErrorCode code, string message,Net net)
         {
-            OnException(new RPCException(code, message));
+            OnException(new RPCException(code, message),net);
         }
-        internal void OnException(Exception e)
+        internal void OnException(Exception e,Net net)
         {
             if (ExceptionEvent != null)
             {
-                ExceptionEvent(e);
+                ExceptionEvent(e,net);
             }
             throw e;
         }
 
-        internal void OnLog(RPCLog.LogCode code, string message)
+        internal void OnLog(RPCLog.LogCode code, string message,Net net)
         {
-            OnLog(new RPCLog(code, message));
+            OnLog(new RPCLog(code, message),net);
         }
-        internal void OnLog(RPCLog log)
+        internal void OnLog(RPCLog log,Net net)
         {
             if (LogEvent != null)
             {
-                LogEvent(log);
+                LogEvent(log,net);
             }
         }
         #endregion

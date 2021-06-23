@@ -56,7 +56,7 @@ namespace EtherealS.NativeServer
             buffer.ResetReaderIndex();
             buffer.ResetWriterIndex();
             token = config.CreateMethod();
-            token.ServerKey = serverKey;
+            token.NetName = netName;
             eventArgs.AcceptSocket = socket;
             token.Net = eventArgs;
             token.OnConnect();
@@ -91,17 +91,19 @@ namespace EtherealS.NativeServer
                             buffer.SetReaderIndex(buffer.ReaderIndex + length);
                             if (!NetCore.Get(netName, out Net net))
                             {
-                                config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, "未找到NetCore"));
+                                throw new RPCException(RPCException.ErrorCode.Runtime, $"Token查询{netName} Net时 不存在");
                             }
-                            if (pattern == 0 && request != null)
+                            else if (pattern == 0 && request != null)
                             {
                                 net.ClientRequestReceive(token, request);
                             }
                         }
-                        catch
+                        catch(Exception e)
                         {
-                            config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError,
-                                $"{serverKey}-{EventArgs.RemoteEndPoint}:用户数据错误，已自动断开连接！"));
+                            NetCore.Get(netName, out Net net);
+                            config.OnException(e,net.Server);
+                            config.OnException(new RPCException(RPCException.ErrorCode.Runtime,
+                                $"{serverKey}-{EventArgs.RemoteEndPoint}:用户数据错误，已自动断开连接！"),net.Server);
                         }
                     }
                     else
@@ -126,7 +128,8 @@ namespace EtherealS.NativeServer
                             else
                             {
                                 token.DisConnect();
-                                config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey}-{EventArgs.RemoteEndPoint}:用户请求数据量太大，中止接收！"));
+                                NetCore.Get(netName, out Net net);
+                                config.OnException(new RPCException(RPCException.ErrorCode.Runtime, $"{serverKey}-{EventArgs.RemoteEndPoint}:用户请求数据量太大，中止接收！"),net.Server);
                             }
                         }
                         EventArgs.SetBuffer(count, buffer.Capacity - count);

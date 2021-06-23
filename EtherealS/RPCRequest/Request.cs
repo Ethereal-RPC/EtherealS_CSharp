@@ -45,7 +45,7 @@ namespace EtherealS.RPCRequest
                                 methodid.Append("-" + type.Name);
                                 obj[i - 1] = type.Serialize(args[i]);
                             }
-                            else config.OnException(new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册"));
+                            else config.OnException(new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册"),this);
                         }
                     }
                     else
@@ -60,10 +60,10 @@ namespace EtherealS.RPCRequest
                                     methodid.Append("-" + type.Name);
                                     obj[i - 1] = type.Serialize(args[i]);
                                 }
-                                else config.OnException(new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册"));
+                                else config.OnException(new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册"), this);
                             }
                         }
-                        else config.OnException(new RPCException($"方法体{targetMethod.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length}个,Method:{param_count}个"));
+                        else config.OnException(new RPCException($"方法体{targetMethod.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length}个,Method:{param_count}个"), this);
                     }
 
                 }
@@ -72,9 +72,16 @@ namespace EtherealS.RPCRequest
                 {
                     if (!NetCore.Get(netName, out Net net))
                     {
-                        config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError,
-                            $"{servicename}服务在发送请求时，NetConfig为空！"));
+                        config.OnException(new RPCException(RPCException.ErrorCode.Runtime,
+                            $"{servicename}服务在发送请求时，NetConfig为空！"), this);
                     }
+
+                    string log = "";
+                    log += "---------------------------------------------------------\n";
+                    log += $"{ DateTime.Now}::{netName}::[服 - 指令]\n{ request}\n";
+                    log += "---------------------------------------------------------\n";
+                    config.OnLog(RPCLog.LogCode.Runtime, log, this);
+
                     net.ServerRequestSend((args[0] as BaseUserToken), request);
                     return null;
                 }

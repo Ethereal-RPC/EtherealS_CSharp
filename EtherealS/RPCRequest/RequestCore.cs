@@ -14,7 +14,7 @@ namespace EtherealS.RPCRequest
             {
                 return Get(net, servicename,out reqeust);
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{netName}Net未找到");
+            else throw new RPCException(RPCException.ErrorCode.Core, $"{netName}Net未找到");
         }
         public static bool Get(Net net, string servicename, out Request reqeust)
         {
@@ -34,7 +34,7 @@ namespace EtherealS.RPCRequest
                 request = Request.Register<R>(net.Name, servicename, config);
                 net.Requests[servicename] = request;
             }
-            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{net.Name}-{servicename}已注册，无法重复注册！"));
+            else config.OnException(new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册，无法重复注册！"),null);
             return (R)(request as object);
         }
         public static bool UnRegister(string netName,string serviceName)
@@ -43,7 +43,7 @@ namespace EtherealS.RPCRequest
             {
                 return UnRegister(net, serviceName);
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{netName}Net未找到");
+            else throw new RPCException(RPCException.ErrorCode.Core, $"{netName}Net未找到");
         }
         public static bool UnRegister(Net net, string serviceName)
         {

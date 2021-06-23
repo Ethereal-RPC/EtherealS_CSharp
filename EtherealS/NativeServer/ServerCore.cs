@@ -15,7 +15,7 @@ namespace EtherealS.NativeServer
             {
                 return Get(net, out socketserver);
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{netName}Net未找到");
+            else throw new RPCException(RPCException.ErrorCode.Core, $"{netName}Net未找到");
         }
         public static bool Get(Net net, out ServerListener socketserver)
         {
@@ -55,7 +55,7 @@ namespace EtherealS.NativeServer
             {
                 return UnRegister(net);
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{netName}Net未找到");
+            else throw new RPCException(RPCException.ErrorCode.Core, $"{netName}Net未找到");
         }
         public static bool UnRegister(Net net)
         {

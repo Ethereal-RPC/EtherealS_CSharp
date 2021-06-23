@@ -83,7 +83,7 @@ namespace EtherealS.RPCNet
                     string log = "--------------------------------------------------\n" +
                         $"{DateTime.Now}::{name}::[客-请求]\n{request}\n" +
                         "--------------------------------------------------\n";
-                    service.Config.OnLog(RPCLog.LogCode.Runtime, log);
+                    service.Config.OnLog(RPCLog.LogCode.Runtime, log,service);
                     if (Config.OnInterceptor(service, method, token) &&
                         service.Config.OnInterceptor(service, method, token))
                     {
@@ -94,7 +94,7 @@ namespace EtherealS.RPCNet
                             {
                                 request.Params[i] = type.Deserialize((string)request.Params[i]);
                             }
-                            else service.Config.OnException(new RPCException($"RPC中的{params_id[i]}类型中尚未被注册"));
+                            else service.Config.OnException(new RPCException($"RPC中的{params_id[i]}类型中尚未被注册"), service);
                         }
 
                         if (method.GetParameters().Length == request.Params.Length) request.Params[0] = token;
@@ -117,9 +117,9 @@ namespace EtherealS.RPCNet
                         }
                     }
                 }
-                else service.Config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"未找到方法[{name}:{request.Service}:{request.MethodId}]"));
+                else service.Config.OnException(new RPCException(RPCException.ErrorCode.Runtime, $"未找到方法[{name}:{request.Service}:{request.MethodId}]"), service);
             }
-            else Config.OnException(new RPCException(RPCException.ErrorCode.RuntimeError, $"未找到服务[{name}:{request.Service}]"));
+            else config.OnException(new RPCException(RPCException.ErrorCode.Runtime, $"未找到服务[{name}:{request.Service}]"),this);
         }
         #endregion
     }

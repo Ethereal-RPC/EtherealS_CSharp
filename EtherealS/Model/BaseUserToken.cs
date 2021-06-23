@@ -40,7 +40,7 @@ namespace EtherealS.Model
         /// <summary>
         /// 服务器字段信息
         /// </summary>
-        private Tuple<string, string> serverKey;
+        private string netName;
         /// <summary>
         /// 传输字段信息
         /// </summary>
@@ -48,7 +48,7 @@ namespace EtherealS.Model
         #endregion
 
         #region --属性--
-        public Tuple<string, string> ServerKey { get => serverKey; set => serverKey = value; }
+
         [JsonIgnore]
         public object Net { get => net; set => net = value; }
         #endregion
@@ -61,9 +61,9 @@ namespace EtherealS.Model
         /// <returns></returns>
         public bool Register(bool replace = false)
         {
-            if(!NetCore.Get(serverKey, out Net net))
+            if(!NetCore.Get(netName, out Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey.Item1}-{serverKey.Item2}Net未找到");
+                throw new RPCException(RPCException.ErrorCode.Runtime, $"{netName}Net未找到");
             }
             if (replace)
             {
@@ -78,9 +78,9 @@ namespace EtherealS.Model
         /// <returns></returns>
         public bool UnRegister()
         {
-            if (!NetCore.Get(serverKey, out Net net))
+            if (!NetCore.Get(netName, out Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey.Item1}-{serverKey.Item2}Net未找到");
+                throw new RPCException(RPCException.ErrorCode.Runtime, $"{netName}Net未找到");
             }
             return net.Tokens.TryRemove(Key, out BaseUserToken value);
         }
@@ -90,9 +90,9 @@ namespace EtherealS.Model
         /// <returns></returns>
         public ConcurrentDictionary<object, BaseUserToken> GetTokens()
         {
-            if (!NetCore.Get(serverKey, out Net net))
+            if (!NetCore.Get(netName, out Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey.Item1}-{serverKey.Item2}Net未找到");
+                throw new RPCException(RPCException.ErrorCode.Runtime, $"{netName}Net未找到");
             }
             return net.Tokens;
         }
@@ -105,9 +105,9 @@ namespace EtherealS.Model
         /// <returns></returns>
         public bool GetToken<T>(object key,out T value) where T:BaseUserToken
         {
-            if (!NetCore.Get(serverKey, out Net net))
+            if (!NetCore.Get(netName, out Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverKey.Item1}-{serverKey.Item2}Net未找到");
+                throw new RPCException(RPCException.ErrorCode.Runtime, $"{netName}Net未找到");
             }
             if (net.Tokens.TryGetValue(key, out BaseUserToken result))
             {
@@ -126,7 +126,7 @@ namespace EtherealS.Model
         /// <returns></returns>
         public bool DisConnect()
         {
-            if(ServerCore.Get(serverKey, out ServerListener server))
+            if(ServerCore.Get(netName, out ServerListener server))
             {
                 return server.CloseClientSocket((SocketAsyncEventArgs)net);
             }
@@ -137,11 +137,11 @@ namespace EtherealS.Model
         /// </summary>
         /// <param name="serverkey"></param>
         /// <returns></returns>
-        public static ConcurrentDictionary<object, BaseUserToken> GetTokens(Tuple<string, string> serverkey)
+        public static ConcurrentDictionary<object, BaseUserToken> GetTokens(string netName)
         {
-            if (!NetCore.Get(serverkey, out Net net))
+            if (!NetCore.Get(netName, out Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.RuntimeError, $"{serverkey.Item1}-{serverkey.Item2}Net未找到");
+                throw new RPCException(RPCException.ErrorCode.Runtime, $"{netName}Net未找到");
             }
             return net.Tokens;
         }
@@ -153,6 +153,7 @@ namespace EtherealS.Model
         /// Token唯一凭据Key
         /// </summary>
         public abstract object Key { get; set; }
+        public string NetName { get => netName; set => netName = value; }
         #endregion
 
         #region --虚方法--

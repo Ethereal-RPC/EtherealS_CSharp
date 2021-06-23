@@ -15,7 +15,7 @@ namespace EtherealS.RPCService
             {
                 return Get(net, serviceName, out service);
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{netName}-{serviceName}Net未找到");
+            else throw new RPCException(RPCException.ErrorCode.Core, $"{netName}-{serviceName}Net未找到");
         }
         public static bool Get(Net net, string serviceName, out Service service)
         {
@@ -53,15 +53,15 @@ namespace EtherealS.RPCService
                     service = new Service();
                     service.Register(net.Name, servicename, instance, config);
                     net.Services[servicename] = service;
-                    config.OnLog(RPCLog.LogCode.Register,$"{net.Name}-{servicename}注册成功！");
+                    config.OnLog(RPCLog.LogCode.Core,$"{net.Name}-{servicename}注册成功！",service);
                     return service;
                 }
                 catch (Exception e)
                 {
-                    config.OnException(e);
+                    config.OnException(e,null);
                 }
             }
-            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{net.Name}-{servicename}已注册！"));
+            else config.OnException(new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册！"),null);
             return null;
         }
 
@@ -69,7 +69,7 @@ namespace EtherealS.RPCService
         {
             if (!NetCore.Get(netName, out Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.RegisterError, $"{netName}Net未找到");
+                throw new RPCException(RPCException.ErrorCode.Core, $"{netName}Net未找到");
             }
             return UnRegister(net,serviceName);
         }

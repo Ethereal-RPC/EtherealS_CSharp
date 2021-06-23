@@ -1,13 +1,13 @@
 ﻿using System;
-using EtherealS;
+using System.Collections.Generic;
+using System.Text;
+
 namespace EtherealS_Test
 {
     public class Program
     {
-        static void Main(string[] args)
+        public static void Main()
         {
-            new test1().test();
-            
 
         }
     }

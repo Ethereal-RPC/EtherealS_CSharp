@@ -34,10 +34,11 @@ namespace EtherealS.RPCNet
             if (!nets.TryGetValue(name, out Net net))
             {
                 net = new Net();
+                net.Name = name;
                 net.Config = config;
                 nets.Add(name,net);
             }
-            else config.OnException(new RPCException(RPCException.ErrorCode.RegisterError, $"{name} Net 已经注册"));
+            else config.OnException(new RPCException(RPCException.ErrorCode.Core, $"{name} Net 已经注册"),null);
             return net;
         }
         public static bool UnRegister(string name)
@@ -46,7 +47,7 @@ namespace EtherealS.RPCNet
             {
                 return UnRegister(net);
             }
-            else throw new RPCException(RPCException.ErrorCode.RegisterError, $"{name} Net未找到");
+            else throw new RPCException(RPCException.ErrorCode.Core, $"{name} Net未找到");
 
         }
         public static bool UnRegister(Net net)

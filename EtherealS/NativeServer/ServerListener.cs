@@ -35,6 +35,7 @@ namespace EtherealS.NativeServer
 
         public ServerListener(Net net,Tuple<string, string> serverKey, ServerConfig config)
         {
+            netName = net.Name;
             this.serverKey = serverKey;
             this.config = config;
             this.numConnectedSockets = 0;
@@ -63,7 +64,6 @@ namespace EtherealS.NativeServer
                 this.listenSocket.Bind(localEndPoint);
             }
             this.listenSocket.Listen(config.NumConnections);
-            netName = net.Name;
             net.ClientResponseSend = SendClientResponse;
             net.ServerRequestSend = SendServerRequest;
         }
@@ -265,7 +265,7 @@ namespace EtherealS.NativeServer
             }
             else
             {
-                throw new SocketException((Int32)SocketError.NotConnected);
+                config.OnException(new SocketException((Int32)SocketError.NotConnected),this);
             }
         }
         private void SendServerRequest(BaseUserToken token,ServerRequestModel request)
@@ -296,7 +296,7 @@ namespace EtherealS.NativeServer
             }
             else
             {
-                throw new SocketException((Int32)SocketError.NotConnected);
+                config.OnException(new SocketException((Int32)SocketError.NotConnected), this);
             }
         }
         #region IDisposable Members

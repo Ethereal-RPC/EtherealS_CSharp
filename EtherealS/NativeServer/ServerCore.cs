@@ -24,13 +24,13 @@ namespace EtherealS.NativeServer
             else return false;
         }
 
-        public static ServerListener Register(string ip, string port,Net net,ServerConfig.CreateInstance createMethod)
+        public static ServerListener Register(Net net, string ip, string port,ServerConfig.CreateInstance createMethod)
         {
-            return Register(ip, port,net, new ServerConfig(createMethod),null);
+            return Register(net, ip, port, new ServerConfig(createMethod),null);
         }
-        public static ServerListener Register(string ip, string port, Net net,ServerConfig config)
+        public static ServerListener Register(Net net, string ip, string port,ServerConfig config)
         {
-            return Register(ip, port,net,config,null);
+            return Register(net, ip, port,config,null);
         }
         /// <summary>
         /// 获取客户端
@@ -38,7 +38,7 @@ namespace EtherealS.NativeServer
         /// <param name="serverIp">远程服务IP</param>
         /// <param name="port">远程服务端口</param>
         /// <returns>客户端</returns>
-        public static ServerListener Register(string ip, string port, Net net,ServerConfig config,ServerListener socketserver)
+        public static ServerListener Register(Net net, string ip, string port,ServerConfig config,ServerListener socketserver)
         {
             Tuple<string, string> key = new Tuple<string, string>(ip, port);
             if (net.Server == null)

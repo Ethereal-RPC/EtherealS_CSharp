@@ -87,7 +87,7 @@ namespace EtherealS.RPCRequest
                 }
                 return null;
             }
-            return targetMethod.Invoke(this, args);
+            return null;
         }
     }
 }

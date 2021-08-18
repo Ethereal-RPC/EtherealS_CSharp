@@ -26,18 +26,30 @@ namespace EtherealS_Test
             
             //建立网关
             Net net = NetCore.Register("demo");
+            net.Config.ExceptionEvent += Config_ExceptionEvent1;
             //向网关注册服务
             Service service = ServiceCore.Register<ServerService>(net, "Server", types);
+            service.Config.ExceptionEvent += Config_ExceptionEvent;
             //向网关注册请求
             ClientRequest request = RequestCore.Register<ClientRequest>(net, "Client", types);
             //本例中，突出服务类可作为正常类
             (service.Instance as ServerService).UserRequest = request;
             //向网关注册连接(提供一个生成User的方法)
-            ServerListener server = ServerCore.Register(net, "127.0.0.1", "28015",()=>new User());
+            ServerListener server = ServerCore.Register(net, "192.168.0.112", "28015",()=>new User());
             //启动连接
             server.Start();
             Console.WriteLine("服务器初始化完成....");
             
+        }
+
+        private static void Config_ExceptionEvent1(Exception exception, Net net)
+        {
+            Console.WriteLine(exception.Message);
+        }
+
+        private static void Config_ExceptionEvent(Exception exception, Service service)
+        {
+            Console.WriteLine(exception.Message);
         }
 
     }

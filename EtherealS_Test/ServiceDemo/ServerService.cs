@@ -20,6 +20,7 @@ namespace EtherealS_Test.ServiceDemo
         #endregion
 
         #region --方法--
+        //Token 
         [RPCService]
         public bool Register(User user, string username, long id)
         {
@@ -27,11 +28,18 @@ namespace EtherealS_Test.ServiceDemo
             user.Id = id;
             return user.Register();
         }
+        /// <summary>
+        /// 接受客户端发送来的命令请求
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="listener_id"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
 
         [RPCService]
         public bool SendSay(User sender, long listener_id, string message)
         {
-            //查找对应ID的用户
+            //查找对应ID的用户 1
             if (sender.GetToken(listener_id, out User listener))
             {
                 //向listener用户发送Hello请求

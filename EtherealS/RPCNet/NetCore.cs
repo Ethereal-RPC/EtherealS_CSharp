@@ -43,7 +43,7 @@ namespace EtherealS.RPCNet
         }
         public static bool UnRegister(string name)
         {
-            if (NetCore.Get(name, out Net net))
+            if (Get(name, out Net net))
             {
                 return UnRegister(net);
             }

@@ -23,7 +23,7 @@ namespace EtherealS_Test
             types.Add<long>("long");
             types.Add<string>("string");
             types.Add<bool>("bool");
-            
+
             //建立网关
             Net net = NetCore.Register("demo");
             net.Config.ExceptionEvent += Config_ExceptionEvent1;

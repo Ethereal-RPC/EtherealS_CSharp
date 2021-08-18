@@ -36,9 +36,11 @@ namespace EtherealS.RPCService
                     {
                         methodid.Append(method.Name);
                         ParameterInfo[] parameters = method.GetParameters();
+                        int start_idx = 1;
+                        if (parameters.Length > 0 && parameters[0].ParameterType.BaseType != typeof(BaseUserToken)) start_idx = 0;
                         if (rpcAttribute.Paramters == null)
                         {
-                            for (int i = 1; i < parameters.Length; i++)
+                            for (int i = start_idx; i < parameters.Length; i++)
                             {   
                                 try
                                 {

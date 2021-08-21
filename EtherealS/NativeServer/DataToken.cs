@@ -16,10 +16,10 @@ namespace EtherealS.NativeServer
         private DotNetty.Buffers.IByteBuffer buffer;
         private uint dynamicAdjustBufferCount = 1;
         //下面两部分只负责接收部分，发包构造部分并没有使用，修改时请注意！
-        //下面这部分用于拆包分析   
+        //下面这部分用于拆包分析
         private static int headsize = 32;//头包长度
         private static int bodysize = 4;//数据大小长度
-        private static int patternsize = 1;//消息类型长度   
+        private static int patternsize = 1;//消息类型长度
         private static int futuresize = 27;//后期看情况加
 
         private Tuple<string, string> serverKey;
@@ -41,10 +41,21 @@ namespace EtherealS.NativeServer
         }
         public void DisConnect()
         {
+            try
+            {
+                eventArgs.AcceptSocket?.Close();
+                eventArgs.AcceptSocket?.Dispose();
+            }
+            catch
+            {
+
+            }
+            eventArgs.AcceptSocket = null;
+            if(buffer.Capacity != config.BufferSize)buffer.AdjustCapacity(config.BufferSize);
             buffer.ResetReaderIndex();
             buffer.ResetWriterIndex();
-            if(buffer.Capacity != config.BufferSize)buffer.AdjustCapacity(config.BufferSize);
-            if(token != null)
+            eventArgs.SetBuffer(buffer.Array, 0, buffer.Capacity);
+            if (token != null)
             {
                 token.OnDisConnect();
                 token.Net = null;
@@ -58,7 +69,7 @@ namespace EtherealS.NativeServer
             token = config.CreateMethod();
             token.NetName = netName;
             eventArgs.AcceptSocket = socket;
-            token.Net = eventArgs;
+            token.Net = this;
             token.OnConnect();
         }
         public void ProcessData()
@@ -85,25 +96,22 @@ namespace EtherealS.NativeServer
                     if (length <= count)
                     {
                         ClientRequestModel request = null;
+                        request = config.ClientRequestModelDeserialize(buffer.GetString(buffer.ReaderIndex + headsize, body_length, config.Encoding));
+                        buffer.SetReaderIndex(buffer.ReaderIndex + length);
+                        if (!NetCore.Get(netName, out Net net))
+                        {
+                            throw new RPCException(RPCException.ErrorCode.Runtime, $"Token查询{netName} Net时 不存在");
+                        }
                         try
                         {
-                            request = config.ClientRequestModelDeserialize(buffer.GetString(buffer.ReaderIndex + headsize, body_length, config.Encoding));
-                            buffer.SetReaderIndex(buffer.ReaderIndex + length);
-                            if (!NetCore.Get(netName, out Net net))
-                            {
-                                throw new RPCException(RPCException.ErrorCode.Runtime, $"Token查询{netName} Net时 不存在");
-                            }
-                            else if (pattern == 0 && request != null)
+                            if (pattern == 0 && request != null)
                             {
                                 net.ClientRequestReceive(token, request);
                             }
                         }
                         catch(Exception e)
                         {
-                            NetCore.Get(netName, out Net net);
-                            config.OnException(e,net.Server);
-                            config.OnException(new RPCException(RPCException.ErrorCode.Runtime,
-                                $"{serverKey}-{EventArgs.RemoteEndPoint}:用户数据错误，已自动断开连接！"),net.Server);
+                            throw new RPCException(RPCException.ErrorCode.Runtime,$"{serverKey}-{EventArgs.RemoteEndPoint}:用户函数发生异常错误，已自动断开连接！\n"  + e.Message);
                         }
                     }
                     else
@@ -129,7 +137,7 @@ namespace EtherealS.NativeServer
                             {
                                 token.DisConnect();
                                 NetCore.Get(netName, out Net net);
-                                config.OnException(new RPCException(RPCException.ErrorCode.Runtime, $"{serverKey}-{EventArgs.RemoteEndPoint}:用户请求数据量太大，中止接收！"),net.Server);
+                                throw new RPCException(RPCException.ErrorCode.Runtime, $"{serverKey}-{EventArgs.RemoteEndPoint}:用户请求数据量太大，中止接收！");
                             }
                         }
                         EventArgs.SetBuffer(count, buffer.Capacity - count);

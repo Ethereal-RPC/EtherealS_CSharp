@@ -6,6 +6,8 @@ using System.Security.Cryptography;
 using EtherealS.RPCService;
 using System.Reflection;
 using Newtonsoft.Json;
+using EtherealS.RPCRequest;
+using EtherealS.NativeServer;
 
 namespace EtherealS.RPCNet
 {
@@ -14,11 +16,10 @@ namespace EtherealS.RPCNet
     /// </summary>
     public class NetCore
     {
-        private static Dictionary<string, Net> nets { get; } = new Dictionary<string, Net>();
-
+        public static Dictionary<string, Net> nets = new Dictionary<string, Net>();
         public static bool Get(string name, out Net net)
         {
-            return nets.TryGetValue(name,out net);
+            return nets.TryGetValue(name, out net);
         }
 
         public static Net Register(string name)
@@ -38,7 +39,7 @@ namespace EtherealS.RPCNet
                 net.Config = config;
                 nets.Add(name,net);
             }
-            else config.OnException(new RPCException(RPCException.ErrorCode.Core, $"{name} Net 已经注册"),null);
+            else throw new RPCException(RPCException.ErrorCode.Core, $"{name} Net 已经注册");
             return net;
         }
         public static bool UnRegister(string name)
@@ -47,12 +48,23 @@ namespace EtherealS.RPCNet
             {
                 return UnRegister(net);
             }
-            else throw new RPCException(RPCException.ErrorCode.Core, $"{name} Net未找到");
+            else
+            {
+                return true;
+            }
 
         }
         public static bool UnRegister(Net net)
         {
-            //**  这里应该执行一系列Net销毁操作
+            foreach(string serviceName in net.Services.Keys)
+            {
+                ServiceCore.UnRegister(net, serviceName);
+            }
+            foreach (string requestName in net.Requests.Keys)
+            {
+                RequestCore.UnRegister(net, requestName);
+            }
+            ServerCore.UnRegister(net);
             return nets.Remove(net.Name);
         }
     }

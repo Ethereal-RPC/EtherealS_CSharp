@@ -1,8 +1,10 @@
-﻿using EtherealS.Attribute;
+﻿using System;
+using EtherealS.Attribute;
 using EtherealS_Test.Model;
 using EtherealS_Test.RequestDemo;
 using System.Threading;
 using System.Threading.Tasks;
+using EtherealS.RPCService;
 
 namespace EtherealS_Test.ServiceDemo
 {
@@ -13,6 +15,8 @@ namespace EtherealS_Test.ServiceDemo
         /// 服务端向客户端发送请求的接口
         /// </summary>
         private ClientRequest userRequest;
+        [EtherealS.Attribute.Service.ServiceConfig]
+        public ServiceConfig config;
         #endregion
 
         #region --属性--

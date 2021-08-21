@@ -15,7 +15,11 @@ namespace EtherealS.RPCService
             {
                 return Get(net, serviceName, out service);
             }
-            else throw new RPCException(RPCException.ErrorCode.Core, $"{netName}-{serviceName}Net未找到");
+            else
+            {
+                service = null;
+                return false;
+            }
         }
         public static bool Get(Net net, string serviceName, out Service service)
         {
@@ -53,15 +57,17 @@ namespace EtherealS.RPCService
                     service = new Service();
                     service.Register(net.Name, servicename, instance, config);
                     net.Services[servicename] = service;
-                    config.OnLog(RPCLog.LogCode.Core,$"{net.Name}-{servicename}注册成功！",service);
+                    service.LogEvent += net.OnServiceLog;
+                    service.ExceptionEvent += net.OnServiceException;
+                    net.OnLog(RPCLog.LogCode.Core,$"{net.Name}-{servicename}注册成功！");
                     return service;
                 }
                 catch (Exception e)
                 {
-                    config.OnException(e,null);
+                    net.OnException(e);
                 }
             }
-            else config.OnException(new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册！"),null);
+            else net.OnException(new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册！"));
             return null;
         }
 
@@ -69,13 +75,16 @@ namespace EtherealS.RPCService
         {
             if (!NetCore.Get(netName, out Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.Core, $"{netName}Net未找到");
+                return true;
             }
             return UnRegister(net,serviceName);
         }
         public static bool UnRegister(Net net, string serviceName)
         {
-            return net.Services.TryRemove(serviceName, out Service value);
+            net.Services.TryRemove(serviceName, out Service service);
+            service.LogEvent -= net.OnServiceLog;
+            service.ExceptionEvent -= net.OnServiceException;
+            return true;
         }
     }
 }

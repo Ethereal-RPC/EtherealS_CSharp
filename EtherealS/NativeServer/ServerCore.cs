@@ -15,7 +15,11 @@ namespace EtherealS.NativeServer
             {
                 return Get(net, out socketserver);
             }
-            else throw new RPCException(RPCException.ErrorCode.Core, $"{netName}Net未找到");
+            else
+            {
+                socketserver = null;
+                return false;
+            }
         }
         public static bool Get(Net net, out ServerListener socketserver)
         {
@@ -45,6 +49,8 @@ namespace EtherealS.NativeServer
             {
                 if (socketserver == null) socketserver = new ServerListener(net, key, config);
                 net.Server = socketserver;
+                net.Server.LogEvent += net.OnServerLog;
+                net.Server.ExceptionEvent += net.OnServerException;
             }
             return socketserver;
         }
@@ -55,10 +61,16 @@ namespace EtherealS.NativeServer
             {
                 return UnRegister(net);
             }
-            else throw new RPCException(RPCException.ErrorCode.Core, $"{netName}Net未找到");
+            else
+            {
+                return true;
+            }
         }
         public static bool UnRegister(Net net)
         {
+            net.Server.LogEvent -= net.OnServerLog;
+            net.Server.ExceptionEvent -= net.OnServerException;
+            net.Server.Stop();
             net.Server.Dispose();
             net.Server = null;
             net.ServerRequestSend = null;

@@ -8,7 +8,6 @@ using EtherealS_Test.RequestDemo;
 using EtherealS_Test.ServiceDemo;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace EtherealS_Test
 {
@@ -16,41 +15,75 @@ namespace EtherealS_Test
     {
         public static void Main()
         {
+            string ip = "127.0.01";
+            string port = "28015";
+            Console.WriteLine("请选择端口(0-3)");
+            int mode = int.Parse(Console.ReadLine());
+            switch (mode)
+            {
+                case 0:
+                    port = "28015";
+                    break;
+                case 1:
+                    port = "28016";
+                    break;
+                case 2:
+                    port = "28017";
+                    break;
+                case 3:
+                    port = "28018";
+                    break;
+                default:
+                    port = mode.ToString();
+                    break;
+            }
+            Console.Title = $"{ip}-{port}";
             //注册数据类型
             RPCTypeConfig types = new RPCTypeConfig();
-            types.Add<int>("int");
-            types.Add<User>("user");
-            types.Add<long>("long");
-            types.Add<string>("string");
-            types.Add<bool>("bool");
-
+            types.Add<int>("Int");
+            types.Add<User>("User");
+            types.Add<long>("Long");
+            types.Add<string>("String");
+            types.Add<bool>("Bool");
             //建立网关
             Net net = NetCore.Register("demo");
-            net.Config.ExceptionEvent += Config_ExceptionEvent1;
+            net.ExceptionEvent += Config_ExceptionEvent;
+            net.LogEvent += Config_LogEvent;
             //向网关注册服务
             Service service = ServiceCore.Register<ServerService>(net, "Server", types);
-            service.Config.ExceptionEvent += Config_ExceptionEvent;
             //向网关注册请求
             ClientRequest request = RequestCore.Register<ClientRequest>(net, "Client", types);
             //本例中，突出服务类可作为正常类
             (service.Instance as ServerService).UserRequest = request;
             //向网关注册连接(提供一个生成User的方法)
-            ServerListener server = ServerCore.Register(net, "192.168.0.112", "28015",()=>new User());
-            //启动连接
-            server.Start();
+            ServerListener server = ServerCore.Register(net,ip,port,()=>new User());
+            List<Tuple<string, string, EtherealC.NativeClient.ClientConfig>> ips = new();
+            EtherealC.NativeClient.ClientConfig clientConfig = new EtherealC.NativeClient.ClientConfig();
+            /*
+             * 部署分布式集群
+             */
+            //开启集群
+            net.Config.NetNodeMode = true;
+            //添加集群地址
+            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28015", null));
+            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28016", null));
+            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28017", null));
+            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28018", null));
+            net.Config.NetNodeIps = ips;
+            //发布服务
+            net.Publish();
             Console.WriteLine("服务器初始化完成....");
             
         }
 
-        private static void Config_ExceptionEvent1(Exception exception, Net net)
+        private static void Config_LogEvent(RPCLog log, Net net)
+        {
+            Console.WriteLine(log.Message);
+        }
+
+        private static void Config_ExceptionEvent(Exception exception, Net net)
         {
             Console.WriteLine(exception.Message);
         }
-
-        private static void Config_ExceptionEvent(Exception exception, Service service)
-        {
-            Console.WriteLine(exception.Message);
-        }
-
     }
 }

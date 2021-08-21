@@ -12,9 +12,13 @@ namespace EtherealS.RPCRequest
         {
             if (NetCore.Get(netName, out Net net))
             {
-                return Get(net, servicename,out reqeust);
+                return Get(net, servicename, out reqeust);
             }
-            else throw new RPCException(RPCException.ErrorCode.Core, $"{netName}Net未找到");
+            else
+            {
+                reqeust = null;
+                return false;
+            }
         }
         public static bool Get(Net net, string servicename, out Request reqeust)
         {
@@ -33,8 +37,10 @@ namespace EtherealS.RPCRequest
             {
                 request = Request.Register<R>(net.Name, servicename, config);
                 net.Requests[servicename] = request;
+                request.LogEvent += net.OnRequestLog;
+                request.ExceptionEvent += net.OnRequestException;
             }
-            else config.OnException(new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册，无法重复注册！"),null);
+            else throw new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册，无法重复注册！");
             return (R)(request as object);
         }
         public static bool UnRegister(string netName,string serviceName)
@@ -43,11 +49,14 @@ namespace EtherealS.RPCRequest
             {
                 return UnRegister(net, serviceName);
             }
-            else throw new RPCException(RPCException.ErrorCode.Core, $"{netName}Net未找到");
+            else return true;
         }
         public static bool UnRegister(Net net, string serviceName)
         {
-            return net.Requests.Remove(serviceName, out Request value);
+            net.Requests.Remove(serviceName, out Request request);
+            request.LogEvent -= net.OnRequestLog;
+            request.ExceptionEvent -= net.OnRequestException;
+            return true;
         }
     }
 }

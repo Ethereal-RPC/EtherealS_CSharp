@@ -36,17 +36,6 @@ namespace EtherealS.NativeServer
         /// <returns>序列化文本</returns>
         public delegate string ClientResponseModelSerializeDelegate(ClientResponseModel obj);
 
-        public delegate void OnExceptionDelegate(Exception exception,ServerListener server);
-
-        public delegate void OnLogDelegate(RPCLog log,ServerListener server);
-        #endregion
-
-        #region --事件--
-        public event OnLogDelegate LogEvent;
-        /// <summary>
-        /// 抛出异常事件
-        /// </summary>
-        public event OnExceptionDelegate ExceptionEvent;
         #endregion
 
         #region --字段--
@@ -120,30 +109,7 @@ namespace EtherealS.NativeServer
             clientResponseModelSerialize = (obj) => JsonConvert.SerializeObject(obj);
             clientRequestModelDeserialize = (obj) => JsonConvert.DeserializeObject<ClientRequestModel>(obj);
         }
-        internal void OnException(RPCException.ErrorCode code, string message,ServerListener server)
-        {
-            OnException(new RPCException(code, message),server);
-        }
-        internal void OnException(Exception e, ServerListener server)
-        {
-            if (ExceptionEvent != null)
-            {
-                ExceptionEvent(e,server);
-            }
-            throw e;
-        }
 
-        internal void OnLog(RPCLog.LogCode code, string message, ServerListener server)
-        {
-            OnLog(new RPCLog(code, message),server);
-        }
-        internal void OnLog(RPCLog log, ServerListener server)
-        {
-            if (LogEvent != null)
-            {
-                LogEvent(log,server);
-            }
-        }
         #endregion
     }
 }

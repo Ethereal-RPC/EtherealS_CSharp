@@ -32,13 +32,62 @@ namespace EtherealS.NativeServer
         private string netName;
 
         public Socket ListenSocket { get=>listenSocket; set => listenSocket = value; }
+        public Tuple<string, string> ServerKey { get => serverKey; set => serverKey = value; }
+        public int NumConnectedSockets { get => numConnectedSockets; set => numConnectedSockets = value; }
+        public ServerConfig Config { get => config; set => config = value; }
 
+        #region --委托--
+
+        public delegate void OnExceptionDelegate(Exception exception, ServerListener server);
+
+        public delegate void OnLogDelegate(RPCLog log, ServerListener server);
+
+        #endregion
+
+        #region --事件字段--
+        private OnLogDelegate logEvent;
+        private OnExceptionDelegate exceptionEvent;
+        #endregion
+
+        #region --事件属性--
+        /// <summary>
+        /// 日志输出事件
+        /// </summary>
+        public event OnLogDelegate LogEvent
+        {
+            add
+            {
+                logEvent -= value;
+                logEvent += value;
+            }
+            remove
+            {
+                logEvent -= value;
+            }
+        }
+        /// <summary>
+        /// 抛出异常事件
+        /// </summary>
+        public event OnExceptionDelegate ExceptionEvent
+        {
+            add
+            {
+                exceptionEvent -= value;
+                exceptionEvent += value;
+            }
+            remove
+            {
+                exceptionEvent -= value;
+            }
+
+        }
+        #endregion
         public ServerListener(Net net,Tuple<string, string> serverKey, ServerConfig config)
         {
             netName = net.Name;
-            this.serverKey = serverKey;
-            this.config = config;
-            this.numConnectedSockets = 0;
+            this.ServerKey = serverKey;
+            this.Config = config;
+            this.NumConnectedSockets = 0;
             this.readWritePool = new DataTokenPool(config.NumConnections);
             this.semaphoreAcceptedClients = new Semaphore(config.NumConnections, config.NumConnections);
             for (int i = 0; i < config.NumConnections; i++)
@@ -68,9 +117,9 @@ namespace EtherealS.NativeServer
             net.ServerRequestSend = SendServerRequest;
         }
 
-        public void Start()
+        internal void Start()
         {
-            for (int i = 0; i < config.NumChannels; i++)
+            for (int i = 0; i < Config.NumChannels; i++)
             {
                 Thread thread = new Thread(() =>
                 {
@@ -80,7 +129,7 @@ namespace EtherealS.NativeServer
                     }
                     catch(Exception e)
                     {
-                        config.OnException(e,this);
+                        OnException(e);
                     }
                 });
                 thread.Name = i.ToString();
@@ -88,35 +137,29 @@ namespace EtherealS.NativeServer
             }
         }
 
-        public bool CloseClientSocket(SocketAsyncEventArgs e)
+        internal bool CloseClientSocket(SocketAsyncEventArgs e)
         {
-            if(e.AcceptSocket != null && e.AcceptSocket.Connected)
+            try
             {
-                try
-                {
-                    e.AcceptSocket.Shutdown(SocketShutdown.Both);
-                }
-                catch
-                {
-
-                }
-                if (config.AutoManageTokens)
-                {
-                    if (NetCore.Get(netName, out Net net))
-                    {
-                        if ((e.UserToken as DataToken).Token != null) net.Tokens.TryRemove((e.UserToken as DataToken).Token.Key, out BaseUserToken value);
-                    }
-                    else config.OnException(new RPCException(RPCException.ErrorCode.Runtime, "未找到NetConfig"),this);
-                }
-                (e.UserToken as DataToken).DisConnect();
-                e.AcceptSocket.Close();
-                e.AcceptSocket.Dispose();
-                e.AcceptSocket = null;
-                this.semaphoreAcceptedClients.Release();
-                this.readWritePool.Push(e.UserToken as DataToken);
-                Interlocked.Decrement(ref this.numConnectedSockets);
-                config.OnLog(RPCLog.LogCode.Runtime,$"A client has been disconnected from the server. There are {this.numConnectedSockets} clients connected to the server",this);
+                e.AcceptSocket.Shutdown(SocketShutdown.Both);
             }
+            catch
+            {
+
+            }
+            if (Config.AutoManageTokens)
+            {
+                if (NetCore.Get(netName, out Net net))
+                {
+                    if ((e.UserToken as DataToken).Token != null) net.Tokens.TryRemove((e.UserToken as DataToken).Token.Key, out BaseUserToken value);
+                }
+                else OnException(new RPCException(RPCException.ErrorCode.Runtime, "未找到NetConfig"));
+            }
+            (e.UserToken as DataToken).DisConnect();
+            this.semaphoreAcceptedClients.Release();
+            this.readWritePool.Push(e.UserToken as DataToken);
+            Interlocked.Decrement(ref numConnectedSockets);
+            OnLog(RPCLog.LogCode.Runtime, $"A client has been disconnected from the server. There are {this.NumConnectedSockets} clients connected to the server");
             return true;
         }
         private void OnAcceptCompleted(object sender, SocketAsyncEventArgs e)
@@ -138,8 +181,8 @@ namespace EtherealS.NativeServer
                         // Get the socket for the accepted client connection and put it into the 
                         // ReadEventArg object User user.
                         token.Connect(s);
-                        Interlocked.Increment(ref this.numConnectedSockets);
-                        config.OnLog(RPCLog.LogCode.Runtime, $"Client connection accepted. There are {this.numConnectedSockets} clients connected to the server",this);
+                        Interlocked.Increment(ref numConnectedSockets);
+                        OnLog(RPCLog.LogCode.Runtime, $"Client connection accepted. There are {this.NumConnectedSockets} clients connected to the server");
                         if (!s.ReceiveAsync(token.EventArgs))
                         {
                             ProcessReceive(token.EventArgs);
@@ -147,18 +190,18 @@ namespace EtherealS.NativeServer
                     }
                     else
                     {
-                        config.OnException(RPCException.ErrorCode.Runtime, "There are no more available sockets to allocate.",this);
+                        OnException(RPCException.ErrorCode.Runtime, "There are no more available sockets to allocate.");
                     }
                 }
                 else throw new SocketException((int)SocketError.NotConnected);
             }
             catch (SocketException ex)
             {
-                config.OnException(RPCException.ErrorCode.Runtime, $"Error when processing data received from {e.RemoteEndPoint}:\r\n{ex.ToString()}",this);
+                OnException(RPCException.ErrorCode.Runtime, $"Error when processing data received from {e.RemoteEndPoint}:\r\n{ex.ToString()}");
             }
             catch (Exception ex)
             {
-                config.OnException(RPCException.ErrorCode.Runtime, ex.ToString(),this);
+                OnException(RPCException.ErrorCode.Runtime, ex.ToString());
             }
             finally
             {
@@ -168,7 +211,7 @@ namespace EtherealS.NativeServer
 
         private void StartAccept(SocketAsyncEventArgs acceptEventArg)
         {
-            config.OnLog(RPCLog.LogCode.Runtime, $"[线程]{Thread.CurrentThread.Name}:{serverKey.Item1}:{serverKey.Item2}线程任务已经开始运行", this);
+            OnLog(RPCLog.LogCode.Runtime, $"[线程]{Thread.CurrentThread.Name}:{ServerKey.Item1}:{ServerKey.Item2}线程任务已经开始运行");
             while (true)
             {
                 mutex.WaitOne();
@@ -183,7 +226,7 @@ namespace EtherealS.NativeServer
                     acceptEventArg.AcceptSocket = null;
                 }
                 this.semaphoreAcceptedClients.WaitOne();
-                config.OnLog(RPCLog.LogCode.Runtime, $"[线程]{Thread.CurrentThread.Name}:开始异步等待{serverKey.Item1}:{serverKey.Item2}中Accpet请求",this);
+                OnLog(RPCLog.LogCode.Runtime, $"[线程]{Thread.CurrentThread.Name}:开始异步等待{ServerKey.Item1}:{ServerKey.Item2}中Accpet请求");
                 if (!this.listenSocket.AcceptAsync(acceptEventArg))
                 {
                     this.ProcessAccept(acceptEventArg);
@@ -193,18 +236,18 @@ namespace EtherealS.NativeServer
                     keepalive.Reset();
                     keepalive.WaitOne();
                 }
-                config.OnLog(RPCLog.LogCode.Runtime, $"[线程]{Thread.CurrentThread.Name}:完成{serverKey.Item1}:{serverKey.Item2}中请求的Accpet",this);
+                OnLog(RPCLog.LogCode.Runtime, $"[线程]{Thread.CurrentThread.Name}:完成{ServerKey.Item1}:{ServerKey.Item2}中请求的Accpet");
                 mutex.ReleaseMutex();
             }
         }
         private void ProcessReceive(SocketAsyncEventArgs e)
         {
-            // Check if the remote host closed the connection.
-            if (e.BytesTransferred > 0)
+            try
             {
-                if (e.SocketError == SocketError.Success)
+                // Check if the remote host closed the connection.
+                if (e.BytesTransferred > 0)
                 {
-                    try
+                    if (e.SocketError == SocketError.Success)
                     {
                         (e.UserToken as DataToken).ProcessData();
                         if (!e.AcceptSocket.ReceiveAsync(e))
@@ -213,40 +256,41 @@ namespace EtherealS.NativeServer
                             this.ProcessReceive(e);
                         }
                     }
-                    catch
+                    else
                     {
-                        CloseClientSocket(e);
+                        throw new RPCException("SocketError不为Success");
                     }
                 }
                 else
                 {
-                    CloseClientSocket(e);
+                    throw new RPCException("字节交换为0，可能已经断开");
                 }
             }
-            else
+            catch(Exception exception)
             {
                 CloseClientSocket(e);
+                OnException(exception,false);
             }
         }
         private void OnReceiveCompleted(object sender, SocketAsyncEventArgs e)
         {
             this.ProcessReceive(e);
         }
-        public void Stop()
+        internal void Stop()
         {
             this.listenSocket.Close();
             mutex.ReleaseMutex();
         }
         private void SendClientResponse(BaseUserToken token,ClientResponseModel response)
         {
-            if (token!=null && token.Net != null && (token.Net as SocketAsyncEventArgs).AcceptSocket.Connected)
+            if ((token?.Net as DataToken).EventArgs.AcceptSocket.Connected)
             {
                 string log = "--------------------------------------------------\n" +
-                            $"{DateTime.Now}::{serverKey.Item1}:{serverKey.Item2}::[服-返回]\n{response}" +
+                            $"{DateTime.Now}::{ServerKey.Item1}:{ServerKey.Item2}::[服-返回]\n{response}" +
                             "--------------------------------------------------\n";
-                config.OnLog(RPCLog.LogCode.Runtime, log,this);
+                OnLog(RPCLog.LogCode.Runtime, log);
                 //构造data数据
-                byte[] bodyBytes = config.Encoding.GetBytes(config.ClientResponseModelSerialize(response));
+                byte[] bodyBytes = Config.Encoding.GetBytes(Config.ClientResponseModelSerialize(response));
                 //构造表头数据，固定4个字节的长度，表示内容的长度
                 byte[] headerBytes = BitConverter.GetBytes(bodyBytes.Length);
                 byte[] pattern = { 1 };
@@ -261,23 +305,23 @@ namespace EtherealS.NativeServer
                 Buffer.BlockCopy(bodyBytes, 0, sendBuffer, headerBytes.Length + pattern.Length + future.Length, bodyBytes.Length);
                 SocketAsyncEventArgs sendEventArgs = new SocketAsyncEventArgs();
                 sendEventArgs.SetBuffer(sendBuffer, 0, sendBuffer.Length);
-                (token.Net as SocketAsyncEventArgs).AcceptSocket.SendAsync(sendEventArgs);
+                (token.Net as DataToken).EventArgs.AcceptSocket.SendAsync(sendEventArgs);
             }
             else
             {
-                config.OnException(new SocketException((Int32)SocketError.NotConnected),this);
+                OnException(new SocketException((Int32)SocketError.NotConnected));
             }
         }
         private void SendServerRequest(BaseUserToken token,ServerRequestModel request)
         {
-            if (token != null && token.Net != null && (token.Net as SocketAsyncEventArgs).AcceptSocket.Connected)
+            if ((token?.Net as DataToken).EventArgs.AcceptSocket.Connected)
             {
                 string log = "--------------------------------------------------\n" +
-                            $"{DateTime.Now}::{serverKey.Item1}:{serverKey.Item2}::[服-指令]\n{request}\n" +
+                            $"{DateTime.Now}::{ServerKey.Item1}:{ServerKey.Item2}::[服-指令]\n{request}\n" +
                             "--------------------------------------------------\n";
-                config.OnLog(RPCLog.LogCode.Runtime, log,this);
+                OnLog(RPCLog.LogCode.Runtime, log);
                 //构造data数据
-                byte[] bodyBytes = config.Encoding.GetBytes(config.ServerRequestModelSerialize(request));
+                byte[] bodyBytes = Config.Encoding.GetBytes(Config.ServerRequestModelSerialize(request));
                 //构造表头数据，固定4个字节的长度，表示内容的长度
                 byte[] headerBytes = BitConverter.GetBytes(bodyBytes.Length);
                 byte[] pattern = { 0 };
@@ -292,11 +336,36 @@ namespace EtherealS.NativeServer
                 Buffer.BlockCopy(bodyBytes, 0, sendBuffer, headerBytes.Length + pattern.Length + future.Length, bodyBytes.Length);
                 SocketAsyncEventArgs sendEventArgs = new SocketAsyncEventArgs();
                 sendEventArgs.SetBuffer(sendBuffer, 0, sendBuffer.Length);
-                (token.Net as SocketAsyncEventArgs).AcceptSocket.SendAsync(sendEventArgs);
+                (token.Net as DataToken).EventArgs.AcceptSocket.SendAsync(sendEventArgs);
             }
             else
             {
-                config.OnException(new SocketException((Int32)SocketError.NotConnected), this);
+                OnException(new SocketException((Int32)SocketError.NotConnected));
+            }
+        }
+
+        public void OnException(RPCException.ErrorCode code, string message)
+        {
+            OnException(new RPCException(code, message));
+        }
+        public void OnException(Exception e,bool isThrow = true)
+        {
+            if (exceptionEvent != null)
+            {
+                exceptionEvent.Invoke(e,this);
+            }
+            if(isThrow)throw e;
+        }
+
+        public void OnLog(RPCLog.LogCode code, string message)
+        {
+            OnLog(new RPCLog(code, message));
+        }
+        public void OnLog(RPCLog log)
+        {
+            if (logEvent != null)
+            {
+                logEvent.Invoke(log, this);
             }
         }
         #region IDisposable Members
@@ -315,7 +384,7 @@ namespace EtherealS.NativeServer
         private void Dispose(bool disposing)
         {
             if (isDipose) return;
-            Console.WriteLine($"{Thread.CurrentThread.Name}开始销毁{serverKey.Item1}:{serverKey.Item2}实例");
+            Console.WriteLine($"{Thread.CurrentThread.Name}开始销毁{ServerKey.Item1}:{ServerKey.Item2}实例");
             if (disposing)
             {
                 semaphoreAcceptedClients = null;
@@ -339,7 +408,7 @@ namespace EtherealS.NativeServer
         }
         public static void ServerRequestSend(BaseUserToken token, ServerRequestModel request)
         {
-            if ((token.Net as Socket).Connected)
+            if ((token.Net as Socket)?.Connected == true)
             {   
                 //构造data数据
                 byte[] bodyBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request));
@@ -367,7 +436,7 @@ namespace EtherealS.NativeServer
         }
         public static void ClientResponseSend(BaseUserToken token, ClientResponseModel response)
         {
-            if ((token.Net as Socket).Connected)
+            if ((token.Net as Socket)?.Connected == true)
             {
 #if DEBUG
                 Console.WriteLine("---------------------------------------------------------");

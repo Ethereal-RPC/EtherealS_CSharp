@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Reflection;
 using EtherealS.Model;
 using EtherealS.RPCService;
@@ -13,27 +13,45 @@ namespace EtherealS.RPCNet
     {
         #region --委托--
         public delegate bool InterceptorDelegate(Service service,MethodInfo method,BaseUserToken token);
-        public delegate void OnLogDelegate(RPCLog log,Net net);
-        public delegate void OnExceptionDelegate(Exception exception,Net net);
         #endregion
 
-        #region --事件--
+        #region --事件属性--
+
         /// <summary>
         /// 网络级拦截器事件
         /// </summary>
         public event InterceptorDelegate InterceptorEvent;
-        public event OnLogDelegate LogEvent;
-        /// <summary>
-        /// 抛出异常事件
-        /// </summary>
-        public event OnExceptionDelegate ExceptionEvent;
+
         #endregion
 
         #region --字段--
+        /// <summary>
+        /// 分布式模式是否开启
+        /// </summary>
+        private bool netNodeMode = false;
+        /// <summary>
+        /// 分布式IP组
+        /// </summary>
+        private List<Tuple<string,string, EtherealC.NativeClient.ClientConfig>> netNodeIps;
+        /// <summary>
+        /// 网络节点心跳周期
+        /// </summary>
+        private int netNodeHeartbeatCycle = 60000;//默认60秒心跳一次
+
+        public NetConfig()
+        {
+
+        }
+
+
 
         #endregion
 
         #region --属性--
+
+        public bool NetNodeMode { get => netNodeMode; set => netNodeMode = value; }
+        public List<Tuple<string, string, EtherealC.NativeClient.ClientConfig>> NetNodeIps { get => netNodeIps; set => netNodeIps = value; }
+        public int NetNodeHeartbeatCycle { get => netNodeHeartbeatCycle; set => netNodeHeartbeatCycle = value; }
 
         #endregion
 
@@ -49,30 +67,6 @@ namespace EtherealS.RPCNet
                 return true;
             }
             else return true;
-        }
-        internal void OnException(RPCException.ErrorCode code, string message,Net net)
-        {
-            OnException(new RPCException(code, message),net);
-        }
-        internal void OnException(Exception e,Net net)
-        {
-            if (ExceptionEvent != null)
-            {
-                ExceptionEvent(e,net);
-            }
-            throw e;
-        }
-
-        internal void OnLog(RPCLog.LogCode code, string message,Net net)
-        {
-            OnLog(new RPCLog(code, message),net);
-        }
-        internal void OnLog(RPCLog log,Net net)
-        {
-            if (LogEvent != null)
-            {
-                LogEvent(log,net);
-            }
         }
         #endregion
     }

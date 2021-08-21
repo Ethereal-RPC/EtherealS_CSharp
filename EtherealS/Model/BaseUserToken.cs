@@ -1,7 +1,6 @@
 ﻿using EtherealS.NativeServer;
 using EtherealS.RPCNet;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 
@@ -51,6 +50,12 @@ namespace EtherealS.Model
 
         [JsonIgnore]
         public object Net { get => net; set => net = value; }
+        public string NetName { get => netName; set => netName = value; }
+
+        /// <summary>
+        /// Token唯一凭据Key
+        /// </summary>
+        public abstract object Key { get; set; }
         #endregion
 
         #region --方法--
@@ -68,9 +73,8 @@ namespace EtherealS.Model
             if (replace)
             {
                 net.Tokens.TryRemove(Key, out BaseUserToken token);
-                return net.Tokens.TryAdd(Key, this);
             }
-            else return net.Tokens.TryAdd(Key, this);
+            return net.Tokens.TryAdd(Key, this);
         }
         /// <summary>
         /// 从Tokens表中注销Token信息
@@ -145,16 +149,27 @@ namespace EtherealS.Model
             }
             return net.Tokens;
         }
-
-        #endregion
-
-        #region --抽象属性--
         /// <summary>
-        /// Token唯一凭据Key
+        /// 偷梁换柱，可以使用任意继承BaseUserToken的类型替换当前Token
+        /// tip:新Token不会继承原有Token的Key，且原有Token将执行注销(UnRegister).
         /// </summary>
-        public abstract object Key { get; set; }
-        public string NetName { get => netName; set => netName = value; }
+        /// <param name="serverkey"></param>
+        /// <returns></returns>
+        public bool ReplaceToken(BaseUserToken token)
+        {
+            DataToken dataToken = (net as DataToken);
+            token.net = net;
+            token.netName = netName;
+            //如果在池中注册过，将池数据也替换掉
+            if(GetToken(Key,out BaseUserToken temp))
+            {
+                UnRegister();
+            }
+            dataToken.Token = token;
+            return true;
+        }
         #endregion
+
 
         #region --虚方法--
         /// <summary>
@@ -162,14 +177,14 @@ namespace EtherealS.Model
         /// </summary>
         public virtual void OnConnect()
         {
-            if(ConnectEvent != null)ConnectEvent(this);
+            ConnectEvent?.Invoke(this);
         }
         /// <summary>
         /// 断开连接时激活断开连接事件
         /// </summary>
         public virtual void OnDisConnect()
         {
-            if(DisConnectEvent != null)DisConnectEvent(this);
+            DisConnectEvent?.Invoke(this);
         }
         #endregion
     }

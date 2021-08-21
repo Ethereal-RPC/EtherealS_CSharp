@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtherealS", "EtherealS\EtherealS.csproj", "{472410B0-9ECA-4375-A212-67A22B6146CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EtherealS_Test", "EtherealS_Test\EtherealS_Test.csproj", "{85B741A4-727A-4A5B-AF3D-C475EB55D4C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EtherealS_Test", "EtherealS_Test\EtherealS_Test.csproj", "{85B741A4-727A-4A5B-AF3D-C475EB55D4C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

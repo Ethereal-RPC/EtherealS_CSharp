@@ -278,7 +278,7 @@ namespace EtherealS.RPCNet
         private void Config_ConnectFailEvent(EtherealC.NativeClient.SocketClient client)
         {
             Console.WriteLine("已断开连接");
-            EtherealC.NativeClient.ClientCore.UnRegister(client.NetName);
+            EtherealC.NativeClient.ClientCore.UnRegister(client.NetName,client.ServiceName);
         }
 
         private void ClientRequestReceiveProcess(BaseUserToken token, ClientRequestModel request)

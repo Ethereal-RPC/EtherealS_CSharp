@@ -65,10 +65,10 @@ namespace EtherealS_Test
             //开启集群
             net.Config.NetNodeMode = true;
             //添加集群地址
-            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28015", null));
-            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28016", null));
-            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28017", null));
-            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28018", null));
+            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28015", clientConfig));
+            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28016", clientConfig));
+            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28017", clientConfig));
+            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28018", clientConfig));
             net.Config.NetNodeIps = ips;
             //发布服务
             net.Publish();

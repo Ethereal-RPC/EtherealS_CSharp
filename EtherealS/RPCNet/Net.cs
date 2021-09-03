@@ -65,6 +65,7 @@ namespace EtherealS.RPCNet
 
         }
         #endregion
+
         #region --字段--
         /// <summary>
         /// Token映射表
@@ -170,7 +171,7 @@ namespace EtherealS.RPCNet
                                 //注册请求
                                 clientNodeService.ServerNodeRequest = EtherealC.RPCRequest.RequestCore.Register<ServerNodeRequest>(net, "ServerNetNodeService", types);
                                 //注册连接
-                                EtherealC.NativeClient.SocketClient client = EtherealC.NativeClient.ClientCore.Register(net, ip, port, clientConfig);
+                                EtherealC.NativeClient.SocketClient client = EtherealC.NativeClient.ClientCore.Register(clientNodeService.ServerNodeRequest, ip, port, clientConfig);
 
                                 net.LogEvent += ClientNetLog;
                                 net.ExceptionEvent += ClientNetException;
@@ -311,8 +312,8 @@ namespace EtherealS.RPCNet
                             for (int i = 0; i < new_params.Length; i++)
                             {
                                 new_params[i] = request.Params[i + 1];
-                                request.Params = new_params;
                             }
+                            request.Params = new_params;
                         }
 
                         object result = method.Invoke(service.Instance, request.Params);

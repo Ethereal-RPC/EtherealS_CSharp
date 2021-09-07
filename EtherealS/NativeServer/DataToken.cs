@@ -74,7 +74,7 @@ namespace EtherealS.NativeServer
         }
         public void ProcessData()
         {
-            buffer.ResetReaderIndex();  
+            buffer.ResetReaderIndex();
             buffer.SetWriterIndex(eventArgs.BytesTransferred + buffer.WriterIndex);
             while (buffer.ReaderIndex < buffer.WriterIndex)
             {
@@ -95,15 +95,16 @@ namespace EtherealS.NativeServer
                     //判断Body数据是否足够
                     if (length <= count)
                     {
-                        ClientRequestModel request = null;
-                        request = config.ClientRequestModelDeserialize(buffer.GetString(buffer.ReaderIndex + headsize, body_length, config.Encoding));
-                        buffer.SetReaderIndex(buffer.ReaderIndex + length);
-                        if (!NetCore.Get(netName, out Net net))
-                        {
-                            throw new RPCException(RPCException.ErrorCode.Runtime, $"Token查询{netName} Net时 不存在");
-                        }
                         try
                         {
+                            
+                            ClientRequestModel request = null;
+                            request = config.ClientRequestModelDeserialize(buffer.GetString(buffer.ReaderIndex + headsize, body_length, config.Encoding));
+                            buffer.SetReaderIndex(buffer.ReaderIndex + length);
+                            if (!NetCore.Get(netName, out Net net))
+                            {
+                                throw new RPCException(RPCException.ErrorCode.Runtime, $"Token查询{netName} Net时 不存在");
+                            }
                             if (pattern == 0 && request != null)
                             {
                                 net.ClientRequestReceive(token, request);

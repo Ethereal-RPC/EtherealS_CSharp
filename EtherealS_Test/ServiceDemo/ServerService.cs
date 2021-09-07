@@ -54,10 +54,11 @@ namespace EtherealS_Test.ServiceDemo
         }
 
         [RPCService]
-        public int Add(int a,int b)
+        public int Add(BaseUserToken token,int a,int b)
         {
             return a + b;
         }
+
         #endregion
 
     }

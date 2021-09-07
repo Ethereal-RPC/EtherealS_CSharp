@@ -16,7 +16,7 @@ namespace EtherealS.NativeServer
         /// BaseUserToken实例化方法委托
         /// </summary>
         /// <returns>BaseUserToken实例</returns>
-        public delegate BaseUserToken CreateInstance();
+        public delegate BaseUserToken CreateInstance(); 
         /// <summary>
         /// ServerRequestModel序列化方法委托
         /// </summary>

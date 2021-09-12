@@ -1,11 +1,8 @@
-﻿using EtherealS.Model;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using EtherealS.NativeServer;
 
 namespace EtherealS_Test.Model
 {
-    public class User:BaseUserToken
+    public class User:BaseToken
     {
         #region --字段--
         /// <summary>
@@ -20,10 +17,6 @@ namespace EtherealS_Test.Model
 
 
         #region --属性--
-        /// <summary>
-        /// 继承BaseUserToken，Key作为Token池中唯一识别码
-        /// </summary>
-        public override object Key { get => Id; set => Id = (int)value; }
         public long Id { get => id; set => id = value; }
         public string Username { get => username; set => username = value; }
         #endregion

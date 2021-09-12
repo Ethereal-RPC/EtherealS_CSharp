@@ -1,6 +1,6 @@
-﻿using EtherealS.RPCNet.Client.Request;
+﻿using EtherealS.RPCNet.NetNodeClient.Request;
 
-namespace EtherealS.RPCNet.Client.Service
+namespace EtherealS.RPCNet.NetNodeClient.Service
 {
     public class ClientNodeService
     {

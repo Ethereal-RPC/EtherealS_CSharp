@@ -9,7 +9,7 @@ namespace EtherealS.NativeServer
 {
     public class ServerCore
     {
-        public static bool Get(string netName, out ServerListener socketserver)
+        public static bool Get(string netName, out Server socketserver)
         {
             if (NetCore.Get(netName, out Net net))
             {
@@ -21,21 +21,21 @@ namespace EtherealS.NativeServer
                 return false;
             }
         }
-        public static bool Get(Net net, out ServerListener socketserver)
+        public static bool Get(Net net, out Server socketserver)
         {
             socketserver = net.Server;
             if (net.Server != null) return true;
             else return false;
         }
 
-        public static ServerListener Register(Net net, string ip, string port,ServerConfig.CreateInstance createMethod)
+        public static Server Register(Net net, string[] prefixes, ServerConfig.CreateInstance createMethod)
         {
-            return Register(net, ip, port, new ServerConfig(createMethod),null);
+            return Register(net,prefixes, new ServerConfig(createMethod),null);
         }
-        public static ServerListener Register(Net net, string ip, string port,ServerConfig config)
+        public static Server Register(Net net, string[] prefixes, ServerConfig config)
         {
 
-            return Register(net, ip, port,config,null);
+            return Register(net,prefixes,config,null);
         }
         /// <summary>
         /// 获取客户端
@@ -43,12 +43,11 @@ namespace EtherealS.NativeServer
         /// <param name="serverIp">远程服务IP</param>
         /// <param name="port">远程服务端口</param>
         /// <returns>客户端</returns>
-        public static ServerListener Register(Net net, string ip, string port,ServerConfig config,ServerListener socketserver)
+        public static Server Register(Net net, string[] prefixes, ServerConfig config,Server socketserver)
         {
-            Tuple<string, string> key = new Tuple<string, string>(ip, port);
             if (net.Server == null)
             {
-                if (socketserver == null) socketserver = new ServerListener(net, key, config);
+                if (socketserver == null) socketserver = new Server(net.Name, prefixes, config);
                 net.Server = socketserver;
                 net.Server.LogEvent += net.OnServerLog;
                 net.Server.ExceptionEvent += net.OnServerException;
@@ -71,11 +70,8 @@ namespace EtherealS.NativeServer
         {
             net.Server.LogEvent -= net.OnServerLog;
             net.Server.ExceptionEvent -= net.OnServerException;
-            net.Server.Stop();
-            net.Server.Dispose();
+            net.Server.Close();
             net.Server = null;
-            net.ServerRequestSend = null;
-            net.ClientResponseSend = null;
             return true;
         }
     }

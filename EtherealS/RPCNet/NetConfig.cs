@@ -1,8 +1,8 @@
-﻿using System;
+﻿using EtherealS.NativeServer;
+using EtherealS.RPCService;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
-using EtherealS.Model;
-using EtherealS.RPCService;
 
 namespace EtherealS.RPCNet
 {
@@ -12,7 +12,7 @@ namespace EtherealS.RPCNet
     public class NetConfig
     {
         #region --委托--
-        public delegate bool InterceptorDelegate(Service service,MethodInfo method,BaseUserToken token);
+        public delegate bool InterceptorDelegate(Service service,MethodInfo method,BaseToken token);
         #endregion
 
         #region --事件属性--
@@ -32,11 +32,11 @@ namespace EtherealS.RPCNet
         /// <summary>
         /// 分布式IP组
         /// </summary>
-        private List<Tuple<string,string, EtherealC.NativeClient.ClientConfig>> netNodeIps;
+        private List<Tuple<string,EtherealC.NativeClient.ClientConfig>> netNodeIps;
         /// <summary>
         /// 网络节点心跳周期
         /// </summary>
-        private int netNodeHeartbeatCycle = 60000;//默认60秒心跳一次
+        private int netNodeHeartbeatCycle = 10000;//默认60秒心跳一次
 
         public NetConfig()
         {
@@ -50,13 +50,13 @@ namespace EtherealS.RPCNet
         #region --属性--
 
         public bool NetNodeMode { get => netNodeMode; set => netNodeMode = value; }
-        public List<Tuple<string, string, EtherealC.NativeClient.ClientConfig>> NetNodeIps { get => netNodeIps; set => netNodeIps = value; }
+        public List<Tuple<string, EtherealC.NativeClient.ClientConfig>> NetNodeIps { get => netNodeIps; set => netNodeIps = value; }
         public int NetNodeHeartbeatCycle { get => netNodeHeartbeatCycle; set => netNodeHeartbeatCycle = value; }
 
         #endregion
 
         #region --方法--
-        public bool OnInterceptor(Service service,MethodInfo method,BaseUserToken token)
+        public bool OnInterceptor(Service service,MethodInfo method,BaseToken token)
         {
             if (InterceptorEvent != null)
             {

@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using EtherealS.Extension.Authority;
 using EtherealS.Model;
+using EtherealS.NativeServer;
 
 namespace EtherealS.RPCService
 {
@@ -93,7 +94,7 @@ namespace EtherealS.RPCService
                         methodid.Append(method.Name);
                         ParameterInfo[] parameters = method.GetParameters();
                         int start_idx = 1;
-                        if (parameters.Length > 0 && parameters[0].ParameterType.BaseType != typeof(BaseUserToken)) start_idx = 0;
+                        if (parameters.Length > 0 && parameters[0].ParameterType.BaseType != typeof(BaseToken)) start_idx = 0;
                         if (rpcAttribute.Paramters == null)
                         {
                             for (int i = start_idx; i < parameters.Length; i++)

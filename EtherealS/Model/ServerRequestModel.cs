@@ -7,7 +7,7 @@ namespace EtherealS.Model
         /// <summary>
         /// Ethereal-RPC 版本
         /// </summary>
-        private string jsonRpc;
+        private string type = "ER-1.0-ServerRequest";
         /// <summary>
         /// 方法ID
         /// </summary>
@@ -21,21 +21,20 @@ namespace EtherealS.Model
         /// </summary>
         private string service;
 
-        public string JsonRpc { get => jsonRpc; set => jsonRpc = value; }
+        public string Type { get => type; set => type = value; }
         public string MethodId { get => methodId; set => methodId = value; }
         public string[] Params { get => @params; set => @params = value; }
         public string Service { get => service; set => service = value; }
 
-        public ServerRequestModel(string jsonrpc,string service,string methodid, string[] @params)
+        public ServerRequestModel(string service,string methodid, string[] @params)
         {
-            JsonRpc = jsonrpc;
             MethodId = methodid;
             Params = @params;
             Service = service;
         }
         public override string ToString()
         {
-            return "Jsonrpc:" + JsonRpc + "\n"
+            return "Type:" + Type + "\n"
                 + "Service:" + Service + "\n"
                 + "Methodid:" + MethodId + "\n"
                 + "Params:" + JsonConvert.SerializeObject(Params);

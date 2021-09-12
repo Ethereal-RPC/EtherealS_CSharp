@@ -1,5 +1,10 @@
 ﻿using EtherealS.Model;
 using EtherealS.NativeServer;
+using EtherealS.RPCNet.NetNodeClient.Request;
+using EtherealS.RPCNet.NetNodeClient.Service;
+using EtherealS.RPCNet.NetNodeModel;
+using EtherealS.RPCNet.Server.NetNodeRequest;
+using EtherealS.RPCNet.Server.NetNodeService;
 using EtherealS.RPCRequest;
 using EtherealS.RPCService;
 using System;
@@ -8,28 +13,22 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
-using EtherealS.RPCNet.Client.Request;
-using EtherealS.RPCNet.Model;
-using EtherealS.RPCNet.Client.Service;
-using EtherealS.RPCNet.Server.Service;
-using EtherealS.RPCNet.Server.Request;
 
 namespace EtherealS.RPCNet
 {
     public class Net
     {
         #region --委托--
-        public delegate void ClientRequestReceiveDelegate(BaseUserToken token, ClientRequestModel request);
-        public delegate void ServerRequestSendDelegate(BaseUserToken token, ServerRequestModel request);
-        public delegate void ClientResponseSendDelegate(BaseUserToken token, ClientResponseModel response);
         public delegate void OnLogDelegate(RPCLog log, Net net);
         public delegate void OnExceptionDelegate(Exception exception, Net net);
+
         #endregion
 
 
         #region --事件字段--
         private OnLogDelegate logEvent;
         private OnExceptionDelegate exceptionEvent;
+
         #endregion
 
         #region --事件属性--
@@ -64,13 +63,14 @@ namespace EtherealS.RPCNet
             }
 
         }
+
         #endregion
 
         #region --字段--
         /// <summary>
         /// Token映射表
         /// </summary>
-        private ConcurrentDictionary<object, BaseUserToken> tokens = new ConcurrentDictionary<object, BaseUserToken>();
+        private ConcurrentDictionary<object, BaseToken> tokens = new ConcurrentDictionary<object, BaseToken>();
         /// <summary>
         /// Service映射表
         /// </summary>
@@ -81,21 +81,9 @@ namespace EtherealS.RPCNet
         private Dictionary<string, Request> requests = new Dictionary<string, Request>();
         private NetConfig config;
         /// <summary>
-        /// 收到客户端请求委托实现
-        /// </summary>
-        private ClientRequestReceiveDelegate clientRequestReceive;
-        /// <summary>
-        /// 发送服务器请求委托实现
-        /// </summary>
-        private ServerRequestSendDelegate serverRequestSend;
-        /// <summary>
-        /// 客户端请求返回委托实现
-        /// </summary>
-        private ClientResponseSendDelegate clientResponseSend;
-        /// <summary>
         /// Server
         /// </summary>
-        private ServerListener server;
+        private NativeServer.Server server;
         /// <summary>
         /// Net网关名
         /// </summary>
@@ -103,22 +91,19 @@ namespace EtherealS.RPCNet
         #endregion
 
         #region --属性--
-        public ConcurrentDictionary<object, BaseUserToken> Tokens { get => tokens; set => tokens = value; }
+        public ConcurrentDictionary<object, BaseToken> Tokens { get => tokens; set => tokens = value; }
         public NetConfig Config { get => config; set => config = value; }
-        public ClientRequestReceiveDelegate ClientRequestReceive { get => clientRequestReceive; set => clientRequestReceive = value; }
-        public ServerRequestSendDelegate ServerRequestSend { get => serverRequestSend; set => serverRequestSend = value; }
-        public ClientResponseSendDelegate ClientResponseSend { get => clientResponseSend; set => clientResponseSend = value; }
         public ConcurrentDictionary<string, Service> Services { get => services; }
         public Dictionary<string, Request> Requests { get => requests; }
         public string Name { get => name; set => name = value; }
-        public ServerListener Server { get => server; set => server = value; }
+        public NativeServer.Server Server { get => server; set => server = value; }
 
         #endregion
 
         #region --方法--
         public Net()
         {
-            clientRequestReceive = ClientRequestReceiveProcess;
+
         }
         /// <summary>
         /// 部署节点
@@ -146,40 +131,60 @@ namespace EtherealS.RPCNet
 
                 #region --Client--
                 {
+                    foreach (Tuple<string, EtherealC.NativeClient.ClientConfig> item in config.NetNodeIps)
+                    {
+                        string prefixes = item.Item1;
+                        EtherealC.NativeClient.ClientConfig clientConfig = item.Item2;
+                        if (EtherealC.RPCRequest.RequestCore.Get($"NetNodeClient-{prefixes}", "ServerNetNodeService", out EtherealC.RPCRequest.Request temp) && temp.Client != null) continue;
+                        //tip:S项目引入C，对于C的引用，命名必须全部采取全名引用，避免冲突。
+                        //注册数据类型
+                        EtherealC.Model.RPCTypeConfig types = new EtherealC.Model.RPCTypeConfig();
+                        types.Add<int>("Int");
+                        types.Add<long>("Long");
+                        types.Add<string>("String");
+                        types.Add<bool>("Bool");
+                        types.Add<NetNode>("NetNode");
+                        EtherealC.RPCNet.Net net = EtherealC.RPCNet.NetCore.Register($"NetNodeClient-{prefixes}");
+                        net.Config.NetNodeMode = false;
+                        //注册服务
+                        ClientNodeService clientNodeService = (ClientNodeService)EtherealC.RPCService.ServiceCore.Register<ClientNodeService>(net, "ClientNetNodeService", types).Instance;
+                        //注册请求
+                        clientNodeService.ServerNodeRequest = EtherealC.RPCRequest.RequestCore.Register<ServerNodeRequest>(net, "ServerNetNodeService", types);
+                        net.LogEvent += ClientNetLog;
+                        net.ExceptionEvent += ClientNetException;
+                    }
                     Thread thread = new Thread((cycle)=> {
                         while (true)
                         {
-                            foreach (Tuple<string, string, EtherealC.NativeClient.ClientConfig> item in config.NetNodeIps)
+                            foreach (Tuple<string,  EtherealC.NativeClient.ClientConfig> item in config.NetNodeIps)
                             {
-                                string ip = item.Item1;
-                                string port = item.Item2;
-                                EtherealC.NativeClient.ClientConfig clientConfig = item.Item3;
-                                if (ip == server.ServerKey.Item1 && port == server.ServerKey.Item2) continue; //该地址就是本机地址，已经以服务器方式启动
-                                //发现已存在，即已经建立连接
-                                if (EtherealC.RPCNet.NetCore.Get($"NetNodeClient-{ip}-{port}", out EtherealC.RPCNet.Net temp)) continue;
-                                //tip:S项目引入C，对于C的引用，命名必须全部采取全名引用，避免冲突。
-                                //注册数据类型
-                                EtherealC.Model.RPCTypeConfig types = new EtherealC.Model.RPCTypeConfig();
-                                types.Add<int>("Int");
-                                types.Add<long>("Long");
-                                types.Add<string>("String");
-                                types.Add<bool>("Bool");
-                                types.Add<NetNode>("NetNode");
-                                EtherealC.RPCNet.Net net = EtherealC.RPCNet.NetCore.Register($"NetNodeClient-{ip}-{port}");
-                                //注册服务
-                                ClientNodeService clientNodeService = (ClientNodeService)EtherealC.RPCService.ServiceCore.Register<ClientNodeService>(net, "ClientNetNodeService",types).Instance;
-                                //注册请求
-                                clientNodeService.ServerNodeRequest = EtherealC.RPCRequest.RequestCore.Register<ServerNodeRequest>(net, "ServerNetNodeService", types);
-                                //注册连接
-                                EtherealC.NativeClient.SocketClient client = EtherealC.NativeClient.ClientCore.Register(clientNodeService.ServerNodeRequest, ip, port, clientConfig);
-
-                                net.LogEvent += ClientNetLog;
-                                net.ExceptionEvent += ClientNetException;
-
-                                client.ConnectFailEvent += Config_ConnectFailEvent;
-                                client.ConnectSuccessEvent += Config_ConnectSuccessEvent;
-                                //部署
-                                net.Publish();
+                                string prefixes = item.Item1;
+                                EtherealC.NativeClient.ClientConfig clientConfig = item.Item2;
+                                if(!EtherealC.RPCNet.NetCore.Get($"NetNodeClient-{prefixes}",out EtherealC.RPCNet.Net net))
+                                {
+                                    OnException(RPCException.ErrorCode.Runtime, $"NetNode-Client-未找到Net:NetNodeClient-{prefixes}");
+                                }
+                                if (EtherealC.RPCRequest.RequestCore.Get(net, "ServerNetNodeService", out EtherealC.RPCRequest.Request serverNodeRequest))
+                                {
+                                    if (serverNodeRequest.Client != null)
+                                    {
+                                        if(serverNodeRequest.Client.Accept.State != System.Net.WebSockets.WebSocketState.Open)
+                                        {
+                                            EtherealC.NativeClient.ClientCore.UnRegister($"NetNodeClient-{prefixes}", "ServerNetNodeService");
+                                        }
+                                        else
+                                        {
+                                            continue;
+                                        }
+                                    }
+                                    //注册连接
+                                    EtherealC.NativeClient.Client client = EtherealC.NativeClient.ClientCore.Register(serverNodeRequest, prefixes, clientConfig);
+                                    client.ConnectEvent += Config_ConnectSuccessEvent;
+                                    client.DisConnectEvent += Config_ConnectFailEvent;
+                                    //部署
+                                    net.Publish();
+                                }
+                                else OnException(RPCException.ErrorCode.Runtime, $"NetNode-Client-未找到Request:NetNodeClient-{prefixes}-ServerNetNodeService");
                             }
                             Thread.Sleep((int)cycle);
                         }
@@ -192,12 +197,12 @@ namespace EtherealS.RPCNet
             return true;
         }
 
-        internal void OnServerException(Exception exception, ServerListener server)
+        internal void OnServerException(Exception exception, NativeServer.Server server)
         {
             OnException(exception);
         }
 
-        internal void OnServerLog(RPCLog log, ServerListener server)
+        internal void OnServerLog(RPCLog log, NativeServer.Server server)
         {
             OnLog(log);
         }
@@ -233,17 +238,15 @@ namespace EtherealS.RPCNet
         }
 
 
-        private void Config_ConnectSuccessEvent(EtherealC.NativeClient.SocketClient client)
+        private void Config_ConnectSuccessEvent(EtherealC.NativeClient.Client client)
         {
             //注册节点信息
-            if (EtherealC.RPCRequest.RequestCore.Get($"NetNodeClient-{client.ClientKey.Item1}-{client.ClientKey.Item2}", "ServerNetNodeService", out EtherealC.RPCRequest.Request serverDistributeRequest))
+            if (EtherealC.RPCRequest.RequestCore.Get($"NetNodeClient-{client.Prefixes}", "ServerNetNodeService", out EtherealC.RPCRequest.Request serverDistributeRequest))
             {
                 //生成节点信息
                 NetNode node = new NetNode();
-                node.Ip = server.ServerKey.Item1;
-                node.Port = server.ServerKey.Item2;
-                node.Name = $"{name}-{node.Ip}-{node.Port}";
-                node.Connects = server.NumConnectedSockets;
+                node.Prefixes = new List<string>(server.Prefixes).ToArray();
+                node.Name = $"{name}";
                 node.HardwareInformation = new HardwareInformation();
                 node.HardwareInformation.NetworkInterfaces = Utils.NetworkInterfaceHelper.GetAllNetworkInterface();
                 node.HardwareInformation.Is64BitOperatingSystem = Environment.Is64BitOperatingSystem.ToString();
@@ -270,19 +273,18 @@ namespace EtherealS.RPCNet
                 //向目标主机注册节点信息
                 if (true)
                 {
-                    OnLog(RPCLog.LogCode.Runtime, $"分布式节点：{client.ClientKey.Item1}-{client.ClientKey.Item2}连接成功");
+                    OnLog(RPCLog.LogCode.Runtime, $"分布式节点：{client.Prefixes}连接成功");
                 }
             }
-            else OnException(RPCException.ErrorCode.Runtime, $"EtherealC中未找到 NetNodeClient-{client.ClientKey.Item1}-{client.ClientKey.Item2}-ServerNodeService");
+            else OnException(RPCException.ErrorCode.Runtime, $"EtherealC中未找到 NetNodeClient-{client.Prefixes}-ServerNodeService");
         }
 
-        private void Config_ConnectFailEvent(EtherealC.NativeClient.SocketClient client)
+        private void Config_ConnectFailEvent(EtherealC.NativeClient.Client client)
         {
-            Console.WriteLine("已断开连接");
             EtherealC.NativeClient.ClientCore.UnRegister(client.NetName,client.ServiceName);
         }
 
-        private void ClientRequestReceiveProcess(BaseUserToken token, ClientRequestModel request)
+        public ClientResponseModel ClientRequestReceiveProcess(BaseToken token, ClientRequestModel request)
         {
             if (Services.TryGetValue(request.Service, out Service service))
             {
@@ -321,18 +323,23 @@ namespace EtherealS.RPCNet
                         if (return_type != typeof(void))
                         {
                             service.Config.Types.TypesByType.TryGetValue(return_type, out RPCType type);
-                            ClientResponseSend(token, new ClientResponseModel("2.0", type.Serialize(result), type.Name, request.Id, request.Service, null));
+                            return new ClientResponseModel(type.Serialize(result), type.Name, request.Id, request.Service, null);
+                        }
+                        else
+                        {
+                            return null;
                         }
                     }
+                    else return new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.Intercepted, $"请求已被拦截", null));
                 }
                 else
                 {
-                    ClientResponseSend(token, new ClientResponseModel("2.0", null,null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundMethod, $"未找到方法[{name}:{request.Service}:{request.MethodId}]",null))); ;
+                    return new ClientResponseModel(null,null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundMethod, $"未找到方法[{name}:{request.Service}:{request.MethodId}]",null));
                 }
             }
             else
             {
-                ClientResponseSend(token, new ClientResponseModel("2.0", null, null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundService, $"未找到服务[{name}:{request.Service}]",null))); ;
+                return new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundService, $"未找到服务[{name}:{request.Service}]",null));
             }
         }
 
@@ -360,6 +367,7 @@ namespace EtherealS.RPCNet
                 logEvent.Invoke(log, this);
             }
         }
+
         #endregion
     }
 }

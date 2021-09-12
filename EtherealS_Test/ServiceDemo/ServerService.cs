@@ -5,6 +5,7 @@ using EtherealS_Test.RequestDemo;
 using System.Threading;
 using System.Threading.Tasks;
 using EtherealS.RPCService;
+using EtherealS.NativeServer;
 
 namespace EtherealS_Test.ServiceDemo
 {
@@ -54,7 +55,7 @@ namespace EtherealS_Test.ServiceDemo
         }
 
         [RPCService]
-        public int Add(BaseUserToken token,int a,int b)
+        public int Add(BaseToken token,int a,int b)
         {
             return a + b;
         }

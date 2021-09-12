@@ -16,7 +16,7 @@ namespace EtherealS.NativeServer
         /// BaseUserToken实例化方法委托
         /// </summary>
         /// <returns>BaseUserToken实例</returns>
-        public delegate BaseUserToken CreateInstance(); 
+        public delegate BaseToken CreateInstance(); 
         /// <summary>
         /// ServerRequestModel序列化方法委托
         /// </summary>
@@ -42,13 +42,13 @@ namespace EtherealS.NativeServer
         /// <summary>
         /// 最大的连接数
         /// </summary>
-        private int numConnections = 1024;
+        private int maxConnections = 1024;
         /// <summary>
         /// 默认缓冲池
         /// </summary>
-        private int bufferSize = 1024;
+        private int bufferSize = 1024;        
         /// <summary>
-        /// 允许最大存储池
+        /// 最大缓冲池
         /// </summary>
         private int maxBufferSize = 10240;
         /// <summary>
@@ -68,10 +68,6 @@ namespace EtherealS.NativeServer
         /// </summary>
         private Encoding encoding = Encoding.UTF8;
         /// <summary>
-        /// 动态调整Buffer区的初始次数（减为0时进行回收）
-        /// </summary>
-        private uint dynamicAdjustBufferCount = 1;
-        /// <summary>
         /// ServerRequestModel序列化委托实现
         /// </summary>
         private ServerRequestModelSerializeDelegate serverRequestModelSerialize;
@@ -84,20 +80,24 @@ namespace EtherealS.NativeServer
         /// </summary>
         private ClientResponseModelSerializeDelegate clientResponseModelSerialize;
 
+        /// <summary>
+        /// 心跳周期
+        /// </summary>
+        private TimeSpan keepAliveInterval = TimeSpan.FromSeconds(60);
         #endregion
 
         #region --属性--
         public CreateInstance CreateMethod { get => createMethod; set => createMethod = value; }
         public bool AutoManageTokens { get => autoManageTokens; set => autoManageTokens = value; }
-        public int NumConnections { get => numConnections; set => numConnections = value; }
         public int BufferSize { get => bufferSize; set => bufferSize = value; }
         public int NumChannels { get => numChannels; set => numChannels = value; }
         public Encoding Encoding { get => encoding; set => encoding = value; }
-        public int MaxBufferSize { get => maxBufferSize; set => maxBufferSize = value; }
-        public uint DynamicAdjustBufferCount { get => dynamicAdjustBufferCount; set => dynamicAdjustBufferCount = value; }
         public ServerRequestModelSerializeDelegate ServerRequestModelSerialize { get => serverRequestModelSerialize; set => serverRequestModelSerialize = value; }
         public ClientRequestModelDeserializeDelegate ClientRequestModelDeserialize { get => clientRequestModelDeserialize; set => clientRequestModelDeserialize = value; }
         public ClientResponseModelSerializeDelegate ClientResponseModelSerialize { get => clientResponseModelSerialize; set => clientResponseModelSerialize = value; }
+        public int MaxConnections { get => maxConnections; set => maxConnections = value; }
+        public int MaxBufferSize { get => maxBufferSize; set => maxBufferSize = value; }
+        public TimeSpan KeepAliveInterval { get => keepAliveInterval; set => keepAliveInterval = value; }
 
         #endregion
 

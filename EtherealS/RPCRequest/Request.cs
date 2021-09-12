@@ -1,4 +1,5 @@
 ﻿using EtherealS.Model;
+using EtherealS.NativeServer;
 using EtherealS.RPCNet;
 using Newtonsoft.Json;
 using System;
@@ -113,22 +114,19 @@ namespace EtherealS.RPCRequest
                     }
 
                 }
-                ServerRequestModel request = new ServerRequestModel("2.0", Name, methodid.ToString(), obj);
-                if (args[0] != null && (args[0] as BaseUserToken).Net != null)
+                ServerRequestModel request = new ServerRequestModel(Name, methodid.ToString(), obj);
+                if (args[0] != null && (args[0] as BaseToken != null))
                 {
-                    if (!NetCore.Get(netName, out Net net))
+                    if (!((args[0] as BaseToken).IsWebSocket))
                     {
-                        OnException(new RPCException(RPCException.ErrorCode.Runtime,
-                            $"{Name}服务在发送请求时，NetConfig为空！"));
+                        OnException(RPCException.ErrorCode.Runtime, $"{name}-{methodid}传递了非WebSocket协议的Token！");
                     }
-
                     string log = "";
                     log += "---------------------------------------------------------\n";
                     log += $"{ DateTime.Now}::{netName}::[服 - 指令]\n{ request}\n";
                     log += "---------------------------------------------------------\n";
                     OnLog(RPCLog.LogCode.Runtime, log);
-
-                    net.ServerRequestSend((args[0] as BaseUserToken), request);
+                    (args[0] as BaseToken).SendServerRequest(request);
                     return null;
                 }
                 return null;

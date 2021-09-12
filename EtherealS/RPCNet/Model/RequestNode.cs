@@ -1,4 +1,4 @@
-﻿namespace EtherealS.RPCNet.Model
+﻿namespace EtherealS.RPCNet.NetNodeModel
 {
     public class RequestNode
     {

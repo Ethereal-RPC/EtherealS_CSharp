@@ -8,7 +8,7 @@
         /// <summary>
         /// Ethereal-RPC 版本
         /// </summary>
-        private string jsonRpc = null;
+        private string type = "ER-1.0-ClientResponse";
         /// <summary>
         /// 结果值
         /// </summary>
@@ -30,16 +30,15 @@
         /// </summary>
         private string resultType;
 
-        public string JsonRpc { get => jsonRpc; set => jsonRpc = value; }
+        public string Type { get => type; set => type = value; }
         public object Result { get => result; set => result = value; }
         public Error Error { get => error; set => error = value; }
         public string Id { get => id; set => id = value; }
         public string ResultType { get => resultType; set => resultType = value; }
         public string Service { get => service; set => service = value; }
 
-        public ClientResponseModel(string jsonRpc, object result, string resultType, string id, string service, Error error)
+        public ClientResponseModel(object result, string resultType, string id, string service, Error error)
         {
-            JsonRpc = jsonRpc;
             Result = result;
             Error = error;
             Id = id;
@@ -49,7 +48,7 @@
         public override string ToString()
         {
 
-            return "Jsonrpc:" + JsonRpc + "\n"
+            return "Type:" + Type + "\n"
                 + "Id:" + Id + "\n"
                 + "Result:" + Result + "\n";
         }

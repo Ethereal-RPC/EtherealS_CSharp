@@ -1,6 +1,6 @@
-﻿using System;
+﻿using EtherealS.Model;
+using EtherealS.NativeServer;
 using System.Reflection;
-using EtherealS.Model;
 
 namespace EtherealS.RPCService
 {
@@ -10,7 +10,7 @@ namespace EtherealS.RPCService
     public class ServiceConfig
     {
         #region --委托--
-        public delegate bool InterceptorDelegate(Service service, MethodInfo method, BaseUserToken token);
+        public delegate bool InterceptorDelegate(Service service, MethodInfo method, NativeServer.BaseToken token);
         #endregion
 
         #region --事件属性--
@@ -41,7 +41,7 @@ namespace EtherealS.RPCService
         {
             this.types = type;
         }
-        internal bool OnInterceptor(Service service, MethodInfo method, BaseUserToken token)
+        internal bool OnInterceptor(Service service, MethodInfo method, NativeServer.BaseToken token)
         {
             if (InterceptorEvent != null)
             {

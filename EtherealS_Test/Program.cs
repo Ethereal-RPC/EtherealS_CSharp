@@ -15,7 +15,7 @@ namespace EtherealS_Test
     {
         public static void Main()
         {
-            string ip = "127.0.01";
+            string ip = "127.0.0.1";
             string port = "28015";
             Console.WriteLine("请选择端口(0-3)");
             int mode = int.Parse(Console.ReadLine());
@@ -56,24 +56,24 @@ namespace EtherealS_Test
             //本例中，突出服务类可作为正常类
             (service.Instance as ServerService).UserRequest = request;
             //向网关注册连接(提供一个生成User的方法)
-            ServerListener server = ServerCore.Register(net,ip,port,()=>new User());
-            List<Tuple<string, string, EtherealC.NativeClient.ClientConfig>> ips = new();
-            EtherealC.NativeClient.ClientConfig clientConfig = new EtherealC.NativeClient.ClientConfig();
+            Server server = ServerCore.Register(net,new string[]{ $"{ip}:{port}/NetDemo/"} ,()=>new User());
+            List<Tuple<string, EtherealC.NativeClient.ClientConfig>> ips = new();
+            EtherealC.NativeClient.ClientConfig  clientConfig = new EtherealC.NativeClient.ClientConfig();
             /*
              * 部署分布式集群
              */
             //开启集群
             net.Config.NetNodeMode = true;
             //添加集群地址
-            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28015", clientConfig));
-            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28016", clientConfig));
-            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28017", clientConfig));
-            ips.Add(new Tuple<string, string, EtherealC.NativeClient.ClientConfig>(ip, "28018", clientConfig));
+            ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28015}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28016}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28017}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28018}/NetDemo/", clientConfig));
             net.Config.NetNodeIps = ips;
             //发布服务
             net.Publish();
             Console.WriteLine("服务器初始化完成....");
-            
+            Console.ReadKey();
         }
 
         private static void Config_LogEvent(RPCLog log, Net net)

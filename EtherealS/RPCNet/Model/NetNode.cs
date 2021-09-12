@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using EtherealS.Model;
+﻿using EtherealS.NativeServer;
+using System.Collections.Generic;
+using System.Net;
 
-namespace EtherealS.RPCNet.Model
+namespace EtherealS.RPCNet.NetNodeModel
 {
-    public class NetNode:BaseUserToken
+    public class NetNode
     {
         #region --字段--
 
@@ -24,13 +25,9 @@ namespace EtherealS.RPCNet.Model
         /// </summary>
         private Dictionary<string, RequestNode> requests;
         /// <summary>
-        /// ip地址
+        /// 前缀
         /// </summary>
-        private string ip;
-        /// <summary>
-        /// port地址
-        /// </summary>
-        private string port;
+        private string[] prefixes;
         /// <summary>
         /// 硬件信息
         /// </summary>
@@ -43,10 +40,8 @@ namespace EtherealS.RPCNet.Model
         public long Connects { get => connects; set => connects = value; }
         public Dictionary<string, ServiceNode> Services { get => services; set => services = value; }
         public Dictionary<string, RequestNode> Requests { get => requests; set => requests = value; }
-        public string Ip { get => ip; set => ip = value; }
-        public override object Key { get => name; set => name = (string)value; }
         public HardwareInformation HardwareInformation { get => hardwareInformation; set => hardwareInformation = value; }
-        public string Port { get => port; set => port = value; }
+        public string[] Prefixes { get => prefixes; set => prefixes = value; }
 
 
         #endregion

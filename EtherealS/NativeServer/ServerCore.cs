@@ -68,10 +68,13 @@ namespace EtherealS.NativeServer
         }
         public static bool UnRegister(Net net)
         {
-            net.Server.LogEvent -= net.OnServerLog;
-            net.Server.ExceptionEvent -= net.OnServerException;
-            net.Server.Close();
-            net.Server = null;
+            if(net != null)
+            {
+                net.Server.LogEvent -= net.OnServerLog;
+                net.Server.ExceptionEvent -= net.OnServerException;
+                net.Server.Close();
+                net.Server = null;
+            }
             return true;
         }
     }

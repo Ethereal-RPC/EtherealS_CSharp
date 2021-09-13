@@ -69,17 +69,23 @@ namespace EtherealS.RPCService
 
         public static bool UnRegister(string netName,string serviceName)
         {
-            if (!NetCore.Get(netName, out Net net))
+            if (NetCore.Get(netName, out Net net))
             {
-                return true;
+                return UnRegister(net, serviceName);
             }
-            return UnRegister(net,serviceName);
+            return true;
         }
         public static bool UnRegister(Net net, string serviceName)
         {
-            net.Services.TryRemove(serviceName, out Service service);
-            service.LogEvent -= net.OnServiceLog;
-            service.ExceptionEvent -= net.OnServiceException;
+            if(net != null)
+            {
+                net.Services.TryRemove(serviceName, out Service service);
+                if(service != null)
+                {
+                    service.LogEvent -= net.OnServiceLog;
+                    service.ExceptionEvent -= net.OnServiceException;
+                }
+            }
             return true;
         }
     }

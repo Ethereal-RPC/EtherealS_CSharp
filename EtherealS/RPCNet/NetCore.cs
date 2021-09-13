@@ -48,24 +48,24 @@ namespace EtherealS.RPCNet
             {
                 return UnRegister(net);
             }
-            else
-            {
-                return true;
-            }
-
+            return true;
         }
         public static bool UnRegister(Net net)
         {
-            foreach(string serviceName in net.Services.Keys)
+            if(net != null)
             {
-                ServiceCore.UnRegister(net, serviceName);
+                foreach (string serviceName in net.Services.Keys)
+                {
+                    ServiceCore.UnRegister(net, serviceName);
+                }
+                foreach (string requestName in net.Requests.Keys)
+                {
+                    RequestCore.UnRegister(net, requestName);
+                }
+                ServerCore.UnRegister(net);
+                nets.Remove(net.Name);
             }
-            foreach (string requestName in net.Requests.Keys)
-            {
-                RequestCore.UnRegister(net, requestName);
-            }
-            ServerCore.UnRegister(net);
-            return nets.Remove(net.Name);
+            return true;
         }
     }
 }

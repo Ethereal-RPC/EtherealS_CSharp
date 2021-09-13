@@ -43,7 +43,7 @@ namespace EtherealS.RPCNet.NetNodeModel
         public HardwareInformation HardwareInformation { get => hardwareInformation; set => hardwareInformation = value; }
         public string[] Prefixes { get => prefixes; set => prefixes = value; }
 
-
+            
         #endregion
 
     }

@@ -307,7 +307,7 @@ namespace EtherealS.NativeServer
             {
                 exceptionEvent.Invoke(e, this);
             }
-            if (isThrow) throw e;
+             throw e;
         }
 
         public void OnLog(RPCLog.LogCode code, string message)

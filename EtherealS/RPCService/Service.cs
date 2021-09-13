@@ -94,7 +94,7 @@ namespace EtherealS.RPCService
                         methodid.Append(method.Name);
                         ParameterInfo[] parameters = method.GetParameters();
                         int start_idx = 1;
-                        if (parameters.Length > 0 && parameters[0].ParameterType.BaseType != typeof(BaseToken)) start_idx = 0;
+                        if (parameters.Length > 0 && (parameters[0].ParameterType.BaseType != typeof(BaseToken) && parameters[0].ParameterType != typeof(BaseToken))) start_idx = 0;
                         if (rpcAttribute.Paramters == null)
                         {
                             for (int i = start_idx; i < parameters.Length; i++)
@@ -105,7 +105,7 @@ namespace EtherealS.RPCService
                                 }
                                 catch (Exception)
                                 {
-                                    OnException(new RPCException($"{method.Name}方法中的{parameters[i].ParameterType}类型参数尚未注册"));
+                                    throw new RPCException($"{method.Name}方法中的{parameters[i].ParameterType}类型参数尚未注册");
                                 }
                             }
                         }
@@ -120,15 +120,15 @@ namespace EtherealS.RPCService
                                     {
                                         methodid.Append("-").Append(types_name[i]);
                                     }
-                                    else OnException(new RPCException($"C#对应的{types_name[i]}类型参数尚未注册")); 
+                                    else throw new RPCException($"C#对应的{types_name[i]}类型参数尚未注册"); 
                                 }
                             }
-                            else OnException(new RPCException($"方法体{method.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length + 1}个,Method:{parameters.Length}个"));
+                            else throw new RPCException($"方法体{method.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length + 1}个,Method:{parameters.Length}个");
                         }
                         string name =  methodid.ToString();
                         if (methods.TryGetValue(name,out MethodInfo item))
                         {
-                            OnException(new RPCException($"服务方法{name}已存在，无法重复注册！"));
+                            throw new RPCException($"服务方法{name}已存在，无法重复注册！");
                         }
                         Methods.TryAdd(name, method);
                         methodid.Length = 0;

@@ -1,9 +1,6 @@
 ﻿using EtherealS.Model;
 using EtherealS.RPCNet;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Concurrent;
-using System.Reflection;
 
 namespace EtherealS.RPCService
 {
@@ -60,15 +57,14 @@ namespace EtherealS.RPCService
                     service.LogEvent += net.OnServiceLog;
                     service.ExceptionEvent += net.OnServiceException;
                     net.OnLog(RPCLog.LogCode.Core,$"{net.Name}-{servicename}注册成功！");
-                    return service;
                 }
                 catch (Exception e)
                 {
                     net.OnException(e);
                 }
+                return service;
             }
-            else net.OnException(new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册！"));
-            return null;
+            else throw new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册！");
         }
 
         public static bool UnRegister(string netName,string serviceName)

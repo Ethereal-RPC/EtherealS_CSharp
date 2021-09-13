@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="DotNetty.Buffers" Version="0.6.0" />
-    <PackageReference Include="EtherealC" Version="0.1.5" />
+    <PackageReference Include="EtherealC" Version="0.1.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 

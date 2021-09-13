@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.WebSockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace EtherealS.NativeServer
 {
@@ -102,7 +103,7 @@ namespace EtherealS.NativeServer
             // URI prefixes are required,
             // for example "http://contoso.com:8080/index/".
             if (prefixes == null || prefixes.Length == 0)
-                OnException(new ArgumentException(" "));
+                throw new ArgumentException(" ");
             this.netName = netName;
             this.config = config;
             this.prefixes = new List<string>(prefixes);
@@ -112,7 +113,7 @@ namespace EtherealS.NativeServer
             foreach (string s in prefixes)
             {
                 Listener.Prefixes.Add("http://" + s);
-            }
+            } 
             Listener.IgnoreWriteExceptions = true;
         }
 
@@ -130,19 +131,18 @@ namespace EtherealS.NativeServer
 
         private async void ListenerCallbackAsync(IAsyncResult result)
         {
-            this.Listener.BeginGetContext(new AsyncCallback(ListenerCallbackAsync), null);
-
+            Listener.BeginGetContext(new AsyncCallback(ListenerCallbackAsync), null);
             // Call EndGetContext to complete the asynchronous operation.
             HttpListenerContext context = Listener.EndGetContext(result);
             HttpListenerRequest request = context.Request;
-            BaseToken baseToken = null;
-            baseToken = config.CreateMethod();
-            baseToken.LogEvent += Token_LogEvent;
-            baseToken.ExceptionEvent += Token_ExceptionEvent;
-            baseToken.ConnectEvent += Token_ConnectEvent;
-            baseToken.DisConnectEvent += Token_DisConnectEvent;
             try
             {
+                BaseToken baseToken = null;
+                baseToken = config.CreateMethod();
+                baseToken.LogEvent += Token_LogEvent;
+                baseToken.ExceptionEvent += Token_ExceptionEvent;
+                baseToken.ConnectEvent += Token_ConnectEvent;
+                baseToken.DisConnectEvent += Token_DisConnectEvent;
                 // Construct a response.
                 if (request.IsWebSocketRequest)
                 {
@@ -168,12 +168,11 @@ namespace EtherealS.NativeServer
                         if (!NetCore.Get(netName, out Net net))
                         {
                             SendErrorToClient(context, Error.ErrorCode.NotFoundNet, $"未找到节点{netName}");
-
                         }
                         //构造处理请求环境
                         baseToken.IsWebSocket = false;
                         baseToken.OnConnect();
-                        ClientResponseModel clientResponseModel = net.ClientRequestReceiveProcess(baseToken, clientRequestModel);
+                        ClientResponseModel clientResponseModel = await Task.Run(() => net.ClientRequestReceiveProcess(baseToken, clientRequestModel));
                         byte[] bytes = config.Encoding.GetBytes(config.ClientResponseModelSerialize(clientResponseModel));
                         //发送请求结果
                         context.Response.ContentEncoding = config.Encoding;
@@ -187,7 +186,8 @@ namespace EtherealS.NativeServer
             }
             catch (Exception exception)
             {
-                SendErrorToClient(context, Error.ErrorCode.Common, exception.Message, false);
+                SendErrorToClient(context, Error.ErrorCode.Common, exception.Message);
+                OnException(exception);
             }
         }
 
@@ -199,7 +199,7 @@ namespace EtherealS.NativeServer
         {
 
         }
-        private void SendErrorToClient(HttpListenerContext context,Error.ErrorCode code,string message,bool isThrow = true)
+        private void SendErrorToClient(HttpListenerContext context,Error.ErrorCode code,string message)
         {
             try
             {
@@ -213,7 +213,7 @@ namespace EtherealS.NativeServer
             {
 
             }
-            if (isThrow)throw new RPCException(RPCException.ErrorCode.Runtime, $"{message}");
+            throw new RPCException(RPCException.ErrorCode.Runtime, $"{message}");
         }
 
 
@@ -221,13 +221,13 @@ namespace EtherealS.NativeServer
         {
             OnException(new RPCException(code, message));
         }
-        public void OnException(Exception e,bool isThrow = true)
+        public void OnException(Exception e)
         {
             if (exceptionEvent != null)
             {
                 exceptionEvent.Invoke(e,this);
             }
-            if(isThrow)throw e;
+            
         }
 
         public void OnLog(RPCLog.LogCode code, string message)

@@ -92,7 +92,7 @@ namespace EtherealS.RPCRequest
                                 methodid.Append("-" + type.Name);
                                 obj[i - 1] = type.Serialize(args[i]);
                             }
-                            else OnException(new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册"));
+                            else throw new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册");
                         }
                     }
                     else
@@ -107,10 +107,10 @@ namespace EtherealS.RPCRequest
                                     methodid.Append("-" + type.Name);
                                     obj[i - 1] = type.Serialize(args[i]);
                                 }
-                                else OnException(new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册"));
+                                else throw new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册") ;
                             }
                         }
-                        else OnException(new RPCException($"方法体{targetMethod.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length}个,Method:{param_count}个"));
+                        else throw new RPCException($"方法体{targetMethod.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length}个,Method:{param_count}个") ;
                     }
 
                 }
@@ -119,7 +119,7 @@ namespace EtherealS.RPCRequest
                 {
                     if (!((args[0] as BaseToken).IsWebSocket))
                     {
-                        OnException(RPCException.ErrorCode.Runtime, $"{name}-{methodid}传递了非WebSocket协议的Token！");
+                        throw new RPCException(RPCException.ErrorCode.Runtime, $"{name}-{methodid}传递了非WebSocket协议的Token！");
                     }
                     string log = "";
                     log += "---------------------------------------------------------\n";

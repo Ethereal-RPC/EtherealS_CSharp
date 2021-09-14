@@ -10,7 +10,7 @@ namespace EtherealS.Model
         /// <summary>
         /// Ethereal-RPC 版本
         /// </summary>
-        private string type;
+        private string type = "ER-1.0-ClientRequest";
         /// <summary>
         /// 方法ID
         /// </summary>

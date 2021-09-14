@@ -49,19 +49,11 @@ namespace EtherealS.RPCService
             net.Services.TryGetValue(servicename, out Service service);
             if (service == null)
             {
-                try
-                {
-                    service = new Service();
-                    service.Register(net.Name, servicename, instance, config);
-                    net.Services[servicename] = service;
-                    service.LogEvent += net.OnServiceLog;
-                    service.ExceptionEvent += net.OnServiceException;
-                    net.OnLog(RPCLog.LogCode.Core,$"{net.Name}-{servicename}注册成功！");
-                }
-                catch (Exception e)
-                {
-                    net.OnException(e);
-                }
+                service = new Service();
+                service.Register(net.Name, servicename, instance, config);
+                net.Services[servicename] = service;
+                service.LogEvent += net.OnServiceLog;
+                service.ExceptionEvent += net.OnServiceException;
                 return service;
             }
             else throw new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册！");

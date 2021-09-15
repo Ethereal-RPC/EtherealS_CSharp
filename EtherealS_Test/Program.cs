@@ -1,5 +1,6 @@
 ﻿using EtherealS.Model;
 using EtherealS.NativeServer;
+using EtherealS.NativeServer.Abstract;
 using EtherealS.RPCNet;
 using EtherealS.RPCRequest;
 using EtherealS.RPCService;
@@ -76,12 +77,12 @@ namespace EtherealS_Test
             Console.ReadKey();
         }
 
-        private static void Config_LogEvent(RPCLog log, Net net)
+        private static void Config_LogEvent(RPCLog log)
         {
             Console.WriteLine(log.Message);
         }
 
-        private static void Config_ExceptionEvent(Exception exception, Net net)
+        private static void Config_ExceptionEvent(Exception exception)
         {
             Console.WriteLine(exception.Message);
         }

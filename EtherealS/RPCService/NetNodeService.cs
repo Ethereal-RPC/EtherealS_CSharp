@@ -5,69 +5,13 @@ using System.Text;
 using EtherealS.Extension.Authority;
 using EtherealS.Model;
 using EtherealS.NativeServer;
+using static EtherealS.Core.Delegate.Delegates;
 
 namespace EtherealS.RPCService
 {
-    public class Service
+    public class NetNodeService:Service
     {
-        private Dictionary<string, MethodInfo> methods = new Dictionary<string, MethodInfo>();
-        private ServiceConfig config;
-        private object instance;
-        private string netName;
-        private string name;
-
-        public Dictionary<string, MethodInfo> Methods { get => methods; set => methods = value; }
-        public ServiceConfig Config { get => config; set => config = value; }
-        public object Instance { get => instance; set => instance = value; }
-        public string NetName { get => netName; set => netName = value; }
-
-        public string Name { get => name; set => name = value; }
-
-        #region --委托--
-        public delegate void OnExceptionDelegate(Exception exception, Service service);
-        public delegate void OnLogDelegate(RPCLog log, Service service);
-        #endregion
-
-        #region --事件字段--
-        private OnLogDelegate logEvent;
-        private OnExceptionDelegate exceptionEvent;
-        #endregion
-
-        #region --事件属性--
-        /// <summary>
-        /// 日志输出事件
-        /// </summary>
-        public event OnLogDelegate LogEvent
-        {
-            add
-            {
-                logEvent -= value;
-                logEvent += value;
-            }
-            remove
-            {
-                logEvent -= value;
-            }
-        }
-        /// <summary>
-        /// 抛出异常事件
-        /// </summary>
-        public event OnExceptionDelegate ExceptionEvent
-        {
-            add
-            {
-                exceptionEvent -= value;
-                exceptionEvent += value;
-            }
-            remove
-            {
-                exceptionEvent -= value;
-            }
-
-        }
-        #endregion
-
-        public void Register(string netName, string service_name,object instance,ServiceConfig config)
+        public override void Register(string netName, string service_name,object instance,ServiceConfig config)
         {
             this.config = config;
             this.instance = instance;
@@ -134,29 +78,6 @@ namespace EtherealS.RPCService
                         methodid.Length = 0;
                     }
                 }
-            }
-        }
-        public void OnException(RPCException.ErrorCode code, string message)
-        {
-            OnException(new RPCException(code, message));
-        }
-        public void OnException(Exception e)
-        {
-            if (exceptionEvent != null)
-            {
-                exceptionEvent.Invoke(e, this);
-            }
-        }
-
-        public void OnLog(RPCLog.LogCode code, string message)
-        {
-            OnLog(new RPCLog(code, message));
-        }
-        public void OnLog(RPCLog log)
-        {
-            if (logEvent != null)
-            {
-                logEvent.Invoke(log, this);
             }
         }
     }

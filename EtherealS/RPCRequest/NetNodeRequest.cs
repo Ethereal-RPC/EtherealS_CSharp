@@ -8,60 +8,12 @@ using System.Text;
 
 namespace EtherealS.RPCRequest
 {
-    public class Request : DispatchProxy
+    public class NetNodeRequest : Request
     {
-        private string name;
-        private string netName;
-        private RequestConfig config;
-        #region --委托--
-        public delegate void OnExceptionDelegate(Exception exception, Request request);
-        public delegate void OnLogDelegate(RPCLog log, Request request);
-        #endregion
 
-        #region --事件字段--
-        private OnLogDelegate logEvent;
-        private OnExceptionDelegate exceptionEvent;
-        #endregion
-
-        #region --事件属性--
-        /// <summary>
-        /// 日志输出事件
-        /// </summary>
-        public event OnLogDelegate LogEvent
+        public static new NetNodeRequest Register<T>(string netName, string servicename, RequestConfig config)
         {
-            add
-            {
-                logEvent -= value;
-                logEvent += value;
-            }
-            remove
-            {
-                logEvent -= value;
-            }
-        }
-        /// <summary>
-        /// 抛出异常事件
-        /// </summary>
-        public event OnExceptionDelegate ExceptionEvent
-        {
-            add
-            {
-                exceptionEvent -= value;
-                exceptionEvent += value;
-            }
-            remove
-            {
-                exceptionEvent -= value;
-            }
-
-        }
-        #endregion
-        public string Name { get => name; set => name = value; }
-        public RequestConfig Config { get => config; set => config = value; }
-
-        public static Request Register<T>(string netName, string servicename, RequestConfig config)
-        {
-            Request proxy = Create<T, Request>() as Request;
+            NetNodeRequest proxy = Create<T, NetNodeRequest>() as NetNodeRequest;
             proxy.Name = servicename;
             proxy.netName = netName ?? throw new ArgumentNullException(nameof(netName));
             proxy.Config = config;
@@ -134,28 +86,5 @@ namespace EtherealS.RPCRequest
             return null;
         }
 
-        public void OnException(RPCException.ErrorCode code, string message)
-        {
-            OnException(new RPCException(code, message));
-        }
-        public void OnException(Exception e)
-        {
-            if (exceptionEvent != null)
-            {
-                exceptionEvent.Invoke(e, this);
-            }
-        }
-
-        public void OnLog(RPCLog.LogCode code, string message)
-        {
-            OnLog(new RPCLog(code, message));
-        }
-        public void OnLog(RPCLog log)
-        {
-            if (logEvent != null)
-            {
-                logEvent(log, this);
-            }
-        }
     }
 }

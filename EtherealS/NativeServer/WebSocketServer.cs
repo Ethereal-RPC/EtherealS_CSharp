@@ -1,99 +1,18 @@
 using EtherealS.Model;
+using EtherealS.NativeServer.Abstract;
 using EtherealS.RPCNet;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.WebSockets;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace EtherealS.NativeServer
 {
 
-    public class Server
+    public class WebSocketServer : Server
     {
-
-        #region --委托--
-
-        public delegate void OnExceptionDelegate(Exception exception, Server server);
-
-        public delegate void OnLogDelegate(RPCLog log, Server server);
-
-        /// <summary>
-        /// 连接委托
-        /// </summary>
-        /// <param name="token"></param>
-        public delegate void ListenerSuccessDelegate(Server listener);
-        /// <summary>
-        ///     
-        /// </summary>
-        /// <param name="token"></param>
-        public delegate void ListenerFailDelegate(Server listener);
-
-        #endregion
-
-        #region --事件字段--
-        private OnLogDelegate logEvent;
-        private OnExceptionDelegate exceptionEvent;
-        #endregion
-
-        #region --事件属性--
-        /// <summary>
-        /// 日志输出事件
-        /// </summary>
-        public event OnLogDelegate LogEvent
-        {
-            add
-            {
-                logEvent -= value;
-                logEvent += value;
-            }
-            remove
-            {
-                logEvent -= value;
-            }
-        }
-        /// <summary>
-        /// 抛出异常事件
-        /// </summary>
-        public event OnExceptionDelegate ExceptionEvent
-        {
-            add
-            {
-                exceptionEvent -= value;
-                exceptionEvent += value;
-            }
-            remove
-            {
-                exceptionEvent -= value;
-            }
-
-        }
-
-        /// <summary>
-        /// 连接事件
-        /// </summary>
-        public event ListenerSuccessDelegate ListenerSuccessEvent;
-        /// <summary>
-        /// 断开连接事件
-        /// </summary>
-        public event ListenerFailDelegate ListenerFailEvent;
-        #endregion
-
-        #region --字段--
-        private string netName;
-        private ServerConfig config;
-        private HttpListener listener;
-        private CancellationToken cancellationToken = CancellationToken.None;
-        private List<string> prefixes;
-        #endregion
-
-        #region --属性--
-
-        public HttpListener Listener { get => listener; set => listener = value; }
-        public List<string> Prefixes { get => prefixes; set => prefixes = value; }
-        #endregion
-        public Server(string netName,string[] prefixes,ServerConfig config)
+        public WebSocketServer(string netName,string[] prefixes,ServerConfig config)
         {
             if (!HttpListener.IsSupported)
             {
@@ -117,13 +36,13 @@ namespace EtherealS.NativeServer
             Listener.IgnoreWriteExceptions = true;
         }
 
-        public void Start()
+        public override void Start()
         {
             Listener.Start();
             OnListenerSuccess();
             Listener.BeginGetContext(new AsyncCallback(ListenerCallbackAsync), null);
         }
-        public void Close()
+        public override void Close()
         {
             Listener.Close();
             OnListenerFail();
@@ -137,17 +56,19 @@ namespace EtherealS.NativeServer
             HttpListenerRequest request = context.Request;
             try
             {
-                BaseToken baseToken = null;
-                baseToken = config.CreateMethod();
-                baseToken.LogEvent += Token_LogEvent;
-                baseToken.ExceptionEvent += Token_ExceptionEvent;
+                WebSocketToken baseToken = null;
+                baseToken = (WebSocketToken)config.CreateMethod();
+                baseToken.LogEvent += OnLog;
+                baseToken.ExceptionEvent += OnException;
                 baseToken.ConnectEvent += Token_ConnectEvent;
                 baseToken.DisConnectEvent += Token_DisConnectEvent;
                 // Construct a response.
                 if (request.IsWebSocketRequest)
                 {
                     HttpListenerWebSocketContext webSocketContext = await context.AcceptWebSocketAsync(null,config.KeepAliveInterval);
-                    baseToken.Init(netName, config, cancellationToken);
+                    baseToken.NetName = netName;
+                    baseToken.Config = config;
+                    baseToken.CancellationToken = cancellationToken;
                     baseToken.IsWebSocket = true;
                     baseToken.Connect(webSocketContext);
                 }
@@ -199,7 +120,7 @@ namespace EtherealS.NativeServer
         {
 
         }
-        private void SendErrorToClient(HttpListenerContext context,Error.ErrorCode code,string message)
+        internal override void SendErrorToClient(HttpListenerContext context,Error.ErrorCode code,string message)
         {
             try
             {
@@ -216,31 +137,6 @@ namespace EtherealS.NativeServer
             throw new RPCException(RPCException.ErrorCode.Runtime, $"{message}");
         }
 
-
-        public void OnException(RPCException.ErrorCode code, string message)
-        {
-            OnException(new RPCException(code, message));
-        }
-        public void OnException(Exception e)
-        {
-            if (exceptionEvent != null)
-            {
-                exceptionEvent.Invoke(e,this);
-            }
-            
-        }
-
-        public void OnLog(RPCLog.LogCode code, string message)
-        {
-            OnLog(new RPCLog(code, message));
-        }
-        public void OnLog(RPCLog log)
-        {
-            if (logEvent != null)
-            {
-                logEvent.Invoke(log, this);
-            }
-        }
         private void Token_ExceptionEvent(Exception exception, BaseToken token)
         {
             OnException(exception);
@@ -249,20 +145,6 @@ namespace EtherealS.NativeServer
         private void Token_LogEvent(RPCLog log, BaseToken toke)
         {
             OnLog(log);
-        }
-        /// <summary>
-        /// 连接时激活连接事件
-        /// </summary>
-        public void OnListenerSuccess()
-        {
-            ListenerSuccessEvent?.Invoke(this);
-        }
-        /// <summary>
-        /// 断开连接时激活断开连接事件
-        /// </summary>
-        public void OnListenerFail()
-        {
-            ListenerFailEvent?.Invoke(this);
         }
     }
 }

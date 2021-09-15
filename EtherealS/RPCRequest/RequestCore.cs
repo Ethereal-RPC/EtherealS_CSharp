@@ -35,10 +35,13 @@ namespace EtherealS.RPCRequest
             net.Requests.TryGetValue(servicename, out Request request);
             if (request == null)
             {
-                request = Request.Register<R>(net.Name, servicename, config);
+                if(net is NetNodeNet)
+                {
+                    request = NetNodeRequest.Register<R>(net.Name, servicename, config);
+                }
                 net.Requests[servicename] = request;
-                request.LogEvent += net.OnRequestLog;
-                request.ExceptionEvent += net.OnRequestException;
+                request.LogEvent += net.OnLog;
+                request.ExceptionEvent += net.OnException;
             }
             else throw new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册，无法重复注册！");
             return (R)(request as object);
@@ -56,10 +59,10 @@ namespace EtherealS.RPCRequest
             if(net != null)
             {
                 net.Requests.Remove(serviceName, out Request request);
-                if (request != null)
+                if(request != null)
                 {
-                    request.LogEvent -= net.OnRequestLog;
-                    request.ExceptionEvent -= net.OnRequestException;
+                    request.LogEvent -= net.OnLog;
+                    request.ExceptionEvent -= net.OnException;
                 }
             }
             return true;

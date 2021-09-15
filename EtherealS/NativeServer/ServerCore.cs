@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Threading;
-using EtherealS.Model;
+﻿using EtherealS.NativeServer.Abstract;
 using EtherealS.RPCNet;
 
 namespace EtherealS.NativeServer
@@ -43,16 +39,16 @@ namespace EtherealS.NativeServer
         /// <param name="serverIp">远程服务IP</param>
         /// <param name="port">远程服务端口</param>
         /// <returns>客户端</returns>
-        public static Server Register(Net net, string[] prefixes, ServerConfig config,Server socketserver)
+        public static Server Register(Net net, string[] prefixes, ServerConfig config,Server server)
         {
-            if (net.Server == null)
+            if (net.Server == null && net is NetNodeNet)
             {
-                if (socketserver == null) socketserver = new Server(net.Name, prefixes, config);
-                net.Server = socketserver;
-                net.Server.LogEvent += net.OnServerLog;
-                net.Server.ExceptionEvent += net.OnServerException;
+                if (server == null) server = new WebSocketServer(net.Name, prefixes, config);
+                net.Server = server;
+                server.LogEvent += net.OnLog;
+                server.ExceptionEvent += net.OnException;
             }
-            return socketserver;
+            return server;
         }
 
         public static bool UnRegister(string netName)
@@ -70,8 +66,8 @@ namespace EtherealS.NativeServer
         {
             if(net != null)
             {
-                net.Server.LogEvent -= net.OnServerLog;
-                net.Server.ExceptionEvent -= net.OnServerException;
+                net.Server.LogEvent -= net.OnLog;
+                net.Server.ExceptionEvent -= net.OnException;
                 net.Server.Close();
                 net.Server = null;
             }

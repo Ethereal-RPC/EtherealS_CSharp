@@ -34,7 +34,7 @@ namespace EtherealS.RPCNet
             }
             if (!nets.TryGetValue(name, out Net net))
             {
-                net = new Net();
+                net = new NetNodeNet();
                 net.Name = name;
                 net.Config = config;
                 nets.Add(name,net);

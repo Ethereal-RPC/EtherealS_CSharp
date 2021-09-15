@@ -49,11 +49,14 @@ namespace EtherealS.RPCService
             net.Services.TryGetValue(servicename, out Service service);
             if (service == null)
             {
-                service = new Service();
-                service.Register(net.Name, servicename, instance, config);
+                if(service is NetNodeService)
+                {
+                    service = new NetNodeService();
+                    service.Register(net.Name, servicename, instance, config);
+                }
                 net.Services[servicename] = service;
-                service.LogEvent += net.OnServiceLog;
-                service.ExceptionEvent += net.OnServiceException;
+                service.LogEvent += net.OnLog;
+                service.ExceptionEvent += net.OnException;
                 return service;
             }
             else throw new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册！");
@@ -74,8 +77,8 @@ namespace EtherealS.RPCService
                 net.Services.TryRemove(serviceName, out Service service);
                 if(service != null)
                 {
-                    service.LogEvent -= net.OnServiceLog;
-                    service.ExceptionEvent -= net.OnServiceException;
+                    service.LogEvent -= net.OnLog;
+                    service.ExceptionEvent -= net.OnException;
                 }
             }
             return true;

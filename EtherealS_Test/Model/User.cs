@@ -2,7 +2,7 @@
 
 namespace EtherealS_Test.Model
 {
-    public class User:BaseToken
+    public class User:WebSocketToken
     {
         #region --字段--
         /// <summary>

@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace EtherealS.Model
+namespace EtherealS.Core.Model
 {
     public class RPCLog
     {
@@ -18,13 +18,11 @@ namespace EtherealS.Model
         private LogCode code;
 
         private Net net;
-        private Server server;
+        private NativeServer.Abstract.Server server;
         private Service service;
         private Request request;
-        private BaseToken token;
+        private Token token;
         #endregion
-
-
 
         #region --属性--
         public string Message { get => message; set => message = value; }
@@ -32,8 +30,8 @@ namespace EtherealS.Model
         public Net Net { get => net; set => net = value; }
         public Service Service { get => service; set => service = value; }
         public Request Request { get => request; set => request = value; }
-        public BaseToken Token { get => token; set => token = value; }
-        public Server Server { get => server; set => server = value; }
+        public Token Token { get => token; set => token = value; }
+        public NativeServer.Abstract.Server Server { get => server; set => server = value; }
         #endregion
 
         public RPCLog(LogCode code,string message)

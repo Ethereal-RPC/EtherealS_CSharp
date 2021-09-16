@@ -1,4 +1,4 @@
-﻿using EtherealS.Model;
+﻿using EtherealS.Core.Model;
 using EtherealS.RPCNet;
 using System;
 
@@ -49,11 +49,12 @@ namespace EtherealS.RPCService
             net.Services.TryGetValue(servicename, out Service service);
             if (service == null)
             {
-                if(service is NetNodeService)
-                {
-                    service = new NetNodeService();
-                    service.Register(net.Name, servicename, instance, config);
+                if (net.NetType == Core.Enums.NetType.WebSocket) 
+                {    
+                    service = new WebSocketService();
                 }
+                else throw new RPCException(RPCException.ErrorCode.Core, $"未有针对{net.NetType}的Service-Register处理");
+                service.Register(net.Name, servicename, instance, config);
                 net.Services[servicename] = service;
                 service.LogEvent += net.OnLog;
                 service.ExceptionEvent += net.OnException;

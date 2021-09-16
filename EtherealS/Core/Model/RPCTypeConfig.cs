@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace EtherealS.Model
+namespace EtherealS.Core.Model
 {
     /// <summary>
     /// RPCType配置项

@@ -1,4 +1,4 @@
-﻿using EtherealS.Model;
+﻿using EtherealS.Core.Model;
 using EtherealS.NativeServer;
 using EtherealS.RPCNet.NetNodeClient.Request;
 using EtherealS.RPCNet.NetNodeClient.Service;
@@ -16,8 +16,12 @@ using System.Threading;
 
 namespace EtherealS.RPCNet
 {
-    public class NetNodeNet:Net
+    public class WebSocketNet:Net
     {
+        #region --属性--
+        public new WebSocketNetConfig Config { get => (WebSocketNetConfig)config; set => config = value; }
+
+        #endregion
 
         #region --方法--
         /// <summary>
@@ -55,20 +59,20 @@ namespace EtherealS.RPCNet
                             if (EtherealC.RPCRequest.RequestCore.Get($"NetNodeClient-{prefixes}", "ServerNetNodeService", out EtherealC.RPCRequest.Request temp) && temp.Client != null) continue;
                             //tip:S项目引入C，对于C的引用，命名必须全部采取全名引用，避免冲突。
                             //注册数据类型
-                            EtherealC.Model.RPCTypeConfig types = new EtherealC.Model.RPCTypeConfig();
+                            EtherealC.Core.Model.RPCTypeConfig types = new EtherealC.Core.Model.RPCTypeConfig();
                             types.Add<int>("Int");
                             types.Add<long>("Long");
                             types.Add<string>("String");
                             types.Add<bool>("Bool");
                             types.Add<NetNode>("NetNode");
-                            EtherealC.RPCNet.Net net = EtherealC.RPCNet.NetCore.Register($"NetNodeClient-{prefixes}");
+                            EtherealC.RPCNet.Net net = EtherealC.RPCNet.NetCore.Register($"NetNodeClient-{prefixes}", EtherealC.Core.Enums.NetType.WebSocket);
                             net.Config.NetNodeMode = false;
                             //注册服务
                             ClientNodeService clientNodeService = (ClientNodeService)EtherealC.RPCService.ServiceCore.Register<ClientNodeService>(net, "ClientNetNodeService", types).Instance;
                             //注册请求
                             clientNodeService.ServerNodeRequest = EtherealC.RPCRequest.RequestCore.Register<ServerNodeRequest>(net, "ServerNetNodeService", types);
-                            net.LogEvent += ClientNetLog;
-                            net.ExceptionEvent += ClientNetException;
+                            net.LogEvent += Net_LogEvent; ;
+                            net.ExceptionEvent += OnException;
                         }
                         Thread thread = new Thread((cycle) => {
                             try
@@ -87,14 +91,7 @@ namespace EtherealS.RPCNet
                                         {
                                             if (serverNodeRequest.Client != null)
                                             {
-                                                if (serverNodeRequest.Client.Accept.State != System.Net.WebSockets.WebSocketState.Open)
-                                                {
-                                                    EtherealC.NativeClient.ClientCore.UnRegister($"NetNodeClient-{prefixes}", "ServerNetNodeService");
-                                                }
-                                                else
-                                                {
-                                                    continue;
-                                                }
+                                                continue;
                                             }
                                             //注册连接
                                             EtherealC.NativeClient.Client client = EtherealC.NativeClient.ClientCore.Register(serverNodeRequest, prefixes, clientConfig);
@@ -126,51 +123,15 @@ namespace EtherealS.RPCNet
             return true;
         }
 
-        internal void OnServerException(Exception exception, NativeServer.Abstract.Server server)
+        private void Net_LogEvent(EtherealC.Core.Model.RPCLog log)
         {
-            OnException(exception);
+            OnLog(RPCLog.LogCode.Runtime,"NetNodeClient::" + log.Message);
         }
-
-        internal void OnServerLog(RPCLog log, NativeServer.Abstract.Server server)
-        {
-            OnLog(log);
-        }
-
-        private void ClientNetException(Exception exception, EtherealC.RPCNet.Net net)
-        {
-            OnException(RPCException.ErrorCode.Runtime, exception.Message);
-        }
-
-        private void ClientNetLog(EtherealC.Model.RPCLog log, EtherealC.RPCNet.Net net)
-        {
-            OnLog(RPCLog.LogCode.Runtime,log.Message);
-        }
-
-        internal void OnRequestException(Exception exception, Request request)
-        {
-            OnException(exception);
-        }
-
-        internal void OnRequestLog(RPCLog log, Request request)
-        {
-            OnLog(log);
-        }
-
-        internal void OnServiceException(Exception exception, Service service)
-        {
-            OnException(exception);
-        }
-
-        internal void OnServiceLog(RPCLog log, Service service)
-        {
-            OnLog(log);
-        }
-
 
         private void Config_ConnectSuccessEvent(EtherealC.NativeClient.Client client)
         {
             //注册节点信息
-            if (EtherealC.RPCRequest.RequestCore.Get($"NetNodeClient-{client.Prefixes}", "ServerNetNodeService", out EtherealC.RPCRequest.Request serverDistributeRequest))
+            if (EtherealC.RPCRequest.RequestCore.Get($"NetNodeClient-{(client as EtherealC.NativeClient.WebSocketClient).Prefixes}", "ServerNetNodeService", out EtherealC.RPCRequest.Request serverDistributeRequest))
             {
                 //生成节点信息
                 NetNode node = new NetNode();
@@ -202,10 +163,10 @@ namespace EtherealS.RPCNet
                 //向目标主机注册节点信息
                 if (true)
                 {
-                    OnLog(RPCLog.LogCode.Runtime, $"分布式节点：{client.Prefixes}连接成功");
+                    OnLog(RPCLog.LogCode.Runtime, $"分布式节点：{(client as EtherealC.NativeClient.WebSocketClient).Prefixes}连接成功");
                 }
             }
-            else throw new RPCException(RPCException.ErrorCode.Runtime, $"EtherealC中未找到 NetNodeClient-{client.Prefixes}-ServerNodeService");
+            else throw new RPCException(RPCException.ErrorCode.Runtime, $"EtherealC中未找到 NetNodeClient-{(client as EtherealC.NativeClient.WebSocketClient).Prefixes}-ServerNodeService");
         }
 
         private void Config_ConnectFailEvent(EtherealC.NativeClient.Client client)

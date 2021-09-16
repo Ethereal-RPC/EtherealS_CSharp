@@ -1,4 +1,4 @@
-﻿using EtherealS.Model;
+﻿using EtherealS.Core.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,20 +1,13 @@
-﻿using EtherealS.Core.Interface;
-using EtherealS.Model;
+﻿using EtherealS.Core.Delegates;
+using EtherealS.Core.Enums;
+using EtherealS.Core.Model;
 using EtherealS.NativeServer;
-using EtherealS.RPCNet.NetNodeClient.Request;
-using EtherealS.RPCNet.NetNodeClient.Service;
-using EtherealS.RPCNet.NetNodeModel;
-using EtherealS.RPCNet.Server.NetNodeRequest;
-using EtherealS.RPCNet.Server.NetNodeService;
 using EtherealS.RPCRequest;
 using EtherealS.RPCService;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading;
-using static EtherealS.Core.Delegate.Delegates;
 
 namespace EtherealS.RPCNet
 {
@@ -64,7 +57,7 @@ namespace EtherealS.RPCNet
         /// <summary>
         /// Token映射表
         /// </summary>
-        protected ConcurrentDictionary<object, BaseToken> tokens = new ConcurrentDictionary<object, BaseToken>();
+        protected ConcurrentDictionary<object, Token> tokens = new ConcurrentDictionary<object, Token>();
         /// <summary>
         /// Service映射表
         /// </summary>
@@ -82,15 +75,17 @@ namespace EtherealS.RPCNet
         /// Net网关名
         /// </summary>
         protected string name;
+        protected NetType netType;
         #endregion
 
         #region --属性--
-        public ConcurrentDictionary<object, BaseToken> Tokens { get => tokens; set => tokens = value; }
+        public ConcurrentDictionary<object, Token> Tokens { get => tokens; set => tokens = value; }
         public NetConfig Config { get => config; set => config = value; }
         public ConcurrentDictionary<string, Service> Services { get => services; }
         public Dictionary<string, Request> Requests { get => requests; }
         public string Name { get => name; set => name = value; }
         public NativeServer.Abstract.Server Server { get => server; set => server = value; }
+        public NetType NetType { get => netType; set => netType = value; }
 
         #endregion
 
@@ -101,7 +96,7 @@ namespace EtherealS.RPCNet
         /// <returns></returns>
         public abstract bool Publish();
 
-        public ClientResponseModel ClientRequestReceiveProcess(BaseToken token, ClientRequestModel request)
+        public ClientResponseModel ClientRequestReceiveProcess(Token token, ClientRequestModel request)
         {
             if (Services.TryGetValue(request.Service, out Service service))
             {
@@ -170,10 +165,10 @@ namespace EtherealS.RPCNet
             {
                 if (e is not RPCException)
                 {
-                    e = new RPCException(e, e.Message);
+                    e = new RPCException(e);
                 }
                 (e as RPCException).Net = this;
-                exceptionEvent.Invoke(e);
+                exceptionEvent?.Invoke(e);
             }
         }
 
@@ -187,7 +182,7 @@ namespace EtherealS.RPCNet
             if (logEvent != null)
             {
                 log.Net = this;
-                logEvent.Invoke(log);
+                logEvent?.Invoke(log);
             }
         }
 

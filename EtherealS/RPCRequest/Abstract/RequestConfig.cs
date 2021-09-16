@@ -1,4 +1,4 @@
-﻿using EtherealS.Model;
+﻿using EtherealS.Core.Model;
 using System;
 
 namespace EtherealS.RPCRequest
@@ -6,7 +6,7 @@ namespace EtherealS.RPCRequest
     /// <summary>
     /// 服务请求配置项
     /// </summary>
-    public class RequestConfig
+    public class RequestConfig:IRequestConfig
     {
         #region --字段--
         /// <summary>

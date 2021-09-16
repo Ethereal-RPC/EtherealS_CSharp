@@ -1,4 +1,4 @@
-﻿using EtherealS.Model;
+﻿using EtherealS.Core.Model;
 using EtherealS.NativeServer.Interface;
 using EtherealS.RPCNet;
 using System;
@@ -8,17 +8,18 @@ using System.Threading;
 
 namespace EtherealS.NativeServer
 {
-    public class WebSocketToken:BaseToken
+    public abstract class WebSocketToken : Token
     {
         #region --字段--
         private HttpListenerWebSocketContext context;
         private CancellationToken cancellationToken;
-
         #endregion
 
         #region --属性--
         public CancellationToken CancellationToken { get => cancellationToken; set => cancellationToken = value; }
         public HttpListenerWebSocketContext Context { get => context; set => context = value; }
+        public new WebSocketServerConfig Config { get => (WebSocketServerConfig)config; set => config = value; }
+
         #endregion
 
         #region --方法--
@@ -41,13 +42,13 @@ namespace EtherealS.NativeServer
             WebSocket webSocket = Context.WebSocket;
             byte[] receiveBuffer = null;
             int offset = 0;
-            int free = config.BufferSize;
+            int free = Config.BufferSize;
             // While the WebSocket connection remains open run a simple loop that receives data and sends it back.
             while (webSocket.State == WebSocketState.Open)
             {
                 if (receiveBuffer == null)
                 {
-                    receiveBuffer = new byte[config.BufferSize];
+                    receiveBuffer = new byte[Config.BufferSize];
                 }
 
                 try
@@ -64,12 +65,12 @@ namespace EtherealS.NativeServer
 
                     if (receiveResult.EndOfMessage)
                     {
-                        string data = config.Encoding.GetString(receiveBuffer);
+                        string data = Config.Encoding.GetString(receiveBuffer);
                         offset = 0;
-                        free = config.BufferSize;
+                        free = Config.BufferSize;
                         //客户端发来的一定是请求
                         ClientRequestModel request = null;
-                        request = config.ClientRequestModelDeserialize(config.Encoding.GetString(receiveBuffer));
+                        request = Config.ClientRequestModelDeserialize(Config.Encoding.GetString(receiveBuffer));
                         if (!NetCore.Get(netName, out Net net))
                         {
                             SendClientResponse(new ClientResponseModel( null, null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundNet, $"Token查询{netName} Net时 不存在", null)));
@@ -79,11 +80,11 @@ namespace EtherealS.NativeServer
                     }
                     else if (free == 0)
                     {
-                        var newSize = receiveBuffer.Length + config.BufferSize;
-                        if (newSize > config.MaxBufferSize)
+                        var newSize = receiveBuffer.Length + Config.BufferSize;
+                        if (newSize > Config.MaxBufferSize)
                         {
-                            SendClientResponse(new ClientResponseModel(null, null, null, null, new Error(Error.ErrorCode.NotFoundNet, $"缓冲区:{newSize}-超过最大字节数:{config.MaxBufferSize}，已断开连接！", null)));
-                            DisConnect($"缓冲区:{newSize}-超过最大字节数:{config.MaxBufferSize}，已断开连接！");
+                            SendClientResponse(new ClientResponseModel(null, null, null, null, new Error(Error.ErrorCode.NotFoundNet, $"缓冲区:{newSize}-超过最大字节数:{Config.MaxBufferSize}，已断开连接！", null)));
+                            DisConnect($"缓冲区:{newSize}-超过最大字节数:{Config.MaxBufferSize}，已断开连接！");
                             return;
                         }
                         byte[] new_bytes = new byte[newSize];
@@ -101,7 +102,7 @@ namespace EtherealS.NativeServer
         }
         public override void DisConnect(string reason)
         {
-            if(config.AutoManageTokens)UnRegister();
+            if(Config.AutoManageTokens)UnRegister();
             Context.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, reason, CancellationToken);
             OnDisConnect();
         }
@@ -116,7 +117,7 @@ namespace EtherealS.NativeServer
                                 $"{DateTime.Now}::{netName}::[服-返回]\n{response}" +
                                 "--------------------------------------------------\n";
                     OnLog(RPCLog.LogCode.Runtime, log);
-                    Context.WebSocket.SendAsync(config.Encoding.GetBytes(config.ClientResponseModelSerialize(response)), WebSocketMessageType.Text, true, CancellationToken);
+                    Context.WebSocket.SendAsync(Config.Encoding.GetBytes(Config.ClientResponseModelSerialize(response)), WebSocketMessageType.Text, true, CancellationToken);
                 }
             }
             catch(Exception e)
@@ -134,7 +135,7 @@ namespace EtherealS.NativeServer
                                 $"{DateTime.Now}::{netName}::[服-请求]\n{request}" +
                                 "--------------------------------------------------\n";
                     OnLog(RPCLog.LogCode.Runtime, log);
-                    Context.WebSocket.SendAsync(config.Encoding.GetBytes(config.ServerRequestModelSerialize(request)), WebSocketMessageType.Text, true, CancellationToken);
+                    Context.WebSocket.SendAsync(Config.Encoding.GetBytes(Config.ServerRequestModelSerialize(request)), WebSocketMessageType.Text, true, CancellationToken);
                 }
             }
             catch (Exception e)

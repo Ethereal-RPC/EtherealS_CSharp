@@ -1,11 +1,8 @@
-﻿using EtherealS.Model;
-using EtherealS.NativeServer;
-using EtherealS.RPCNet;
-using Newtonsoft.Json;
+﻿using EtherealS.Core;
+using EtherealS.Core.Delegates;
+using EtherealS.Core.Model;
 using System;
 using System.Reflection;
-using System.Text;
-using static EtherealS.Core.Delegate.Delegates;
 
 namespace EtherealS.RPCRequest
 {
@@ -53,20 +50,21 @@ namespace EtherealS.RPCRequest
 
         #region --字段--
         protected string name;
-        protected string netName;
+        private string netName;
         protected RequestConfig config;
         #endregion
 
         #region --属性--
         public string Name { get => name; set => name = value; }
         public RequestConfig Config { get => config; set => config = value; }
+        public string NetName { get => netName; set => netName = value; }
         #endregion
 
         public static Request Register<T>(string netName, string servicename, RequestConfig config)
         {
             Request proxy = Create<T, Request>() as Request;
             proxy.Name = servicename;
-            proxy.netName = netName ?? throw new ArgumentNullException(nameof(netName));
+            proxy.NetName = netName ?? throw new ArgumentNullException(nameof(netName));
             proxy.Config = config;
             return proxy;
         }
@@ -82,10 +80,10 @@ namespace EtherealS.RPCRequest
             {
                 if (e is not RPCException)
                 {
-                    e = new RPCException(e, e.Message);
+                    e = new RPCException(e);
                 }
                 (e as RPCException).Request = this;
-                exceptionEvent.Invoke(e);
+                exceptionEvent?.Invoke(e);
             }
         }
 
@@ -98,7 +96,7 @@ namespace EtherealS.RPCRequest
             if (logEvent != null)
             {
                 log.Request = this;
-                logEvent(log);
+                logEvent?.Invoke(log);
             }
         }
     }

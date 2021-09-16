@@ -9,10 +9,10 @@ namespace EtherealS.RPCNet
     /// <summary>
     /// Ethereal网关
     /// </summary>
-    public class NetConfig
+    public class NetConfig:INetConfig
     {
         #region --委托--
-        public delegate bool InterceptorDelegate(Service service,MethodInfo method,BaseToken token);
+        public delegate bool InterceptorDelegate(Service service,MethodInfo method,Token token);
         #endregion
 
         #region --事件属性--
@@ -36,13 +36,7 @@ namespace EtherealS.RPCNet
         /// <summary>
         /// 网络节点心跳周期
         /// </summary>
-        private int netNodeHeartbeatCycle = 10000;//默认60秒心跳一次
-
-        public NetConfig()
-        {
-
-        }
-
+        private int netNodeHeartbeatCycle = 5000;//默认60秒心跳一次
 
 
         #endregion
@@ -56,7 +50,7 @@ namespace EtherealS.RPCNet
         #endregion
 
         #region --方法--
-        public bool OnInterceptor(Service service,MethodInfo method,BaseToken token)
+        public bool OnInterceptor(Service service,MethodInfo method,Token token)
         {
             if (InterceptorEvent != null)
             {

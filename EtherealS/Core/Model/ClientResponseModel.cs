@@ -1,4 +1,4 @@
-﻿namespace EtherealS.Model
+﻿namespace EtherealS.Core.Model
 {
     /// <summary>
     /// 客户端请求返回模型

@@ -1,11 +1,12 @@
-﻿using EtherealS.NativeServer.Abstract;
+﻿using EtherealS.Core.Model;
+using EtherealS.NativeServer.Abstract;
 using EtherealS.RPCNet;
 
 namespace EtherealS.NativeServer
 {
     public class ServerCore
     {
-        public static bool Get(string netName, out Server socketserver)
+        public static bool Get(string netName, out Abstract.Server socketserver)
         {
             if (NetCore.Get(netName, out Net net))
             {
@@ -17,7 +18,7 @@ namespace EtherealS.NativeServer
                 return false;
             }
         }
-        public static bool Get(Net net, out Server socketserver)
+        public static bool Get(Net net, out Abstract.Server socketserver)
         {
             socketserver = net.Server;
             if (net.Server != null) return true;
@@ -26,7 +27,12 @@ namespace EtherealS.NativeServer
 
         public static Server Register(Net net, string[] prefixes, ServerConfig.CreateInstance createMethod)
         {
-            return Register(net,prefixes, new ServerConfig(createMethod),null);
+            if (net.NetType == Core.Enums.NetType.WebSocket)
+            {
+                return Register(net, prefixes, new WebSocketServerConfig(createMethod), null);
+            }
+            else throw new RPCException(RPCException.ErrorCode.Core, $"未有针对{net.NetType}的Server-Register处理");
+
         }
         public static Server Register(Net net, string[] prefixes, ServerConfig config)
         {
@@ -39,11 +45,15 @@ namespace EtherealS.NativeServer
         /// <param name="serverIp">远程服务IP</param>
         /// <param name="port">远程服务端口</param>
         /// <returns>客户端</returns>
-        public static Server Register(Net net, string[] prefixes, ServerConfig config,Server server)
+        public static Abstract.Server Register(Net net, string[] prefixes, ServerConfig config, Abstract.Server server)
         {
-            if (net.Server == null && net is NetNodeNet)
+            if (net.Server == null && net is Net)
             {
-                if (server == null) server = new WebSocketServer(net.Name, prefixes, config);
+                if (net.NetType == Core.Enums.NetType.WebSocket)
+                {
+                    server = new WebSocketServer(net.Name, prefixes, config);
+                }
+                else throw new RPCException(RPCException.ErrorCode.Core, $"未有针对{net.NetType}的Server-Register处理");
                 net.Server = server;
                 server.LogEvent += net.OnLog;
                 server.ExceptionEvent += net.OnException;

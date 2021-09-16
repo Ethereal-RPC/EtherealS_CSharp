@@ -1,4 +1,4 @@
-﻿using EtherealS.Model;
+﻿using EtherealS.Core.Model;
 using EtherealS.NativeServer;
 using EtherealS.RPCNet;
 using Newtonsoft.Json;
@@ -8,14 +8,19 @@ using System.Text;
 
 namespace EtherealS.RPCRequest
 {
-    public class NetNodeRequest : Request
+    public class WebSocketRequest : Request
     {
+        #region --属性--
 
-        public static new NetNodeRequest Register<T>(string netName, string servicename, RequestConfig config)
+        public new WebSocketRequestConfig Config { get => (WebSocketRequestConfig)config; set => config = value; }
+
+        #endregion
+
+        public static new Request Register<T>(string netName, string servicename, RequestConfig config)
         {
-            NetNodeRequest proxy = Create<T, NetNodeRequest>() as NetNodeRequest;
+            Request proxy = Create<T, WebSocketRequest>() as Request;
             proxy.Name = servicename;
-            proxy.netName = netName ?? throw new ArgumentNullException(nameof(netName));
+            proxy.NetName = netName ?? throw new ArgumentNullException(nameof(netName));
             proxy.Config = config;
             return proxy;
         }
@@ -67,18 +72,18 @@ namespace EtherealS.RPCRequest
 
                 }
                 ServerRequestModel request = new ServerRequestModel(Name, methodid.ToString(), obj);
-                if (args[0] != null && (args[0] as BaseToken != null))
+                if (args[0] != null && (args[0] as Token != null))
                 {
-                    if (!((args[0] as BaseToken).IsWebSocket))
+                    if (!((args[0] as Token).IsWebSocket))
                     {
                         throw new RPCException(RPCException.ErrorCode.Runtime, $"{name}-{methodid}传递了非WebSocket协议的Token！");
                     }
                     string log = "";
                     log += "---------------------------------------------------------\n";
-                    log += $"{ DateTime.Now}::{netName}::[服 - 指令]\n{ request}\n";
+                    log += $"{ DateTime.Now}::{NetName}::[服 - 指令]\n{ request}\n";
                     log += "---------------------------------------------------------\n";
                     OnLog(RPCLog.LogCode.Runtime, log);
-                    (args[0] as BaseToken).SendServerRequest(request);
+                    (args[0] as Token).SendServerRequest(request);
                     return null;
                 }
                 return null;

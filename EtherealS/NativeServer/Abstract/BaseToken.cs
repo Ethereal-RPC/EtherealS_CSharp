@@ -1,15 +1,14 @@
-﻿using EtherealS.Model;
+﻿using EtherealS.Core;
+using EtherealS.Core.Delegates;
+using EtherealS.Core.Model;
 using EtherealS.NativeServer.Interface;
 using EtherealS.RPCNet;
 using System;
 using System.Collections.Concurrent;
-using System.Net.WebSockets;
-using System.Threading;
-using static EtherealS.Core.Delegate.Delegates;
 
 namespace EtherealS.NativeServer
 {
-    public abstract class BaseToken:IBaseToken
+    public abstract class Token:IBaseToken
     {
 
         #region --委托--
@@ -17,12 +16,12 @@ namespace EtherealS.NativeServer
         /// 连接委托
         /// </summary>
         /// <param name="token"></param>
-        public delegate void ConnectDelegate(BaseToken token);
+        public delegate void ConnectDelegate(Token token);
         /// <summary>
         ///     
         /// </summary>
         /// <param name="token"></param>
-        public delegate void DisConnectDelegate(BaseToken token);
+        public delegate void DisConnectDelegate(Token token);
 
         #endregion
 
@@ -75,12 +74,11 @@ namespace EtherealS.NativeServer
         #region --字段--
         protected string netName;
         protected ServerConfig config;
-        protected object key;
         protected bool isWebSocket;
         #endregion
 
         #region --属性--
-        public object Key { get => key; set => key = value; }
+        public abstract object Key { get; set; }
         public bool IsWebSocket { get => isWebSocket; set => isWebSocket = value; }
         public string NetName { get => netName; set => netName = value; }
         public ServerConfig Config { get => config; set => config = value; }
@@ -100,7 +98,7 @@ namespace EtherealS.NativeServer
             }
             if (replace)
             {
-                net.Tokens.TryRemove(Key, out BaseToken token);
+                net.Tokens.TryRemove(Key, out Token token);
             }
             return net.Tokens.TryAdd(Key, this);
         }
@@ -114,13 +112,13 @@ namespace EtherealS.NativeServer
             {
                 throw new RPCException(RPCException.ErrorCode.Runtime, $"{NetName}Net未找到");
             }
-            return net.Tokens.TryRemove(Key, out BaseToken value);
+            return net.Tokens.TryRemove(Key, out Token value);
         }
         /// <summary>
         /// 得到该Token所属的Tokens表单
         /// </summary>
         /// <returns></returns>
-        public ConcurrentDictionary<object, BaseToken> GetTokens()
+        public ConcurrentDictionary<object, Token> GetTokens()
         {
             if (!NetCore.Get(NetName, out Net net))
             {
@@ -135,13 +133,13 @@ namespace EtherealS.NativeServer
         /// <param name="key">Token唯一凭据Key</param>
         /// <param name="value">返回的值</param>
         /// <returns></returns>
-        public bool GetToken<T>(object key, out T value) where T : BaseToken
+        public bool GetToken<T>(object key, out T value) where T : Token
         {
             if (!NetCore.Get(NetName, out Net net))
             {
                 throw new RPCException(RPCException.ErrorCode.Runtime, $"{NetName}Net未找到");
             }
-            if (net.Tokens.TryGetValue(key, out BaseToken result))
+            if (net.Tokens.TryGetValue(key, out Token result))
             {
                 value = (T)result;
                 return true;
@@ -157,7 +155,7 @@ namespace EtherealS.NativeServer
         /// </summary>
         /// <param name="serverkey"></param>
         /// <returns></returns>
-        public ConcurrentDictionary<object, BaseToken> GetTokens(string netName)
+        public ConcurrentDictionary<object, Token> GetTokens(string netName)
         {
             if (!NetCore.Get(netName, out Net net))
             {
@@ -184,10 +182,10 @@ namespace EtherealS.NativeServer
             {
                 if (e is not RPCException)
                 {
-                    e = new RPCException(e, e.Message);
+                    e = new RPCException(e);
                 }
                 (e as RPCException).Token = this;
-                exceptionEvent.Invoke(e);
+                exceptionEvent?.Invoke(e);
             }
         }
 
@@ -200,20 +198,20 @@ namespace EtherealS.NativeServer
             if (logEvent != null)
             {
                 log.Token = this;
-                logEvent.Invoke(log);
+                logEvent?.Invoke(log);
             }
         }
         /// <summary>
         /// 连接时激活连接事件
         /// </summary>
-        internal void OnConnect()
+        public void OnConnect()
         {
             ConnectEvent?.Invoke(this);
         }
         /// <summary>
         /// 断开连接时激活断开连接事件
         /// </summary>
-        internal void OnDisConnect()
+        public void OnDisConnect()
         {
             DisConnectEvent?.Invoke(this);
         }

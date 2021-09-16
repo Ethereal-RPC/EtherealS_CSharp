@@ -1,20 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using EtherealS.Core.Model;
+using EtherealS.NativeServer;
+using System;
 using System.Reflection;
 using System.Text;
-using EtherealS.Extension.Authority;
-using EtherealS.Model;
-using EtherealS.NativeServer;
-using static EtherealS.Core.Delegate.Delegates;
 
 namespace EtherealS.RPCService
 {
-    public class NetNodeService:Service
+    public class WebSocketService:Service
     {
+        #region --属性--
+        public new WebSocketServiceConfig Config { get => (WebSocketServiceConfig)config; set => config = value; }
+        #endregion
+
         public override void Register(string netName, string service_name,object instance,ServiceConfig config)
         {
             this.config = config;
-            this.instance = instance;
+            this.instance = instance;   
             this.netName = netName;
             this.name = service_name;
             //遍历所有字段
@@ -38,7 +39,7 @@ namespace EtherealS.RPCService
                         methodid.Append(method.Name);
                         ParameterInfo[] parameters = method.GetParameters();
                         int start_idx = 1;
-                        if (parameters.Length > 0 && (parameters[0].ParameterType.BaseType != typeof(BaseToken) && parameters[0].ParameterType != typeof(BaseToken))) start_idx = 0;
+                        if (parameters.Length > 0 && (parameters[0].ParameterType.BaseType != typeof(Token) && parameters[0].ParameterType != typeof(Token))) start_idx = 0;
                         if (rpcAttribute.Paramters == null)
                         {
                             for (int i = start_idx; i < parameters.Length; i++)

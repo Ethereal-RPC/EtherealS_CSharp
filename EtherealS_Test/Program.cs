@@ -1,4 +1,4 @@
-﻿using EtherealS.Model;
+﻿using EtherealS.Core.Model;
 using EtherealS.NativeServer;
 using EtherealS.NativeServer.Abstract;
 using EtherealS.RPCNet;
@@ -14,6 +14,7 @@ namespace EtherealS_Test
 {
     public class Program
     {
+
         public static void Main()
         {
             string ip = "127.0.0.1";
@@ -47,7 +48,7 @@ namespace EtherealS_Test
             types.Add<string>("String");
             types.Add<bool>("Bool");
             //建立网关
-            Net net = NetCore.Register("demo");
+            Net net = NetCore.Register("demo", EtherealS.Core.Enums.NetType.WebSocket);
             net.ExceptionEvent += Config_ExceptionEvent;
             net.LogEvent += Config_LogEvent;
             //向网关注册服务
@@ -57,16 +58,16 @@ namespace EtherealS_Test
             //本例中，突出服务类可作为正常类
             (service.Instance as ServerService).UserRequest = request;
             //向网关注册连接(提供一个生成User的方法)
-            Server server = ServerCore.Register(net,new string[]{ $"{ip}:{port}/NetDemo/"} ,()=>new User());
+            EtherealS.NativeServer.Abstract.Server server = ServerCore.Register(net, new string[]{ $"{ip}:{port}/NetDemo/"} ,()=>new User());
             List<Tuple<string, EtherealC.NativeClient.ClientConfig>> ips = new();
-            EtherealC.NativeClient.ClientConfig  clientConfig = new EtherealC.NativeClient.ClientConfig();
+            EtherealC.NativeClient.ClientConfig  clientConfig = new EtherealC.NativeClient.WebSocketClientConfig();
             /*
              * 部署分布式集群
              */
             //开启集群
             net.Config.NetNodeMode = true;
             //添加集群地址
-            ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28015}/NetDemo/", clientConfig));
+            //ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28015}/NetDemo/", clientConfig));
             ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28016}/NetDemo/", clientConfig));
             ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28017}/NetDemo/", clientConfig));
             ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28018}/NetDemo/", clientConfig));
@@ -75,6 +76,11 @@ namespace EtherealS_Test
             net.Publish();
             Console.WriteLine("服务器初始化完成....");
             Console.ReadKey();
+        }
+
+        private static void Program_Event(string a)
+        {
+            throw new NotImplementedException();
         }
 
         private static void Config_LogEvent(RPCLog log)

@@ -1,11 +1,8 @@
-﻿using System;
+﻿using EtherealS.Core.Delegates;
+using EtherealS.Core.Model;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using EtherealS.Extension.Authority;
-using EtherealS.Model;
-using EtherealS.NativeServer;
-using static EtherealS.Core.Delegate.Delegates;
 
 namespace EtherealS.RPCService
 {
@@ -77,10 +74,10 @@ namespace EtherealS.RPCService
             {
                 if (e is not RPCException)
                 {
-                    e = new RPCException(e, e.Message);
+                    e = new RPCException(e);
                 }
                 (e as RPCException).Service = this;
-                exceptionEvent.Invoke(e);
+                exceptionEvent?.Invoke(e);
             }
         }
 
@@ -93,7 +90,7 @@ namespace EtherealS.RPCService
             if (logEvent != null)
             {
                 log.Service = this;
-                logEvent.Invoke(log);
+                logEvent?.Invoke(log);
             }
         }
     }

@@ -1,5 +1,5 @@
 ﻿using EtherealS.Core.Interface;
-using EtherealS.Model;
+using EtherealS.Core.Model;
 using EtherealS.NativeServer;
 using EtherealS.NativeServer.Abstract;
 using EtherealS.RPCRequest;
@@ -17,7 +17,7 @@ namespace EtherealS.RPCNet
         /// <returns></returns>
         public bool Publish();
 
-        public ClientResponseModel ClientRequestReceiveProcess(BaseToken token, ClientRequestModel request);
+        public ClientResponseModel ClientRequestReceiveProcess(Token token, ClientRequestModel request);
 
         #endregion
     }

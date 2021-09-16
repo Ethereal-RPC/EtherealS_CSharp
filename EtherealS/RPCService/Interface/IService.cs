@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
-using EtherealS.Core.Interface;
-using EtherealS.Extension.Authority;
-using EtherealS.Model;
-using EtherealS.NativeServer;
-using static EtherealS.Core.Delegate.Delegates;
+﻿using EtherealS.Core.Interface;
 
 namespace EtherealS.RPCService
 {
     public interface IService : ILogEvent, IExceptionEvent
     {
-
+        public void Register(string netName, string service_name, object instance, ServiceConfig config);
     }
 }

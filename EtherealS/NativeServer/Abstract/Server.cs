@@ -1,10 +1,10 @@
-﻿using EtherealS.Model;
+﻿using EtherealS.Core.Delegates;
+using EtherealS.Core.Model;
 using EtherealS.NativeServer.Interface;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
-using static EtherealS.Core.Delegate.Delegates;
 
 namespace EtherealS.NativeServer.Abstract
 {
@@ -76,7 +76,7 @@ namespace EtherealS.NativeServer.Abstract
 
         #region --字段--
         protected string netName;
-        protected ServerConfig config;
+        private ServerConfig config;
         protected HttpListener listener;
         protected CancellationToken cancellationToken = CancellationToken.None;
         protected List<string> prefixes;
@@ -86,6 +86,7 @@ namespace EtherealS.NativeServer.Abstract
 
         public HttpListener Listener { get => listener; set => listener = value; }
         public List<string> Prefixes { get => prefixes; set => prefixes = value; }
+        protected ServerConfig Config { get => config; set => config = value; }
         #endregion
 
         public abstract void Start();
@@ -103,10 +104,10 @@ namespace EtherealS.NativeServer.Abstract
             {
                 if (e is not RPCException)
                 {
-                    e = new RPCException(e, e.Message);
+                    e = new RPCException(e);
                 }
                 (e as RPCException).Server = this;
-                exceptionEvent.Invoke(e);
+                exceptionEvent?.Invoke(e);
             }
         }
 
@@ -119,7 +120,7 @@ namespace EtherealS.NativeServer.Abstract
             if (logEvent != null)
             {
                 log.Server = this;
-                logEvent.Invoke(log);
+                logEvent?.Invoke(log);
             }
         }
         /// <summary>
@@ -135,6 +136,9 @@ namespace EtherealS.NativeServer.Abstract
         protected void OnListenerFail()
         {
             ListenerFailEvent?.Invoke(this);
+        }
+        ~Server(){
+            
         }
     }
 }

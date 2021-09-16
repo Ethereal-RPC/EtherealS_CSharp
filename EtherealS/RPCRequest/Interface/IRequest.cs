@@ -1,5 +1,5 @@
 ﻿using EtherealS.Core.Interface;
-using EtherealS.Model;
+using EtherealS.Core.Model;
 using EtherealS.NativeServer;
 using EtherealS.RPCNet;
 using Newtonsoft.Json;

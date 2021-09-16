@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace EtherealS.Model
+namespace EtherealS.Core.Model
 {
     /// <summary>
     /// 中间层抽象数据类

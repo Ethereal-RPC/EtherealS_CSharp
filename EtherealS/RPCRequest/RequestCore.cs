@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using EtherealS.Model;
+using EtherealS.Core.Model;
 using EtherealS.RPCNet;
 
 namespace EtherealS.RPCRequest
@@ -35,10 +35,11 @@ namespace EtherealS.RPCRequest
             net.Requests.TryGetValue(servicename, out Request request);
             if (request == null)
             {
-                if(net is NetNodeNet)
+                if (net.NetType == Core.Enums.NetType.WebSocket)
                 {
-                    request = NetNodeRequest.Register<R>(net.Name, servicename, config);
+                    request = WebSocketRequest.Register<R>(net.Name, servicename, config);
                 }
+                else throw new RPCException(RPCException.ErrorCode.Core, $"未有针对{net.NetType}的Request-Register处理");
                 net.Requests[servicename] = request;
                 request.LogEvent += net.OnLog;
                 request.ExceptionEvent += net.OnException;

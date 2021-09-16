@@ -1,13 +1,9 @@
-﻿using EtherealS.Model;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using EtherealS.RPCService;
-using System.Reflection;
-using Newtonsoft.Json;
-using EtherealS.RPCRequest;
+﻿using EtherealS.Core.Model;
 using EtherealS.NativeServer;
+using EtherealS.RPCRequest;
+using EtherealS.RPCService;
+using System;
+using System.Collections.Generic;
 
 namespace EtherealS.RPCNet
 {
@@ -22,11 +18,11 @@ namespace EtherealS.RPCNet
             return nets.TryGetValue(name, out net);
         }
 
-        public static Net Register(string name)
+        public static Net Register(string name, Core.Enums.NetType netType)
         {
-            return Register(name, new NetConfig());
+            return Register(name, new NetConfig(), netType);
         }
-        public static Net Register(string name, NetConfig config)
+        public static Net Register(string name, NetConfig config,Core.Enums.NetType netType)
         {
             if (config is null)
             {
@@ -34,7 +30,12 @@ namespace EtherealS.RPCNet
             }
             if (!nets.TryGetValue(name, out Net net))
             {
-                net = new NetNodeNet();
+                if (netType == Core.Enums.NetType.WebSocket)
+                {
+                    net = new WebSocketNet();
+                    net.Config = config;
+                }
+                else throw new RPCException(RPCException.ErrorCode.Core, $"未有针对{net.NetType}的Net-Register处理");
                 net.Name = name;
                 net.Config = config;
                 nets.Add(name,net);

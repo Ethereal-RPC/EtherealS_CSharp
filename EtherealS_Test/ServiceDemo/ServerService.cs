@@ -55,7 +55,7 @@ namespace EtherealS_Test.ServiceDemo
         }
 
         [RPCService]
-        public int Add(BaseToken token,int a,int b)
+        public int Add(Token token,int a,int b)
         {
             return a + b;
         }

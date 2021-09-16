@@ -1,4 +1,4 @@
-using EtherealS.Model;
+using EtherealS.Core.Model;
 using EtherealS.NativeServer.Abstract;
 using EtherealS.RPCNet;
 using System;
@@ -12,6 +12,10 @@ namespace EtherealS.NativeServer
 
     public class WebSocketServer : Server
     {
+        #region --属性--
+        public new WebSocketServerConfig Config { get => (WebSocketServerConfig)base.Config; set => base.Config = value; }
+
+        #endregion
         public WebSocketServer(string netName,string[] prefixes,ServerConfig config)
         {
             if (!HttpListener.IsSupported)
@@ -24,7 +28,7 @@ namespace EtherealS.NativeServer
             if (prefixes == null || prefixes.Length == 0)
                 throw new ArgumentException(" ");
             this.netName = netName;
-            this.config = config;
+            this.Config = config as WebSocketServerConfig;
             this.prefixes = new List<string>(prefixes);
             // Create a listener.
             Listener = new HttpListener();
@@ -57,7 +61,7 @@ namespace EtherealS.NativeServer
             try
             {
                 WebSocketToken baseToken = null;
-                baseToken = (WebSocketToken)config.CreateMethod();
+                baseToken = base.Config.CreateMethod() as WebSocketToken;
                 baseToken.LogEvent += OnLog;
                 baseToken.ExceptionEvent += OnException;
                 baseToken.ConnectEvent += Token_ConnectEvent;
@@ -65,9 +69,9 @@ namespace EtherealS.NativeServer
                 // Construct a response.
                 if (request.IsWebSocketRequest)
                 {
-                    HttpListenerWebSocketContext webSocketContext = await context.AcceptWebSocketAsync(null,config.KeepAliveInterval);
+                    HttpListenerWebSocketContext webSocketContext = await context.AcceptWebSocketAsync(null, Config.KeepAliveInterval);
                     baseToken.NetName = netName;
-                    baseToken.Config = config;
+                    baseToken.Config = Config;
                     baseToken.CancellationToken = cancellationToken;
                     baseToken.IsWebSocket = true;
                     baseToken.Connect(webSocketContext);
@@ -77,15 +81,15 @@ namespace EtherealS.NativeServer
                     try
                     {
                         //后续可以加入池优化，这里暂时先直接申请。
-                        if (request.ContentLength64 > config.MaxBufferSize)
+                        if (request.ContentLength64 > Config.MaxBufferSize)
                         {
-                            SendErrorToClient(context, Error.ErrorCode.BufferFlow, $"Net最大允许接收{config.MaxBufferSize}字节");
+                            SendErrorToClient(context, Error.ErrorCode.BufferFlow, $"Net最大允许接收{Config.MaxBufferSize}字节");
                         }
                         byte[] body = new byte[request.ContentLength64];
                         await request.InputStream.ReadAsync(body, 0, body.Length);
                         //客户端发来的一定是请求
                         ClientRequestModel clientRequestModel = null;
-                        clientRequestModel = config.ClientRequestModelDeserialize(config.Encoding.GetString(body));
+                        clientRequestModel = base.Config.ClientRequestModelDeserialize(Config.Encoding.GetString(body));
                         if (!NetCore.Get(netName, out Net net))
                         {
                             SendErrorToClient(context, Error.ErrorCode.NotFoundNet, $"未找到节点{netName}");
@@ -94,9 +98,9 @@ namespace EtherealS.NativeServer
                         baseToken.IsWebSocket = false;
                         baseToken.OnConnect();
                         ClientResponseModel clientResponseModel = await Task.Run(() => net.ClientRequestReceiveProcess(baseToken, clientRequestModel));
-                        byte[] bytes = config.Encoding.GetBytes(config.ClientResponseModelSerialize(clientResponseModel));
+                        byte[] bytes = Config.Encoding.GetBytes(base.Config.ClientResponseModelSerialize(clientResponseModel));
                         //发送请求结果
-                        context.Response.ContentEncoding = config.Encoding;
+                        context.Response.ContentEncoding = Config.Encoding;
                         context.Response.OutputStream.WriteAsync(bytes, cancellationToken);
                     }
                     finally
@@ -112,11 +116,11 @@ namespace EtherealS.NativeServer
             }
         }
 
-        private void Token_ConnectEvent(BaseToken token)
+        private void Token_ConnectEvent(Token token)
         {
             
         }
-        private void Token_DisConnectEvent(BaseToken token)
+        private void Token_DisConnectEvent(Token token)
         {
 
         }
@@ -124,9 +128,9 @@ namespace EtherealS.NativeServer
         {
             try
             {
-                context.Response.ContentEncoding = config.Encoding;
-                string exception_serialize = config.ClientResponseModelSerialize(new ClientResponseModel(null, null, null, null, new Error(code, $"{message}", null)));
-                byte[] exception_bytes = config.Encoding.GetBytes(exception_serialize);
+                context.Response.ContentEncoding = Config.Encoding;
+                string exception_serialize = base.Config.ClientResponseModelSerialize(new ClientResponseModel(null, null, null, null, new Error(code, $"{message}", null)));
+                byte[] exception_bytes = Config.Encoding.GetBytes(exception_serialize);
                 context.Response.OutputStream.WriteAsync(exception_bytes, 0, exception_bytes.Length);
                 context.Response.Close();
             }

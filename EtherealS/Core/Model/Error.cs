@@ -1,4 +1,4 @@
-﻿namespace EtherealS.Model
+﻿namespace EtherealS.Core.Model
 {
     /// <summary>
     /// 网络传输错误类

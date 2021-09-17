@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using EtherealS.RPCService;
 using EtherealS.NativeServer;
+using EtherealS.NativeServer.Abstract;
+using EtherealS.RPCService.Abstract;
 
 namespace EtherealS_Test.ServiceDemo
 {

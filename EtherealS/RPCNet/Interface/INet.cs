@@ -2,11 +2,8 @@
 using EtherealS.Core.Model;
 using EtherealS.NativeServer;
 using EtherealS.NativeServer.Abstract;
-using EtherealS.RPCRequest;
-using EtherealS.RPCService;
-using System;
 
-namespace EtherealS.RPCNet
+namespace EtherealS.RPCNet.Interface
 {
     public interface INet : ILogEvent, IExceptionEvent
     {

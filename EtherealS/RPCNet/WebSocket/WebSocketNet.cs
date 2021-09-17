@@ -1,20 +1,20 @@
-﻿using EtherealS.Core.Model;
-using EtherealS.NativeServer;
-using EtherealS.RPCNet.NetNodeClient.Request;
-using EtherealS.RPCNet.NetNodeClient.Service;
-using EtherealS.RPCNet.NetNodeModel;
-using EtherealS.RPCNet.Server.NetNodeRequest;
-using EtherealS.RPCNet.Server.NetNodeService;
-using EtherealS.RPCRequest;
-using EtherealS.RPCService;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
+using EtherealS.Core.Model;
+using EtherealS.RPCNet.Abstract;
+using EtherealS.RPCNet.NetNode.Model;
+using EtherealS.RPCNet.NetNode.NetNodeClient.Request;
+using EtherealS.RPCNet.NetNode.NetNodeClient.Service;
+using EtherealS.RPCNet.NetNode.NetNodeServer.Request;
+using EtherealS.RPCNet.NetNode.NetNodeServer.Service;
+using EtherealS.RPCRequest;
+using EtherealS.RPCRequest.Abstract;
+using EtherealS.RPCService;
+using EtherealS.RPCService.Abstract;
 
-namespace EtherealS.RPCNet
+namespace EtherealS.RPCNet.WebSocket
 {
     public class WebSocketNet:Net
     {
@@ -42,7 +42,7 @@ namespace EtherealS.RPCNet
                         types.Add<long>("Long");
                         types.Add<string>("String");
                         types.Add<bool>("Bool");
-                        types.Add<NetNode>("NetNode");
+                        types.Add<NetNode.Model.NetNode>("NetNode");
                         //注册服务
                         ServerNodeService serverDistributeService = (ServerNodeService)ServiceCore.Register<ServerNodeService>(this, "ServerNetNodeService", types).Instance;
                         //注册请求
@@ -64,7 +64,7 @@ namespace EtherealS.RPCNet
                             types.Add<long>("Long");
                             types.Add<string>("String");
                             types.Add<bool>("Bool");
-                            types.Add<NetNode>("NetNode");
+                            types.Add<NetNode.Model.NetNode>("NetNode");
                             EtherealC.RPCNet.Net net = EtherealC.RPCNet.NetCore.Register($"NetNodeClient-{prefixes}", EtherealC.Core.Enums.NetType.WebSocket);
                             net.Config.NetNodeMode = false;
                             //注册服务
@@ -134,7 +134,7 @@ namespace EtherealS.RPCNet
             if (EtherealC.RPCRequest.RequestCore.Get($"NetNodeClient-{(client as EtherealC.NativeClient.WebSocketClient).Prefixes}", "ServerNetNodeService", out EtherealC.RPCRequest.Request serverDistributeRequest))
             {
                 //生成节点信息
-                NetNode node = new NetNode();
+                NetNode.Model.NetNode node = new NetNode.Model.NetNode();
                 node.Prefixes = new List<string>(server.Prefixes).ToArray();
                 node.Name = $"{name}";
                 node.HardwareInformation = new HardwareInformation();

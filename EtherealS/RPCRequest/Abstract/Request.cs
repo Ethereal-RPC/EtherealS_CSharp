@@ -1,10 +1,10 @@
-﻿using EtherealS.Core;
+﻿using System;
+using System.Reflection;
 using EtherealS.Core.Delegates;
 using EtherealS.Core.Model;
-using System;
-using System.Reflection;
+using EtherealS.RPCRequest.Interface;
 
-namespace EtherealS.RPCRequest
+namespace EtherealS.RPCRequest.Abstract
 {
     public abstract class Request : DispatchProxy,IRequest
     {

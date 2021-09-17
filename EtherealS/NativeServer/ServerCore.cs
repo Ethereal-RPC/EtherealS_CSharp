@@ -1,6 +1,8 @@
 ﻿using EtherealS.Core.Model;
 using EtherealS.NativeServer.Abstract;
+using EtherealS.NativeServer.WebSocket;
 using EtherealS.RPCNet;
+using EtherealS.RPCNet.Abstract;
 
 namespace EtherealS.NativeServer
 {

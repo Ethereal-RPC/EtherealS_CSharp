@@ -1,10 +1,4 @@
-﻿using EtherealS.Core.Model;
-using EtherealS.RPCNet;
-using Newtonsoft.Json;
-using System;
-using System.Text;
-
-namespace EtherealS.NativeServer
+﻿namespace EtherealS.NativeServer.Interface
 {
     /// <summary>
     /// Server配置项

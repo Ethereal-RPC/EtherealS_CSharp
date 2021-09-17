@@ -1,7 +1,7 @@
 ﻿using EtherealS.Core.Model;
-using System;
+using EtherealS.RPCRequest.Interface;
 
-namespace EtherealS.RPCRequest
+namespace EtherealS.RPCRequest.Abstract
 {
     /// <summary>
     /// 服务请求配置项

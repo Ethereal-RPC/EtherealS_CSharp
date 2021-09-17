@@ -1,13 +1,14 @@
-using EtherealS.Core.Model;
-using EtherealS.NativeServer.Abstract;
-using EtherealS.RPCNet;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
+using EtherealS.Core.Model;
+using EtherealS.NativeServer.Abstract;
+using EtherealS.RPCNet;
+using EtherealS.RPCNet.Abstract;
 
-namespace EtherealS.NativeServer
+namespace EtherealS.NativeServer.WebSocket
 {
 
     public class WebSocketServer : Server

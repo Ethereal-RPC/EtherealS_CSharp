@@ -1,6 +1,9 @@
 ﻿using EtherealS.Core.Model;
 using EtherealS.RPCNet;
 using System;
+using EtherealS.RPCNet.Abstract;
+using EtherealS.RPCService.Abstract;
+using EtherealS.RPCService.WebSocket;
 
 namespace EtherealS.RPCService
 {

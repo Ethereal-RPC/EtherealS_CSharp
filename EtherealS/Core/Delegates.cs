@@ -11,3 +11,4 @@ namespace EtherealS.Core.Delegates
     public delegate void OnExceptionDelegate(Exception exception);
     public delegate void OnLogDelegate(RPCLog log);
 }
+ 

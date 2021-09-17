@@ -1,10 +1,10 @@
-﻿using EtherealS.Core.Delegates;
-using EtherealS.Core.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using EtherealS.Core.Delegates;
+using EtherealS.Core.Model;
 
-namespace EtherealS.RPCService
+namespace EtherealS.RPCService.Abstract
 {
     public abstract class Service
     {

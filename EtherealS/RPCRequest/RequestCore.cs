@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using EtherealS.Core.Model;
 using EtherealS.RPCNet;
+using EtherealS.RPCNet.Abstract;
+using EtherealS.RPCRequest.Abstract;
+using EtherealS.RPCRequest.WebSocket;
 
 namespace EtherealS.RPCRequest
 {

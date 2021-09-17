@@ -9,6 +9,8 @@ using EtherealS_Test.RequestDemo;
 using EtherealS_Test.ServiceDemo;
 using System;
 using System.Collections.Generic;
+using EtherealS.RPCNet.Abstract;
+using EtherealS.RPCService.Abstract;
 
 namespace EtherealS_Test
 {

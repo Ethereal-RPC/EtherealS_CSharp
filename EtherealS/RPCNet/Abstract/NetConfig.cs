@@ -1,10 +1,12 @@
-﻿using EtherealS.NativeServer;
-using EtherealS.RPCService;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using EtherealS.NativeServer;
+using EtherealS.NativeServer.Abstract;
+using EtherealS.RPCNet.Interface;
+using EtherealS.RPCService.Abstract;
 
-namespace EtherealS.RPCNet
+namespace EtherealS.RPCNet.Abstract
 {
     /// <summary>
     /// Ethereal网关

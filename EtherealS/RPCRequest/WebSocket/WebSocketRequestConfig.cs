@@ -1,7 +1,7 @@
 ﻿using EtherealS.Core.Model;
-using System;
+using EtherealS.RPCRequest.Abstract;
 
-namespace EtherealS.RPCRequest
+namespace EtherealS.RPCRequest.WebSocket
 {
     /// <summary>
     /// 服务请求配置项

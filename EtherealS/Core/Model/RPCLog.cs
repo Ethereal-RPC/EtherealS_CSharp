@@ -6,6 +6,9 @@ using EtherealS.RPCService;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using EtherealS.RPCNet.Abstract;
+using EtherealS.RPCRequest.Abstract;
+using EtherealS.RPCService.Abstract;
 
 namespace EtherealS.Core.Model
 {

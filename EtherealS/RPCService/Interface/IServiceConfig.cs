@@ -1,8 +1,4 @@
-﻿using EtherealS.Core.Model;
-using EtherealS.NativeServer;
-using System.Reflection;
-
-namespace EtherealS.RPCService
+﻿namespace EtherealS.RPCService.Interface
 {
     /// <summary>
     /// 服务配置项

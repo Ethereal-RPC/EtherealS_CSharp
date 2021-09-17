@@ -1,12 +1,12 @@
-﻿using EtherealS.Core;
+﻿using System;
+using System.Collections.Concurrent;
 using EtherealS.Core.Delegates;
 using EtherealS.Core.Model;
 using EtherealS.NativeServer.Interface;
 using EtherealS.RPCNet;
-using System;
-using System.Collections.Concurrent;
+using EtherealS.RPCNet.Abstract;
 
-namespace EtherealS.NativeServer
+namespace EtherealS.NativeServer.Abstract
 {
     public abstract class Token:IBaseToken
     {

@@ -1,8 +1,7 @@
 ﻿using EtherealS.Core.Model;
-using EtherealS.NativeServer;
-using System.Reflection;
+using EtherealS.RPCService.Abstract;
 
-namespace EtherealS.RPCService
+namespace EtherealS.RPCService.WebSocket
 {
     /// <summary>
     /// 服务配置项

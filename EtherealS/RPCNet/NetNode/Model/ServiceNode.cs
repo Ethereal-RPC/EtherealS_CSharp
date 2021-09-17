@@ -1,6 +1,6 @@
-﻿namespace EtherealS.RPCNet.NetNodeModel
+﻿namespace EtherealS.RPCNet.NetNode.Model
 {
-    public class RequestNode
+    public class ServiceNode
     {
         #region --字段--
 

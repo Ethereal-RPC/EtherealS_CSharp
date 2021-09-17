@@ -4,6 +4,8 @@ using EtherealS.RPCRequest;
 using EtherealS.RPCService;
 using System;
 using System.Collections.Generic;
+using EtherealS.RPCNet.Abstract;
+using EtherealS.RPCNet.WebSocket;
 
 namespace EtherealS.RPCNet
 {

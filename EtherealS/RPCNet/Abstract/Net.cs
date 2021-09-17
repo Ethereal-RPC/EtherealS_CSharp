@@ -1,15 +1,17 @@
-﻿using EtherealS.Core.Delegates;
-using EtherealS.Core.Enums;
-using EtherealS.Core.Model;
-using EtherealS.NativeServer;
-using EtherealS.RPCRequest;
-using EtherealS.RPCService;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
+using EtherealS.Core.Delegates;
+using EtherealS.Core.Enums;
+using EtherealS.Core.Model;
+using EtherealS.NativeServer;
+using EtherealS.NativeServer.Abstract;
+using EtherealS.RPCNet.Interface;
+using EtherealS.RPCRequest.Abstract;
+using EtherealS.RPCService.Abstract;
 
-namespace EtherealS.RPCNet
+namespace EtherealS.RPCNet.Abstract
 {
     public abstract class Net:INet
     {

@@ -1,6 +1,8 @@
 ﻿using EtherealS.NativeServer;
 using EtherealS.RPCService;
 using System.Reflection;
+using EtherealS.NativeServer.Abstract;
+using EtherealS.RPCService.Abstract;
 
 namespace EtherealS.Extension.Authority
 {

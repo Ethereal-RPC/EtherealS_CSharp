@@ -1,8 +1,6 @@
-﻿using EtherealS.NativeServer;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Collections.Generic;
 
-namespace EtherealS.RPCNet.NetNodeModel
+namespace EtherealS.RPCNet.NetNode.Model
 {
     public class NetNode
     {

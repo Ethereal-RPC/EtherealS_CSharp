@@ -1,11 +1,11 @@
-﻿using EtherealS.NativeServer;
-using EtherealS.RPCNet.NetNodeModel;
-using EtherealS.RPCNet.Server.NetNodeRequest;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using EtherealS.NativeServer.Abstract;
+using EtherealS.RPCNet.NetNode.NetNodeServer.Request;
+using EtherealS.RPCService.Abstract;
 
-namespace EtherealS.RPCNet.Server.NetNodeService
+namespace EtherealS.RPCNet.NetNode.NetNodeServer.Service
 {
     public class ServerNodeService
     {
@@ -14,11 +14,11 @@ namespace EtherealS.RPCNet.Server.NetNodeService
         /// 对应服务的Config信息
         /// </summary>
         [Attribute.Service.ServiceConfig]
-        private RPCService.ServiceConfig config;
+        private ServiceConfig config;
         /// <summary>
         /// 节点信息
         /// </summary>
-        private Dictionary<string, Tuple<Token,NetNode>> netNodes = new ();
+        private Dictionary<string, Tuple<Token,Model.NetNode>> netNodes = new ();
         /// <summary>
         /// 分布式请求
         /// </summary>
@@ -30,7 +30,7 @@ namespace EtherealS.RPCNet.Server.NetNodeService
         #region --属性--
 
         public ClientNodeRequest DistributeRequest { get => distributeRequest; set => distributeRequest = value; }
-        public Dictionary<string, Tuple<Token, NetNode>> NetNodes { get => netNodes; set => netNodes = value; }
+        public Dictionary<string, Tuple<Token, Model.NetNode>> NetNodes { get => netNodes; set => netNodes = value; }
         #endregion
 
 
@@ -43,11 +43,11 @@ namespace EtherealS.RPCNet.Server.NetNodeService
         /// <param name="netNode">节点信息</param>
         /// <returns></returns>
         [Attribute.RPCService]
-        public bool Register(Token token, NetNode netNode)
+        public bool Register(Token token, Model.NetNode netNode)
         {
             token.Key = $"{netNode.Name}-{string.Join("::",netNode.Prefixes)}";
             //自建一份字典做缓存
-            if(NetNodes.TryGetValue((string)token.Key,out Tuple<Token, NetNode> value))
+            if(NetNodes.TryGetValue((string)token.Key,out Tuple<Token, Model.NetNode> value))
             {
                 token.DisConnectEvent -= Sender_DisConnectEvent;
                 NetNodes.Remove((string)token.Key);
@@ -56,7 +56,7 @@ namespace EtherealS.RPCNet.Server.NetNodeService
             token.DisConnectEvent += Sender_DisConnectEvent;
             Console.WriteLine($"{token.Key}注册节点成功");
             StringBuilder sb = new StringBuilder();
-            foreach(Tuple<Token,NetNode> tuple in NetNodes.Values)
+            foreach(Tuple<Token,Model.NetNode> tuple in NetNodes.Values)
             {
                 sb.AppendLine($"{tuple.Item1.Key}");
             }
@@ -72,11 +72,11 @@ namespace EtherealS.RPCNet.Server.NetNodeService
         /// <param name="servicename"></param>
         /// <returns></returns>
         [Attribute.RPCService]
-        public NetNode GetNetNode(Token sender, string servicename)
+        public Model.NetNode GetNetNode(Token sender, string servicename)
         {
             //负载均衡的优化算法后期再写，现在采取随机分配
-            List<NetNode> nodes = new List<NetNode>();
-            foreach(Tuple<Token, NetNode> tuple in NetNodes.Values)
+            List<Model.NetNode> nodes = new List<Model.NetNode>();
+            foreach(Tuple<Token, Model.NetNode> tuple in NetNodes.Values)
             {
                 if (tuple.Item2.Services.ContainsKey(servicename))
                 {
@@ -106,7 +106,7 @@ namespace EtherealS.RPCNet.Server.NetNodeService
             NetNodes.Remove((string)token.Key);
             Console.WriteLine($"成功删除节点{(token.Key)}");
             StringBuilder sb = new StringBuilder();
-            foreach (Tuple<Token, NetNode> tuple in NetNodes.Values)
+            foreach (Tuple<Token, Model.NetNode> tuple in NetNodes.Values)
             {
                 sb.AppendLine($"{tuple.Item2.Name}");
             }

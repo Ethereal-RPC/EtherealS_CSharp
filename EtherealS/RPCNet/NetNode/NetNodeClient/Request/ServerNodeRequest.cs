@@ -1,6 +1,4 @@
-﻿using EtherealS.RPCNet.NetNodeModel;
-
-namespace EtherealS.RPCNet.NetNodeClient.Request
+﻿namespace EtherealS.RPCNet.NetNode.NetNodeClient.Request
 {
     public interface ServerNodeRequest
     {
@@ -9,6 +7,6 @@ namespace EtherealS.RPCNet.NetNodeClient.Request
         /// </summary>
         /// <param name="node">节点信息</param>
         [EtherealC.Attribute.RPCRequest]
-        public bool Register(NetNode node);
+        public bool Register(Model.NetNode node);
     }
 }

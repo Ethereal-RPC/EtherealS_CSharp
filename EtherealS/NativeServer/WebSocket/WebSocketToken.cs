@@ -1,12 +1,12 @@
-﻿using EtherealS.Core.Model;
-using EtherealS.NativeServer.Interface;
-using EtherealS.RPCNet;
-using System;
-using System.Collections.Concurrent;
+﻿using System;
 using System.Net.WebSockets;
 using System.Threading;
+using EtherealS.Core.Model;
+using EtherealS.NativeServer.Abstract;
+using EtherealS.RPCNet;
+using EtherealS.RPCNet.Abstract;
 
-namespace EtherealS.NativeServer
+namespace EtherealS.NativeServer.WebSocket
 {
     public abstract class WebSocketToken : Token
     {
@@ -39,7 +39,7 @@ namespace EtherealS.NativeServer
         }
         internal async void ProcessData()
         {
-            WebSocket webSocket = Context.WebSocket;
+            System.Net.WebSockets.WebSocket webSocket = Context.WebSocket;
             byte[] receiveBuffer = null;
             int offset = 0;
             int free = Config.BufferSize;

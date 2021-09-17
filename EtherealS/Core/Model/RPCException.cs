@@ -4,6 +4,9 @@ using EtherealS.RPCNet;
 using EtherealS.RPCRequest;
 using EtherealS.RPCService;
 using System;
+using EtherealS.RPCNet.Abstract;
+using EtherealS.RPCRequest.Abstract;
+using EtherealS.RPCService.Abstract;
 
 namespace EtherealS.Core.Model
 {

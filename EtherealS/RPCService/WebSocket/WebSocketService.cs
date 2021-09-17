@@ -1,10 +1,11 @@
-﻿using EtherealS.Core.Model;
-using EtherealS.NativeServer;
-using System;
+﻿using System;
 using System.Reflection;
 using System.Text;
+using EtherealS.Core.Model;
+using EtherealS.NativeServer.Abstract;
+using EtherealS.RPCService.Abstract;
 
-namespace EtherealS.RPCService
+namespace EtherealS.RPCService.WebSocket
 {
     public class WebSocketService:Service
     {

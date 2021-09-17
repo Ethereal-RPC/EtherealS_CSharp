@@ -1,6 +1,7 @@
 ﻿using EtherealS.Core.Interface;
+using EtherealS.RPCService.Abstract;
 
-namespace EtherealS.RPCService
+namespace EtherealS.RPCService.Interface
 {
     public interface IService : ILogEvent, IExceptionEvent
     {

@@ -115,11 +115,11 @@ namespace EtherealS.Server.WebSocket
                     string log = "--------------------------------------------------\n" +
                                 $"{DateTime.Now}::{netName}::[服-返回]\n{response}" +
                                 "--------------------------------------------------\n";
-                    OnLog(RPCLog.LogCode.Runtime, log);
+                    OnLog(TrackLog.LogCode.Runtime, log);
                     Context.WebSocket.SendAsync(Config.Encoding.GetBytes(Config.ClientResponseModelSerialize(response)), WebSocketMessageType.Text, true, CancellationToken);
                 }
             }
-            catch(RPCException e)
+            catch(TrackException e)
             {
                 OnException(e);
             }
@@ -133,11 +133,11 @@ namespace EtherealS.Server.WebSocket
                     string log = "--------------------------------------------------\n" +
                                 $"{DateTime.Now}::{netName}::[服-请求]\n{request}" +
                                 "--------------------------------------------------\n";
-                    OnLog(RPCLog.LogCode.Runtime, log);
+                    OnLog(TrackLog.LogCode.Runtime, log);
                     Context.WebSocket.SendAsync(Config.Encoding.GetBytes(Config.ServerRequestModelSerialize(request)), WebSocketMessageType.Text, true, CancellationToken);
                 }
             }
-            catch (RPCException e)
+            catch (TrackException e)
             {
                 OnException(e);
             }

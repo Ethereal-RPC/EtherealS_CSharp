@@ -7,7 +7,7 @@ namespace EtherealS.Core.Model
     /// <summary>
     /// 中间层抽象数据类
     /// </summary>
-    public class RPCType
+    public class AbstractType
     {
         #region --委托--
         /// <summary>
@@ -52,12 +52,12 @@ namespace EtherealS.Core.Model
         #endregion
 
         #region --构造方法--
-        public RPCType()
+        public AbstractType()
         {
 
         }
 
-        public RPCType(Type type,string name)
+        public AbstractType(Type type,string name)
         {
             this.type = type;
             this.name = name;

@@ -24,7 +24,7 @@ namespace EtherealS.Request
         {
             return net.Requests.TryGetValue(servicename, out reqeust);
         }
-        public static R Register<R>(Net.Abstract.Net net, string servicename, RPCTypeConfig type)
+        public static R Register<R>(Net.Abstract.Net net, string servicename, AbstractTypes type)
         {
             RequestConfig config = new RequestConfig(type);
             return Register<R>(net, servicename, config);
@@ -39,12 +39,12 @@ namespace EtherealS.Request
                 {
                     request = WebSocketRequest.Register<R>(net.Name, servicename, config);
                 }
-                else throw new RPCException(RPCException.ErrorCode.Core, $"未有针对{net.Type}的Request-Register处理");
+                else throw new TrackException(TrackException.ErrorCode.Core, $"未有针对{net.Type}的Request-Register处理");
                 net.Requests[servicename] = request;
                 request.LogEvent += net.OnLog;
                 request.ExceptionEvent += net.OnException;
             }
-            else throw new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册，无法重复注册！");
+            else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}-{servicename}已注册，无法重复注册！");
             return (R)(request as object);
         }
         public static bool UnRegister(string netName,string serviceName)

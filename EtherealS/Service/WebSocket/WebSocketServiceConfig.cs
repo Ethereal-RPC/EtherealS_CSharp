@@ -8,7 +8,7 @@ namespace EtherealS.Service.WebSocket
     /// </summary>
     public class WebSocketServiceConfig : ServiceConfig
     {
-        public WebSocketServiceConfig(RPCTypeConfig type) : base(type)
+        public WebSocketServiceConfig(AbstractTypes type) : base(type)
         {
         }
     }

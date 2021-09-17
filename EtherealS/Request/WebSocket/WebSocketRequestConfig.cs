@@ -18,7 +18,7 @@ namespace EtherealS.Request.WebSocket
         #endregion
 
         #region --方法--
-        public WebSocketRequestConfig(RPCTypeConfig type) : base(type)
+        public WebSocketRequestConfig(AbstractTypes type) : base(type)
         {
 
         }

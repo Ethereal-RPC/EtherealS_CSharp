@@ -9,7 +9,7 @@ namespace EtherealS.Core.Interface
 {
     public interface ILogEvent
     {
-        public void OnLog(RPCLog.LogCode code, string message);
-        public void OnLog(RPCLog log);
+        public void OnLog(TrackLog.LogCode code, string message);
+        public void OnLog(TrackLog log);
     }
 }

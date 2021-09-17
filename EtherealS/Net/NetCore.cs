@@ -37,12 +37,12 @@ namespace EtherealS.Net
                     net = new WebSocketNet();
                     net.Config = config;
                 }
-                else throw new RPCException(RPCException.ErrorCode.Core, $"未有针对{net.Type}的Net-Register处理");
+                else throw new TrackException(TrackException.ErrorCode.Core, $"未有针对{net.Type}的Net-Register处理");
                 net.Name = name;
                 net.Config = config;
                 nets.Add(name,net);
             }
-            else throw new RPCException(RPCException.ErrorCode.Core, $"{name} Net 已经注册");
+            else throw new TrackException(TrackException.ErrorCode.Core, $"{name} Net 已经注册");
             return net;
         }
         public static bool UnRegister(string name)

@@ -24,15 +24,15 @@ namespace EtherealS.Service.Abstract
         /// <summary>
         /// 中间层抽象数据类配置项
         /// </summary>
-        private RPCTypeConfig types;
+        private AbstractTypes types;
         #endregion
 
         #region --属性--
-        public RPCTypeConfig Types { get => types; set => types = value; }
+        public AbstractTypes Types { get => types; set => types = value; }
         #endregion
 
         #region --方法--
-        public ServiceConfig(RPCTypeConfig type)
+        public ServiceConfig(AbstractTypes type)
         {
             this.types = type;
         }

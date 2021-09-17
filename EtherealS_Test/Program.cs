@@ -43,7 +43,7 @@ namespace EtherealS_Test
             }
             Console.Title = $"{ip}-{port}";
             //注册数据类型
-            RPCTypeConfig types = new RPCTypeConfig();
+            AbstractTypes types = new AbstractTypes();
             types.Add<int>("Int");
             types.Add<User>("User");
             types.Add<long>("Long");
@@ -85,7 +85,7 @@ namespace EtherealS_Test
             throw new NotImplementedException();
         }
 
-        private static void Config_LogEvent(RPCLog log)
+        private static void Config_LogEvent(TrackLog log)
         {
             Console.WriteLine(log.Message);
         }

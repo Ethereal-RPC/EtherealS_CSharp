@@ -104,18 +104,18 @@ namespace EtherealS.Net.Abstract
                     string log = "--------------------------------------------------\n" +
                         $"{DateTime.Now}::{name}::[客-请求]\n{request}\n" +
                         "--------------------------------------------------\n";
-                    OnLog(RPCLog.LogCode.Runtime, log);
+                    OnLog(TrackLog.LogCode.Runtime, log);
                     if (Config.OnInterceptor(service, method, token) &&
                         service.Config.OnInterceptor(service, method, token))
                     {
                         string[] params_id = request.MethodId.Split('-');
                         for (int i = 1; i < params_id.Length; i++)
                         {
-                            if (service.Config.Types.TypesByName.TryGetValue(params_id[i], out RPCType type))
+                            if (service.Config.Types.TypesByName.TryGetValue(params_id[i], out AbstractType type))
                             {
                                 request.Params[i] = type.Deserialize((string)request.Params[i]);
                             }
-                            else throw new RPCException($"RPC中的{params_id[i]}类型中尚未被注册");
+                            else throw new TrackException($"RPC中的{params_id[i]}类型中尚未被注册");
                         }
 
                         if (method.GetParameters().Length == request.Params.Length) request.Params[0] = token;
@@ -133,7 +133,7 @@ namespace EtherealS.Net.Abstract
                         Type return_type = method.ReturnType;
                         if (return_type != typeof(void))
                         {
-                            service.Config.Types.TypesByType.TryGetValue(return_type, out RPCType type);
+                            service.Config.Types.TypesByType.TryGetValue(return_type, out AbstractType type);
                             return new ClientResponseModel(type.Serialize(result), type.Name, request.Id, request.Service, null);
                         }
                         else
@@ -154,11 +154,11 @@ namespace EtherealS.Net.Abstract
             }
         }
 
-        public void OnException(RPCException.ErrorCode code, string message)
+        public void OnException(TrackException.ErrorCode code, string message)
         {
-            OnException(new RPCException(code, message));
+            OnException(new TrackException(code, message));
         }
-        public void OnException(RPCException e)
+        public void OnException(TrackException e)
         {
             if (exceptionEvent != null)
             {
@@ -167,12 +167,12 @@ namespace EtherealS.Net.Abstract
             }
         }
 
-        public void OnLog(RPCLog.LogCode code, string message)
+        public void OnLog(TrackLog.LogCode code, string message)
         {
-            OnLog(new RPCLog(code, message));
+            OnLog(new TrackLog(code, message));
         }
 
-        public void OnLog(RPCLog log)
+        public void OnLog(TrackLog log)
         {
             if (logEvent != null)
             {

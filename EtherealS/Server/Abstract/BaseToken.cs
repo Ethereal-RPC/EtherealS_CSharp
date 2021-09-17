@@ -92,7 +92,7 @@ namespace EtherealS.Server.Abstract
         {
             if (!NetCore.Get(NetName, out Net.Abstract.Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.Runtime, $"{NetName}Net未找到");
+                throw new TrackException(TrackException.ErrorCode.Runtime, $"{NetName}Net未找到");
             }
             if (replace)
             {
@@ -108,7 +108,7 @@ namespace EtherealS.Server.Abstract
         {
             if (!NetCore.Get(NetName, out Net.Abstract.Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.Runtime, $"{NetName}Net未找到");
+                throw new TrackException(TrackException.ErrorCode.Runtime, $"{NetName}Net未找到");
             }
             return net.Tokens.TryRemove(Key, out Token value);
         }
@@ -120,7 +120,7 @@ namespace EtherealS.Server.Abstract
         {
             if (!NetCore.Get(NetName, out Net.Abstract.Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.Runtime, $"{NetName}Net未找到");
+                throw new TrackException(TrackException.ErrorCode.Runtime, $"{NetName}Net未找到");
             }
             return net.Tokens;
         }
@@ -135,7 +135,7 @@ namespace EtherealS.Server.Abstract
         {
             if (!NetCore.Get(NetName, out Net.Abstract.Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.Runtime, $"{NetName}Net未找到");
+                throw new TrackException(TrackException.ErrorCode.Runtime, $"{NetName}Net未找到");
             }
             if (net.Tokens.TryGetValue(key, out Token result))
             {
@@ -157,7 +157,7 @@ namespace EtherealS.Server.Abstract
         {
             if (!NetCore.Get(netName, out Net.Abstract.Net net))
             {
-                throw new RPCException(RPCException.ErrorCode.Runtime, $"{netName}Net未找到");
+                throw new TrackException(TrackException.ErrorCode.Runtime, $"{netName}Net未找到");
             }
             return net.Tokens;
         }
@@ -170,11 +170,11 @@ namespace EtherealS.Server.Abstract
         internal abstract void SendClientResponse(ClientResponseModel response);
         internal abstract void SendServerRequest(ServerRequestModel request);
 
-        public void OnException(RPCException.ErrorCode code, string message)
+        public void OnException(TrackException.ErrorCode code, string message)
         {
-            OnException(new RPCException(code, message));
+            OnException(new TrackException(code, message));
         }
-        public void OnException(RPCException e)
+        public void OnException(TrackException e)
         {
             if (exceptionEvent != null)
             {
@@ -183,11 +183,11 @@ namespace EtherealS.Server.Abstract
             }
         }
 
-        public void OnLog(RPCLog.LogCode code, string message)
+        public void OnLog(TrackLog.LogCode code, string message)
         {
-            OnLog(new RPCLog(code, message));
+            OnLog(new TrackLog(code, message));
         }
-        public void OnLog(RPCLog log)
+        public void OnLog(TrackLog log)
         {
             if (logEvent != null)
             {

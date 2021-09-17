@@ -24,7 +24,7 @@ namespace EtherealS.Service
         {
             return net.Services.TryGetValue(serviceName, out service);
         }
-        public static Service.Abstract.Service Register(object instance, Net.Abstract.Net net, string servicename, RPCTypeConfig type)
+        public static Service.Abstract.Service Register(object instance, Net.Abstract.Net net, string servicename, AbstractTypes type)
         {
             return Register(instance,net, servicename, new ServiceConfig(type));
         }
@@ -32,7 +32,7 @@ namespace EtherealS.Service
         {
             return Register(new T(), net, servicename, config);
         }
-        public static Service.Abstract.Service Register<T>(Net.Abstract.Net net, string servicename, RPCTypeConfig type) where T : new()
+        public static Service.Abstract.Service Register<T>(Net.Abstract.Net net, string servicename, AbstractTypes type) where T : new()
         {
             return Register(new T(), net, servicename, new ServiceConfig(type));
         }
@@ -55,14 +55,14 @@ namespace EtherealS.Service
                 {    
                     service = new WebSocketService();
                 }
-                else throw new RPCException(RPCException.ErrorCode.Core, $"未有针对{net.Type}的Service-Register处理");
+                else throw new TrackException(TrackException.ErrorCode.Core, $"未有针对{net.Type}的Service-Register处理");
                 service.Register(net.Name, servicename, instance, config);
                 net.Services[servicename] = service;
                 service.LogEvent += net.OnLog;
                 service.ExceptionEvent += net.OnException;
                 return service;
             }
-            else throw new RPCException(RPCException.ErrorCode.Core, $"{net.Name}-{servicename}已注册！");
+            else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}-{servicename}已注册！");
         }
 
         public static bool UnRegister(string netName,string serviceName)

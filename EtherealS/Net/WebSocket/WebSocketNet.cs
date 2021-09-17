@@ -34,7 +34,7 @@ namespace EtherealS.Net.WebSocket
                     #region --Server--
                     {
                         //注册数据类型
-                        RPCTypeConfig types = new RPCTypeConfig();
+                        AbstractTypes types = new AbstractTypes();
                         types.Add<int>("Int");
                         types.Add<long>("Long");
                         types.Add<string>("String");
@@ -54,7 +54,7 @@ namespace EtherealS.Net.WebSocket
                         EtherealC.Client.Abstract.ClientConfig clientConfig = item.Item2;
                         //tip:S项目引入C，对于C的引用，命名必须全部采取全名引用，避免冲突。
                         //注册数据类型
-                        EtherealC.Core.Model.RPCTypeConfig types = new EtherealC.Core.Model.RPCTypeConfig();
+                        EtherealC.Core.Model.AbstractTypes types = new EtherealC.Core.Model.AbstractTypes();
                         types.Add<int>("Int");
                         types.Add<long>("Long");
                         types.Add<string>("String");
@@ -80,7 +80,7 @@ namespace EtherealS.Net.WebSocket
                                     EtherealC.Client.Abstract.ClientConfig clientConfig = item.Item2;
                                     if (!EtherealC.Net.NetCore.Get($"NetNodeClient-{prefixes}", out EtherealC.Net.Abstract.Net net))
                                     {
-                                        throw new RPCException(RPCException.ErrorCode.Runtime, $"NetNode-Client-未找到Net:NetNodeClient-{prefixes}");
+                                        throw new TrackException(TrackException.ErrorCode.Runtime, $"NetNode-Client-未找到Net:NetNodeClient-{prefixes}");
                                     }
                                     if (EtherealC.Request.RequestCore.Get(net, "ServerNetNodeService", out EtherealC.Request.Abstract.Request serverNodeRequest))
                                     {
@@ -95,10 +95,10 @@ namespace EtherealS.Net.WebSocket
                                         //部署
                                         net.Publish();
                                     }
-                                    else throw new RPCException(RPCException.ErrorCode.Runtime, $"NetNode-Client-未找到Request:NetNodeClient-{prefixes}-ServerNetNodeService");
+                                    else throw new TrackException(TrackException.ErrorCode.Runtime, $"NetNode-Client-未找到Request:NetNodeClient-{prefixes}-ServerNetNodeService");
                                 }
                             }
-                            catch (RPCException e)
+                            catch (TrackException e)
                             {
                                 OnException(e);
                             }
@@ -114,20 +114,20 @@ namespace EtherealS.Net.WebSocket
                 }
                 server.Start();
             }
-            catch(RPCException e)
+            catch(TrackException e)
             {
                 OnException(e);
             }
             return true;
         }
 
-        private void Net_LogEvent(EtherealC.Core.Model.RPCLog log)
+        private void Net_LogEvent(EtherealC.Core.Model.TrackLog log)
         {
-            OnLog(RPCLog.LogCode.Runtime,"NetNodeClient::" + log.Message);
+            OnLog(TrackLog.LogCode.Runtime,"NetNodeClient::" + log.Message);
         }
-        private void Net_ExceptionEvent(EtherealC.Core.Model.RPCException exception)
+        private void Net_ExceptionEvent(EtherealC.Core.Model.TrackException exception)
         {
-            OnException(new RPCException(exception));
+            OnException(new TrackException(exception));
         }
 
         private void Config_ConnectSuccessEvent(EtherealC.Client.Abstract.Client client)
@@ -165,10 +165,10 @@ namespace EtherealS.Net.WebSocket
                 //向目标主机注册节点信息
                 if (true)
                 {
-                    OnLog(RPCLog.LogCode.Runtime, $"分布式节点：{(client as EtherealC.Client.WebSocket.WebSocketClient).Prefixes}连接成功");
+                    OnLog(TrackLog.LogCode.Runtime, $"分布式节点：{(client as EtherealC.Client.WebSocket.WebSocketClient).Prefixes}连接成功");
                 }
             }
-            else throw new RPCException(RPCException.ErrorCode.Runtime, $"EtherealC中未找到 NetNodeClient-{(client as EtherealC.Client.WebSocket.WebSocketClient).Prefixes}-ServerNodeService");
+            else throw new TrackException(TrackException.ErrorCode.Runtime, $"EtherealC中未找到 NetNodeClient-{(client as EtherealC.Client.WebSocket.WebSocketClient).Prefixes}-ServerNodeService");
         }
 
         private void Config_ConnectFailEvent(EtherealC.Client.Abstract.Client client)

@@ -42,13 +42,13 @@ namespace EtherealS.Request.WebSocket
                         ParameterInfo[] parameters = targetMethod.GetParameters();
                         for (int i = 1; i < param_count; i++)
                         {
-                            if(Config.Types.TypesByType.TryGetValue(parameters[i].ParameterType,out RPCType type))
+                            if(Config.Types.TypesByType.TryGetValue(parameters[i].ParameterType,out AbstractType type))
                             {
                                 
                                 methodid.Append("-" + type.Name);
                                 obj[i - 1] = type.Serialize(args[i]);
                             }
-                            else throw new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册");
+                            else throw new TrackException($"C#对应的{args[i].GetType()}类型参数尚未注册");
                         }
                     }
                     else
@@ -58,15 +58,15 @@ namespace EtherealS.Request.WebSocket
                         {
                             for (int i = 1; i < param_count; i++)
                             {
-                                if (Config.Types.TypesByName.TryGetValue(types_name[i], out RPCType type))
+                                if (Config.Types.TypesByName.TryGetValue(types_name[i], out AbstractType type))
                                 {
                                     methodid.Append("-" + type.Name);
                                     obj[i - 1] = type.Serialize(args[i]);
                                 }
-                                else throw new RPCException($"C#对应的{args[i].GetType()}类型参数尚未注册") ;
+                                else throw new TrackException($"C#对应的{args[i].GetType()}类型参数尚未注册") ;
                             }
                         }
-                        else throw new RPCException($"方法体{targetMethod.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length}个,Method:{param_count}个") ;
+                        else throw new TrackException($"方法体{targetMethod.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length}个,Method:{param_count}个") ;
                     }
 
                 }
@@ -75,13 +75,13 @@ namespace EtherealS.Request.WebSocket
                 {
                     if (!((args[0] as Token).IsWebSocket))
                     {
-                        throw new RPCException(RPCException.ErrorCode.Runtime, $"{name}-{methodid}传递了非WebSocket协议的Token！");
+                        throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}传递了非WebSocket协议的Token！");
                     }
                     string log = "";
                     log += "---------------------------------------------------------\n";
                     log += $"{ DateTime.Now}::{NetName}::[服 - 指令]\n{ request}\n";
                     log += "---------------------------------------------------------\n";
-                    OnLog(RPCLog.LogCode.Runtime, log);
+                    OnLog(TrackLog.LogCode.Runtime, log);
                     (args[0] as Token).SendServerRequest(request);
                     return null;
                 }

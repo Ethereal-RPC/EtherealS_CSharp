@@ -20,7 +20,7 @@ namespace EtherealS.Server.WebSocket
         {
             if (!HttpListener.IsSupported)
             {
-                OnLog(RPCLog.LogCode.Runtime,"Windows XP SP2 or Server 2003 is required to use the HttpListener class.");
+                OnLog(TrackLog.LogCode.Runtime,"Windows XP SP2 or Server 2003 is required to use the HttpListener class.");
                 return;
             }
             // URI prefixes are required,
@@ -109,7 +109,7 @@ namespace EtherealS.Server.WebSocket
                     }
                 }
             }
-            catch (RPCException exception)
+            catch (TrackException exception)
             {
                 SendErrorToClient(context, Error.ErrorCode.Common, exception.Message);
                 OnException(exception);
@@ -138,7 +138,7 @@ namespace EtherealS.Server.WebSocket
             {
 
             }
-            throw new RPCException(RPCException.ErrorCode.Runtime, $"{message}");
+            throw new TrackException(TrackException.ErrorCode.Runtime, $"{message}");
         }
     }
 }

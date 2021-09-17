@@ -5,7 +5,7 @@ using EtherealS.Server.Abstract;
 
 namespace EtherealS.Core.Model
 {
-    public class RPCLog
+    public class TrackLog
     {
         public enum LogCode { Core, Runtime }
 
@@ -30,7 +30,7 @@ namespace EtherealS.Core.Model
         public Server.Abstract.Server Server { get => server; set => server = value; }
         #endregion
 
-        public RPCLog(LogCode code,string message)
+        public TrackLog(LogCode code,string message)
         {
             this.code = code;
             this.message = message;

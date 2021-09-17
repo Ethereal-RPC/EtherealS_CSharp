@@ -32,7 +32,7 @@ namespace EtherealS.Server
             {
                 return Register(net, prefixes, new WebSocketServerConfig(createMethod), null);
             }
-            else throw new RPCException(RPCException.ErrorCode.Core, $"未有针对{net.Type}的Server-Register处理");
+            else throw new TrackException(TrackException.ErrorCode.Core, $"未有针对{net.Type}的Server-Register处理");
 
         }
         public static Server.Abstract.Server Register(Net.Abstract.Net net, string[] prefixes, ServerConfig config)
@@ -54,7 +54,7 @@ namespace EtherealS.Server
                 {
                     server = new WebSocketServer(net.Name, prefixes, config);
                 }
-                else throw new RPCException(RPCException.ErrorCode.Core, $"未有针对{net.Type}的Server-Register处理");
+                else throw new TrackException(TrackException.ErrorCode.Core, $"未有针对{net.Type}的Server-Register处理");
                 net.Server = server;
                 server.LogEvent += net.OnLog;
                 server.ExceptionEvent += net.OnException;

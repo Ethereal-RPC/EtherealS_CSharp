@@ -5,7 +5,7 @@ namespace EtherealS.Core.Interface
 {
     public interface IExceptionEvent
     {
-        public void OnException(RPCException.ErrorCode code, string message);
-        public void OnException(RPCException e);
+        public void OnException(TrackException.ErrorCode code, string message);
+        public void OnException(TrackException e);
     }
 }

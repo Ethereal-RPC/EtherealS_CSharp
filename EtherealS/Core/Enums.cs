@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace EtherealS.Core.Enums
 {
-    public enum NetType { WebSocket }
+
 }

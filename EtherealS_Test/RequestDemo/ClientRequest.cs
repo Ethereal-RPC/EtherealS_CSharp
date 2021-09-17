@@ -1,14 +1,14 @@
-﻿using EtherealS.Attribute;
-using EtherealS_Test.Model;
+﻿using EtherealS_Test.Model;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using EtherealS.Request.Attribute;
 
 namespace EtherealS_Test.RequestDemo
 {
     public interface ClientRequest
     {
-        [RPCRequest]
+        [Request]
          void Say(User user,User sender, string message);
     }
 }

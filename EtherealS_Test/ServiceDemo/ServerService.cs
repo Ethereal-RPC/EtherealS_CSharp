@@ -1,13 +1,11 @@
 ﻿using System;
-using EtherealS.Attribute;
 using EtherealS_Test.Model;
 using EtherealS_Test.RequestDemo;
 using System.Threading;
 using System.Threading.Tasks;
-using EtherealS.RPCService;
-using EtherealS.NativeServer;
-using EtherealS.NativeServer.Abstract;
-using EtherealS.RPCService.Abstract;
+using EtherealS.Server.Abstract;
+using EtherealS.Service.Attribute;
+using ServiceConfig = EtherealS.Service.Abstract.ServiceConfig;
 
 namespace EtherealS_Test.ServiceDemo
 {
@@ -18,7 +16,7 @@ namespace EtherealS_Test.ServiceDemo
         /// 服务端向客户端发送请求的接口
         /// </summary>
         private ClientRequest userRequest;
-        [EtherealS.Attribute.Service.ServiceConfig]
+        [EtherealS.Service.Attribute.ServiceConfig]
         public ServiceConfig config;
         #endregion
 
@@ -28,7 +26,7 @@ namespace EtherealS_Test.ServiceDemo
 
         #region --方法--
         //Token 
-        [RPCService]
+        [Service]
         public bool Register(User user, string username, long id)
         {
             user.Username = username;
@@ -43,7 +41,7 @@ namespace EtherealS_Test.ServiceDemo
         /// <param name="message"></param>
         /// <returns></returns>
 
-        [RPCService]
+        [Service]
         public bool SendSay(User sender, long listener_id, string message)
         {
             //查找对应ID的用户 1
@@ -56,7 +54,7 @@ namespace EtherealS_Test.ServiceDemo
             else return false;
         }
 
-        [RPCService]
+        [Service]
         public int Add(Token token,int a,int b)
         {
             return a + b;

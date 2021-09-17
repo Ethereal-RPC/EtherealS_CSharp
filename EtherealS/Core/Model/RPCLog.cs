@@ -1,14 +1,7 @@
-﻿using EtherealS.NativeServer;
-using EtherealS.NativeServer.Abstract;
-using EtherealS.RPCNet;
-using EtherealS.RPCRequest;
-using EtherealS.RPCService;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using EtherealS.RPCNet.Abstract;
-using EtherealS.RPCRequest.Abstract;
-using EtherealS.RPCService.Abstract;
+using EtherealS.Server.Abstract;
 
 namespace EtherealS.Core.Model
 {
@@ -20,21 +13,21 @@ namespace EtherealS.Core.Model
         private string message;
         private LogCode code;
 
-        private Net net;
-        private NativeServer.Abstract.Server server;
-        private Service service;
-        private Request request;
+        private Net.Abstract.Net net;
+        private Server.Abstract.Server server;
+        private Service.Abstract.Service service;
+        private Request.Abstract.Request request;
         private Token token;
         #endregion
 
         #region --属性--
         public string Message { get => message; set => message = value; }
         public LogCode Code { get => code; set => code = value; }
-        public Net Net { get => net; set => net = value; }
-        public Service Service { get => service; set => service = value; }
-        public Request Request { get => request; set => request = value; }
+        public Net.Abstract.Net Net { get => net; set => net = value; }
+        public Service.Abstract.Service Service { get => service; set => service = value; }
+        public Request.Abstract.Request Request { get => request; set => request = value; }
         public Token Token { get => token; set => token = value; }
-        public NativeServer.Abstract.Server Server { get => server; set => server = value; }
+        public Server.Abstract.Server Server { get => server; set => server = value; }
         #endregion
 
         public RPCLog(LogCode code,string message)

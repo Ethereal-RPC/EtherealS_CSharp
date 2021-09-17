@@ -1,12 +1,5 @@
-﻿using EtherealS.NativeServer;
-using EtherealS.NativeServer.Abstract;
-using EtherealS.RPCNet;
-using EtherealS.RPCRequest;
-using EtherealS.RPCService;
-using System;
-using EtherealS.RPCNet.Abstract;
-using EtherealS.RPCRequest.Abstract;
-using EtherealS.RPCService.Abstract;
+﻿using System;
+using EtherealS.Server.Abstract;
 
 namespace EtherealS.Core.Model
 {
@@ -21,22 +14,22 @@ namespace EtherealS.Core.Model
         /// 错误代码
         /// </summary>
         private ErrorCode errorCode;
-        private Net net;
-        private Server server;
-        private Service service;
-        private Request request;
+        private Net.Abstract.Net net;
+        private Server.Abstract.Server server;
+        private Service.Abstract.Service service;
+        private Request.Abstract.Request request;
         private Token token;
         private Exception exception;
         #endregion
 
         #region --属性--
         public ErrorCode Error { get => errorCode; set => errorCode = value; }
-        public Net Net { get => net; set => net = value; }
-        public Service Service { get => service; set => service = value; }
-        public Request Request { get => request; set => request = value; }
+        public Net.Abstract.Net Net { get => net; set => net = value; }
+        public Service.Abstract.Service Service { get => service; set => service = value; }
+        public Request.Abstract.Request Request { get => request; set => request = value; }
         public Token Token { get => token; set => token = value; }
         public Exception Exception { get => exception; set => exception = value; }
-        public Server Server { get => server; set => server = value; }
+        public Server.Abstract.Server Server { get => server; set => server = value; }
         #endregion
 
         public RPCException(string message) : base(message)

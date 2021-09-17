@@ -1,6 +1,5 @@
 ﻿using EtherealS.Core.Model;
-using EtherealS.NativeServer;
-using EtherealS.NativeServer.WebSocket;
+using EtherealS.Server.WebSocket;
 
 namespace EtherealS_Test.Model
 {

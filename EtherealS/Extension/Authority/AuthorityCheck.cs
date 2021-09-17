@@ -1,8 +1,6 @@
-﻿using EtherealS.NativeServer;
-using EtherealS.RPCService;
-using System.Reflection;
-using EtherealS.NativeServer.Abstract;
-using EtherealS.RPCService.Abstract;
+﻿using System.Reflection;
+using EtherealS.Server.Abstract;
+using EtherealS.Service.Attribute;
 
 namespace EtherealS.Extension.Authority
 {
@@ -18,9 +16,9 @@ namespace EtherealS.Extension.Authority
         /// <param name="method">方法信息</param>
         /// <param name="token">Token信息</param>
         /// <returns></returns>
-        public static bool ServiceCheck(Service service, MethodInfo method, Token token)
+        public static bool ServiceCheck(Service.Abstract.Service service, MethodInfo method, Token token)
         {
-            Attribute.RPCService annotation = method.GetCustomAttribute<Attribute.RPCService>();
+            Service.Attribute.Service annotation = method.GetCustomAttribute<Service.Attribute.Service>();
             if (annotation.Authority != null)
             {
                 if ((token as IAuthorityCheck).Check(annotation))

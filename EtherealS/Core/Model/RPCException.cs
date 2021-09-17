@@ -16,7 +16,7 @@ namespace EtherealS.Core.Model
     public class RPCException : Exception
     {
         #region --字段--
-        public enum ErrorCode { Core, Runtime }
+        public enum ErrorCode { Core, Runtime, NotEthereal }
         /// <summary>
         /// 错误代码
         /// </summary>
@@ -43,10 +43,10 @@ namespace EtherealS.Core.Model
         {
             exception = this;
         }
-        public RPCException(Exception e) : base(e.Message)
+        public RPCException(Exception e) : base("外部库错误\n" + e.Message)
         {
-            exception = this;
-            this.exception = e;
+            exception = e;
+            errorCode = ErrorCode.NotEthereal;
         }
 
         public RPCException(ErrorCode errorCode, string message) : base(message)

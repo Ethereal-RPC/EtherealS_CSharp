@@ -120,7 +120,7 @@ namespace EtherealS.NativeServer.WebSocket
                     Context.WebSocket.SendAsync(Config.Encoding.GetBytes(Config.ClientResponseModelSerialize(response)), WebSocketMessageType.Text, true, CancellationToken);
                 }
             }
-            catch(Exception e)
+            catch(RPCException e)
             {
                 OnException(e);
             }
@@ -138,7 +138,7 @@ namespace EtherealS.NativeServer.WebSocket
                     Context.WebSocket.SendAsync(Config.Encoding.GetBytes(Config.ServerRequestModelSerialize(request)), WebSocketMessageType.Text, true, CancellationToken);
                 }
             }
-            catch (Exception e)
+            catch (RPCException e)
             {
                 OnException(e);
             }

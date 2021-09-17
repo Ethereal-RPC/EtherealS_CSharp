@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace EtherealS.Core.Delegates
 {
-    public delegate void OnExceptionDelegate(Exception exception);
+    public delegate void OnExceptionDelegate(RPCException exception);
     public delegate void OnLogDelegate(RPCLog log);
 }
  

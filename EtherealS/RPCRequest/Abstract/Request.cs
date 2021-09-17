@@ -74,15 +74,11 @@ namespace EtherealS.RPCRequest.Abstract
         {
             OnException(new RPCException(code, message));
         }
-        public void OnException(Exception e)
+        public void OnException(RPCException e)
         {
             if (exceptionEvent != null)
             {
-                if (e is not RPCException)
-                {
-                    e = new RPCException(e);
-                }
-                (e as RPCException).Request = this;
+                e.Request = this;
                 exceptionEvent?.Invoke(e);
             }
         }

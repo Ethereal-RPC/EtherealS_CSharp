@@ -61,18 +61,18 @@ namespace EtherealS_Test
             (service.Instance as ServerService).UserRequest = request;
             //向网关注册连接(提供一个生成User的方法)
             EtherealS.NativeServer.Abstract.Server server = ServerCore.Register(net, new string[]{ $"{ip}:{port}/NetDemo/"} ,()=>new User());
-            List<Tuple<string, EtherealC.NativeClient.ClientConfig>> ips = new();
-            EtherealC.NativeClient.ClientConfig  clientConfig = new EtherealC.NativeClient.WebSocketClientConfig();
+            List<Tuple<string, EtherealC.NativeClient.Abstract.ClientConfig>> ips = new();
+            EtherealC.NativeClient.Abstract.ClientConfig  clientConfig = new EtherealC.NativeClient.WebSocket.WebSocketClientConfig();
             /*
              * 部署分布式集群
              */
             //开启集群
             net.Config.NetNodeMode = true;
             //添加集群地址
-            //ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28015}/NetDemo/", clientConfig));
-            ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28016}/NetDemo/", clientConfig));
-            ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28017}/NetDemo/", clientConfig));
-            ips.Add(new Tuple<string,EtherealC.NativeClient.ClientConfig>($"{ip}:{28018}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string,EtherealC.NativeClient.Abstract.ClientConfig>($"{ip}:{28015}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string,EtherealC.NativeClient.Abstract.ClientConfig>($"{ip}:{28016}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string,EtherealC.NativeClient.Abstract.ClientConfig>($"{ip}:{28017}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string,EtherealC.NativeClient.Abstract.ClientConfig>($"{ip}:{28018}/NetDemo/", clientConfig));
             net.Config.NetNodeIps = ips;
             //发布服务
             net.Publish();

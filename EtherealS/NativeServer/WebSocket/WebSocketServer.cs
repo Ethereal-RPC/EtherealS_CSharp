@@ -110,7 +110,7 @@ namespace EtherealS.NativeServer.WebSocket
                     }
                 }
             }
-            catch (Exception exception)
+            catch (RPCException exception)
             {
                 SendErrorToClient(context, Error.ErrorCode.Common, exception.Message);
                 OnException(exception);

@@ -34,7 +34,7 @@ namespace EtherealS.RPCNet.Abstract
         /// <summary>
         /// 分布式IP组
         /// </summary>
-        private List<Tuple<string,EtherealC.NativeClient.ClientConfig>> netNodeIps;
+        private List<Tuple<string,EtherealC.NativeClient.Abstract.ClientConfig>> netNodeIps;
         /// <summary>
         /// 网络节点心跳周期
         /// </summary>
@@ -46,7 +46,7 @@ namespace EtherealS.RPCNet.Abstract
         #region --属性--
 
         public bool NetNodeMode { get => netNodeMode; set => netNodeMode = value; }
-        public List<Tuple<string, EtherealC.NativeClient.ClientConfig>> NetNodeIps { get => netNodeIps; set => netNodeIps = value; }
+        public List<Tuple<string, EtherealC.NativeClient.Abstract.ClientConfig>> NetNodeIps { get => netNodeIps; set => netNodeIps = value; }
         public int NetNodeHeartbeatCycle { get => netNodeHeartbeatCycle; set => netNodeHeartbeatCycle = value; }
 
         #endregion

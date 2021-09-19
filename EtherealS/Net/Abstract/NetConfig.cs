@@ -12,15 +12,12 @@ namespace EtherealS.Net.Abstract
     public class NetConfig:INetConfig
     {
         #region --委托--
-        public delegate bool InterceptorDelegate(Service.Abstract.Service service,MethodInfo method,Token token);
+
         #endregion
 
         #region --事件属性--
 
-        /// <summary>
-        /// 网络级拦截器事件
-        /// </summary>
-        public event InterceptorDelegate InterceptorEvent;
+
 
         #endregion
 
@@ -50,18 +47,7 @@ namespace EtherealS.Net.Abstract
         #endregion
 
         #region --方法--
-        public bool OnInterceptor(Service.Abstract.Service service,MethodInfo method,Token token)
-        {
-            if (InterceptorEvent != null)
-            {
-                foreach (InterceptorDelegate item in InterceptorEvent.GetInvocationList())
-                {
-                    if (!item.Invoke(service, method, token)) return false;
-                }
-                return true;
-            }
-            else return true;
-        }
+
         #endregion
     }
 }

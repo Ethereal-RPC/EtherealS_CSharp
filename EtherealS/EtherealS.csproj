@@ -7,6 +7,10 @@
     <Version>1.2.4</Version>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\mzh\source\repos\Ethereal-RPC\EtherealS_CSharp\EtherealS\EtherealS.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="EtherealC" Version="0.4.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />

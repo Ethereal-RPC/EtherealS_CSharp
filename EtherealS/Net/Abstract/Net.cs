@@ -12,12 +12,18 @@ namespace EtherealS.Net.Abstract
     public abstract class Net:INet
     {
         public enum NetType { WebSocket }
+
         #region --事件字段--
+        public delegate bool InterceptorDelegate(Net net,Service.Abstract.Service service, MethodInfo method, Token token);
         private OnLogDelegate logEvent;
         private OnExceptionDelegate exceptionEvent;
         #endregion
 
         #region --事件属性--
+        /// <summary>
+        /// 拦截器事件
+        /// </summary>
+        public event InterceptorDelegate InterceptorEvent;
         /// <summary>
         /// 日志输出事件
         /// </summary>
@@ -105,8 +111,8 @@ namespace EtherealS.Net.Abstract
                         $"{DateTime.Now}::{name}::[客-请求]\n{request}\n" +
                         "--------------------------------------------------\n";
                     OnLog(TrackLog.LogCode.Runtime, log);
-                    if (Config.OnInterceptor(service, method, token) &&
-                        service.Config.OnInterceptor(service, method, token))
+                    if (OnInterceptor(service, method, token) &&
+                        service.OnInterceptor(this,method, token))
                     {
                         string[] params_id = request.MethodId.Split('-');
                         for (int i = 1; i < params_id.Length; i++)
@@ -180,7 +186,18 @@ namespace EtherealS.Net.Abstract
                 logEvent?.Invoke(log);
             }
         }
-
+        public bool OnInterceptor(Service.Abstract.Service service, MethodInfo method, Token token)
+        {
+            if (InterceptorEvent != null)
+            {
+                foreach (InterceptorDelegate item in InterceptorEvent.GetInvocationList())
+                {
+                    if (!item.Invoke(this,service, method, token)) return false;
+                }
+                return true;
+            }
+            else return true;
+        }
         #endregion
     }
 }

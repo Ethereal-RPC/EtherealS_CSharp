@@ -2,18 +2,24 @@
 using System.Reflection;
 using EtherealS.Core.Delegates;
 using EtherealS.Core.Model;
+using EtherealS.Server.Abstract;
 
 namespace EtherealS.Service.Abstract
 {
     public abstract class Service
     {
 
-        #region --事件字段--
+        #region --委托字段--
         private OnLogDelegate logEvent;
         private OnExceptionDelegate exceptionEvent;
+        public delegate bool InterceptorDelegate(Net.Abstract.Net net,Service service, MethodInfo method, Token token);
         #endregion
 
-        #region --事件属性--
+        #region --委托属性--
+        /// <summary>
+        /// 网络级拦截器事件
+        /// </summary>
+        public event InterceptorDelegate InterceptorEvent;
         /// <summary>
         /// 日志输出事件
         /// </summary>
@@ -87,6 +93,18 @@ namespace EtherealS.Service.Abstract
                 log.Service = this;
                 logEvent?.Invoke(log);
             }
+        }
+        internal bool OnInterceptor(Net.Abstract.Net net,MethodInfo method, Token token)
+        {
+            if (InterceptorEvent != null)
+            {
+                foreach (InterceptorDelegate item in InterceptorEvent?.GetInvocationList())
+                {
+                    if (!item.Invoke(net,this, method, token)) return false;
+                }
+                return true;
+            }
+            else return true;
         }
     }
 }

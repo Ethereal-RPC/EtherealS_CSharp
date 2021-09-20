@@ -60,7 +60,7 @@ RPC\(Remote Procedure Call\)即远程方法调用，成功的解决了这个技�
 
 原理就不说了，一些动态代理和反射的知识，动态代理和反射高级语言里面都有实现，我这里重点讲一下使用方法。
 
-```text
+```csharp
 //IServer接口[部署在客户端]
 public interface IServer{
     public string GetName(long id);
@@ -80,6 +80,8 @@ public void main(){
     Console.WriteLine("Name:" + server.GetName(id));
 }
 ```
+
+
 
 **定义、实现、使用！**
 
@@ -150,7 +152,7 @@ Ethereal也对混合编程进行了支持，而且是强有力的支持，Ethere
 
 #### Server\[C\#\]
 
-```text
+```csharp
 public class ServerService
 {
     [Service]
@@ -241,7 +243,7 @@ Ethereal中心配置涵盖了注册中心、管理中心的功能。
 
 **Server\[C\#\]**
 
-```text
+```csharp
 Net net = NetCore.Register("name", Net.NetType.WebSocket); //注册网关
 //开启集群模式
 net.Config.NetNodeMode = true;
@@ -285,7 +287,7 @@ net.getConfig().setNetNodeIps(ips);
 
 BaseToken内含有唯一Key值属性，Ethereal通过用户给予的Key值属性，对Token进行生命周期处理。
 
-```text
+```csharp
 [Service]
 public bool Login(BaseToken token, string username,string password)
 {
@@ -296,7 +298,7 @@ public bool Login(BaseToken token, string username,string password)
 
 通过上面的函数，我们似乎发现了一个特殊之处，token放在了服务类的**首参**，其实刚刚的加法函数也可以改写为：
 
-```text
+```java
 public class ServerService
 {
     [Service]
@@ -313,7 +315,7 @@ Ethereal会根据用户的首参情况，来决定是否为首参注入token实�
 
 `public Integer Add(Integer a,Integer b);`
 
-```text
+```csharp
 [Service]
 public bool Login(User user, string username,string password)
 {
@@ -330,7 +332,7 @@ Ethereal致力于服务尽可能多的需求业务，虽然现今单工请求占
 
 所以就拿游戏业务这一块进行阐明，假设一个游戏角色拥有移动、攻击、聊天等行为，服务端可以通过执行一套请求逻辑，从而达到控制目标角色的需求，可以极大简化服务端的编程逻辑。
 
-```text
+```java
 public interface ServerService
 {
     //Player继承BaseToken
@@ -352,7 +354,7 @@ public interface ServerService
 
 我们这里有一套完整向某用户发送消息Demo：
 
-```text
+```csharp
 public class ServerService
 {
     /// <summary>
@@ -400,7 +402,7 @@ TrackLog中含有Net、Request\Service、Client\Server实体，输出日志时�
 
 通常捕获Net事件，代表了该Net节点的所有日志输出。
 
-```text
+```csharp
 net.ExceptionEvent += ExceptionEventFunction;
 private static void ExceptionEventFunction(TrackException exception)
 {
@@ -420,7 +422,7 @@ TrackException中含有Net、Request\Service、Client\Server实体，抛出异�
 
 **与Log不同的是，TrackException内部包含了一个Exception字段，该字段是真正的异常事件，有时为TrackException本身，但也有时是一些其他异常，Ethereal捕获所有异常并封装在其内部。**
 
-> ```text
+> ```csharp
 > net.ExceptionEvent += ExceptionEventFunction;
 > private static void ExceptionEventFunction(TrackException exception)
 > {
@@ -434,7 +436,7 @@ Ethereal的服务拦截分为Net层拦截，以及Service层拦截，且两层�
 
 在拦截委托中，如果您返回`True`将进行下一个拦截事件检测，而返回`False`，则消息立即拦截，后续的拦截策略不会执行。
 
-```text
+```csharp
 service.InterceptorEvent += Interceptor;
 private static bool Interceptor(Net net, Service service, MethodInfo method, Token token)
 {
@@ -447,7 +449,7 @@ private static bool Interceptor(Net net, Service service, MethodInfo method, Tok
 
 **同时，基于拦截器，Ethereal开发了权限拦截的功能拓展。**
 
-```text
+```csharp
 [Service(authority = 3)]
 public bool SendSay(User user, long recevier_key, string message)
 {
@@ -494,6 +496,4 @@ public class User:BaseToken,IAuthorityCheck
 | Client | Python | 青山 |
 | Center | Vue | Laity |
 | Document | Jekyll | 白阳 |
-
-d
 

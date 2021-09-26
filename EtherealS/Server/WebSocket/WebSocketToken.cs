@@ -42,6 +42,8 @@ namespace EtherealS.Server.WebSocket
             byte[] receiveBuffer = null;
             int offset = 0;
             int free = Config.BufferSize;
+            ClientRequestModel request = null;
+
             // While the WebSocket connection remains open run a simple loop that receives data and sends it back.
             while (webSocket.State == WebSocketState.Open)
             {
@@ -67,8 +69,6 @@ namespace EtherealS.Server.WebSocket
                         string data = Config.Encoding.GetString(receiveBuffer);
                         offset = 0;
                         free = Config.BufferSize;
-                        //客户端发来的一定是请求
-                        ClientRequestModel request = null;
                         request = Config.ClientRequestModelDeserialize(Config.Encoding.GetString(receiveBuffer));
                         if (!NetCore.Get(netName, out Net.Abstract.Net net))
                         {
@@ -95,7 +95,14 @@ namespace EtherealS.Server.WebSocket
                 }
                 catch(Exception e)
                 {
-                    SendClientResponse(new ClientResponseModel( null, null, null, null, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
+                    if (request != null)
+                    {
+                        SendClientResponse(new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
+                    }
+                    else SendClientResponse(new ClientResponseModel( null, null, null,null, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
+
+                    DisConnect("发生报错");
+                    return;
                 }
             }
         }

@@ -154,7 +154,7 @@
             权限检查默认实现类
             </summary>
         </member>
-        <member name="M:EtherealS.Extension.Authority.AuthorityCheck.ServiceCheck(EtherealS.Service.Abstract.Service,System.Reflection.MethodInfo,EtherealS.Server.Abstract.Token)">
+        <member name="M:EtherealS.Extension.Authority.AuthorityCheck.ServiceCheck(EtherealS.Net.Abstract.Net,EtherealS.Service.Abstract.Service,System.Reflection.MethodInfo,EtherealS.Server.Abstract.Token)">
             <summary>
             权限检查默认实现函数
             </summary>
@@ -184,6 +184,11 @@
             </summary>
             <param name="authoritable"></param>
             <returns></returns>
+        </member>
+        <member name="E:EtherealS.Net.Abstract.Net.InterceptorEvent">
+            <summary>
+            拦截器事件
+            </summary>
         </member>
         <member name="E:EtherealS.Net.Abstract.Net.LogEvent">
             <summary>
@@ -229,11 +234,6 @@
         <member name="T:EtherealS.Net.Abstract.NetConfig">
             <summary>
             Ethereal网关
-            </summary>
-        </member>
-        <member name="E:EtherealS.Net.Abstract.NetConfig.InterceptorEvent">
-            <summary>
-            网络级拦截器事件
             </summary>
         </member>
         <member name="F:EtherealS.Net.Abstract.NetConfig.netNodeMode">
@@ -650,6 +650,11 @@
             心跳周期
             </summary>
         </member>
+        <member name="E:EtherealS.Service.Abstract.Service.InterceptorEvent">
+            <summary>
+            网络级拦截器事件
+            </summary>
+        </member>
         <member name="E:EtherealS.Service.Abstract.Service.LogEvent">
             <summary>
             日志输出事件
@@ -663,11 +668,6 @@
         <member name="T:EtherealS.Service.Abstract.ServiceConfig">
             <summary>
             服务配置项
-            </summary>
-        </member>
-        <member name="E:EtherealS.Service.Abstract.ServiceConfig.InterceptorEvent">
-            <summary>
-            拦截器事件
             </summary>
         </member>
         <member name="F:EtherealS.Service.Abstract.ServiceConfig.types">

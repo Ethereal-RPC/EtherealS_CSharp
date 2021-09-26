@@ -106,6 +106,7 @@ namespace EtherealS.Server.Abstract
         /// <returns></returns>
         public bool UnRegister()
         {
+            if (Key == null) return true;
             if (!NetCore.Get(NetName, out Net.Abstract.Net net))
             {
                 throw new TrackException(TrackException.ErrorCode.Runtime, $"{NetName}Net未找到");

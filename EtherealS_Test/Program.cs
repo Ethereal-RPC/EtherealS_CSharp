@@ -67,7 +67,7 @@ namespace EtherealS_Test
              * 部署分布式集群
              */
             //开启集群
-            net.Config.NetNodeMode = true;
+            net.Config.NetNodeMode = false;
             //添加集群地址
             ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28015}/NetDemo/", clientConfig));
             ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28016}/NetDemo/", clientConfig));
@@ -79,6 +79,7 @@ namespace EtherealS_Test
             Console.WriteLine("服务器初始化完成....");
             Console.ReadKey();
         }
+
 
         private static void Program_Event(string a)
         {

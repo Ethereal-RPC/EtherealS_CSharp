@@ -23,11 +23,6 @@ namespace EtherealS_Test.Model
         public long Id { get => id; set => id = value; }
         public string Username { get => username; set => username = value; }
         public override object Key { get => key; set => key = (string)value; }
-
-        public override void DisConnect(string reason)
-        {
-            throw new System.NotImplementedException();
-        }
         #endregion
 
     }

@@ -18,7 +18,8 @@ namespace EtherealS.Request.WebSocket
         protected override object Invoke(MethodInfo targetMethod, object[] args)    
         {
             Attribute.Request rpcAttribute = targetMethod.GetCustomAttribute<Attribute.Request>();
-            if (rpcAttribute != null)
+            object localResult = null;
+            if ((rpcAttribute.InvokeType & Attribute.Request.InvokeTypeFlags.Local)!=0)
             {
                 //这里要连接字符串，发现StringBuilder效率高一些.
                 StringBuilder methodid = new StringBuilder(targetMethod.Name);
@@ -69,16 +70,20 @@ namespace EtherealS.Request.WebSocket
                     {
                         throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}传递了非WebSocket协议的Token！");
                     }
-                    string log = "";
-                    log += "---------------------------------------------------------\n";
-                    log += $"{ DateTime.Now}::{NetName}::[服 - 指令]\n{ request}\n";
-                    log += "---------------------------------------------------------\n";
-                    OnLog(TrackLog.LogCode.Runtime, log);
                     (args[0] as BaseToken).SendServerRequest(request);
+                    if ((rpcAttribute.InvokeType & Attribute.Request.InvokeTypeFlags.All) != 0)
+                    {
+                        localResult = targetMethod.Invoke(this, args);
+                    }
                 }
+                throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}Token为空！");
             }
-            return targetMethod.Invoke(this, args);
-        }
+            else
+            {
+                localResult = targetMethod.Invoke(this, args);
+            }
 
+            return localResult;
+        }
     }
 }

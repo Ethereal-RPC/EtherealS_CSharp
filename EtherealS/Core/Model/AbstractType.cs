@@ -5,7 +5,7 @@ using System.Text;
 namespace EtherealS.Core.Model
 {
     /// <summary>
-    /// 中间层抽象数据类
+    /// 中间层抽象数据类    
     /// </summary>
     public class AbstractType
     {

@@ -63,9 +63,9 @@ namespace EtherealS.Net.WebSocket
                         EtherealC.Net.Abstract.Net net = EtherealC.Net.NetCore.Register($"NetNodeClient-{prefixes}", EtherealC.Net.Abstract.Net.NetType.WebSocket);
                         net.Config.NetNodeMode = false; 
                         //注册服务
-                        ClientNodeService clientNodeService = (ClientNodeService)EtherealC.Service.ServiceCore.Register<ClientNodeService>(net, "ClientNetNodeService", types).Instance;
+                        ClientNodeService clientNodeService = (ClientNodeService)EtherealC.Service.ServiceCore.Register<ClientNodeService>(net, "ClientNetNodeService", types);
                         //注册请求
-                        clientNodeService.ServerNodeRequest = EtherealC.Request.RequestCore.Register<ServerNodeRequest>(net, "ServerNetNodeService", types);
+                        clientNodeService.ServerNodeRequest = EtherealC.Request.RequestCore.Register<ServerNodeRequest,IServerNodeRequest>(net, "ServerNetNodeService", types);
                         net.LogEvent += Net_LogEvent;
                         net.ExceptionEvent += Net_ExceptionEvent;
                     }
@@ -161,7 +161,7 @@ namespace EtherealS.Net.WebSocket
                     requestNode.Name = request.Name;
                     node.Requests.Add(requestNode.Name, requestNode);
                 }
-                ((ServerNodeRequest)serverDistributeRequest).Register(node);
+                ((IServerNodeRequest)serverDistributeRequest).Register(node);
                 //向目标主机注册节点信息
                 if (true)
                 {

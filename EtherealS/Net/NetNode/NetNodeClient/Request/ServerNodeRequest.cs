@@ -1,12 +1,16 @@
-﻿namespace EtherealS.Net.NetNode.NetNodeClient.Request
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace EtherealS.Net.NetNode.NetNodeClient.Request
 {
-    public interface ServerNodeRequest
+    public class ServerNodeRequest : EtherealC.Request.WebSocket.WebSocketRequest,IServerNodeRequest
     {
-        /// <summary>
-        /// 注册节点信息
-        /// </summary>
-        /// <param name="node">节点信息</param>
-        [EtherealC.Request.Attribute.Request]
-        public bool Register(Model.NetNode node);
+        public virtual bool Register(Model.NetNode node)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

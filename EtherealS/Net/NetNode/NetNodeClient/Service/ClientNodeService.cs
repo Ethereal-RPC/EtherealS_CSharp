@@ -2,14 +2,14 @@
 
 namespace EtherealS.Net.NetNode.NetNodeClient.Service
 {
-    public class ClientNodeService
+    public class ClientNodeService:EtherealC.Service.WebSocket.WebSocketService
     {
         #region --字段--
-        private ServerNodeRequest serverNodeRequest;
+        private IServerNodeRequest serverNodeRequest;
         #endregion
 
         #region --属性--
-        public ServerNodeRequest ServerNodeRequest { get => serverNodeRequest; set => serverNodeRequest = value; }
+        public IServerNodeRequest ServerNodeRequest { get => serverNodeRequest; set => serverNodeRequest = value; }
         #endregion
 
         #region --RPC方法--

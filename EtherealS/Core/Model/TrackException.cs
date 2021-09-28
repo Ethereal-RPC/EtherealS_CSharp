@@ -18,7 +18,7 @@ namespace EtherealS.Core.Model
         private Server.Abstract.Server server;
         private Service.Abstract.Service service;
         private Request.Abstract.Request request;
-        private Token token;
+        private BaseToken token;
         private Exception exception;
         #endregion
 
@@ -27,7 +27,7 @@ namespace EtherealS.Core.Model
         public Net.Abstract.Net Net { get => net; set => net = value; }
         public Service.Abstract.Service Service { get => service; set => service = value; }
         public Request.Abstract.Request Request { get => request; set => request = value; }
-        public Token Token { get => token; set => token = value; }
+        public BaseToken Token { get => token; set => token = value; }
         public Exception Exception { get => exception; set => exception = value; }
         public Server.Abstract.Server Server { get => server; set => server = value; }
         #endregion

@@ -1,6 +1,8 @@
-﻿namespace EtherealS.Net.NetNode.NetNodeServer.Request
+﻿using EtherealS.Request.WebSocket;
+
+namespace EtherealS.Net.NetNode.NetNodeServer.Request
 {
-    public interface ClientNodeRequest
+    public class ClientNodeRequest : WebSocketRequest
     {
 
     }

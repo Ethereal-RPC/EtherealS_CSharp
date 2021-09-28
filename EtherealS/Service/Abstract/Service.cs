@@ -1,18 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
+using EtherealC.Service.Interface;
 using EtherealS.Core.Delegates;
 using EtherealS.Core.Model;
 using EtherealS.Server.Abstract;
 
 namespace EtherealS.Service.Abstract
 {
-    public abstract class Service
+    public abstract class Service:Interface.IService
     {
 
         #region --委托字段--
         private OnLogDelegate logEvent;
         private OnExceptionDelegate exceptionEvent;
-        public delegate bool InterceptorDelegate(Net.Abstract.Net net,Service service, MethodInfo method, Token token);
+        public delegate bool InterceptorDelegate(Net.Abstract.Net net,Service service, MethodInfo method, BaseToken token);
         #endregion
 
         #region --委托属性--
@@ -56,7 +59,6 @@ namespace EtherealS.Service.Abstract
         #region --字段--
         protected Dictionary<string, MethodInfo> methods = new Dictionary<string, MethodInfo>();
         protected ServiceConfig config;
-        protected object instance;
         protected string netName;
         protected string name;
         #endregion
@@ -64,11 +66,10 @@ namespace EtherealS.Service.Abstract
         #region --属性--
         public Dictionary<string, MethodInfo> Methods { get => methods; set => methods = value; }
         public ServiceConfig Config { get => config; set => config = value; }
-        public object Instance { get => instance; set => instance = value; }
         public string NetName { get => netName; set => netName = value; }
         public string Name { get => name; set => name = value; }
         #endregion
-        public abstract void Register(string netName, string service_name, object instance, ServiceConfig config);
+
         public void OnException(TrackException.ErrorCode code, string message)
         {
             OnException(new TrackException(code, message));
@@ -79,6 +80,75 @@ namespace EtherealS.Service.Abstract
             {
                 e.Service = this;
                 exceptionEvent?.Invoke(e);
+            }
+        }
+
+        public static void Register(Service instance,string netName, string service_name, ServiceConfig config)
+        {
+            instance.netName = netName;
+            instance.name = service_name;
+            instance.config = config;
+            //遍历所有字段
+            foreach (FieldInfo field in instance.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+            {
+                Attribute.ServiceConfig rpcAttribute = field.GetCustomAttribute<Attribute.ServiceConfig>();
+                if (rpcAttribute != null)
+                {
+                    //将config赋值入该Service
+                    field.SetValue(instance, config);
+                }
+            }
+            StringBuilder methodid = new StringBuilder();
+            foreach (MethodInfo method in instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
+            {
+                Attribute.Service rpcAttribute = method.GetCustomAttribute<Attribute.Service>();
+                if (rpcAttribute != null)
+                {
+                    if (!method.IsAbstract)
+                    {
+                        methodid.Append(method.Name);
+                        ParameterInfo[] parameters = method.GetParameters();
+                        int start_idx = 1;
+                        if (parameters.Length > 0 && (parameters[0].ParameterType.BaseType != typeof(BaseToken) && parameters[0].ParameterType != typeof(BaseToken))) start_idx = 0;
+                        if (rpcAttribute.Paramters == null)
+                        {
+                            for (int i = start_idx; i < parameters.Length; i++)
+                            {
+                                try
+                                {
+                                    methodid.Append("-" + config.Types.TypesByType[parameters[i].ParameterType].Name);
+                                }
+                                catch (Exception)
+                                {
+                                    throw new TrackException($"{method.Name}方法中的{parameters[i].ParameterType}类型参数尚未注册");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            string[] types_name = rpcAttribute.Paramters;
+                            if (parameters.Length == types_name.Length + 1)
+                            {
+                                for (int i = 0; i < types_name.Length; i++)
+                                {
+                                    if (config.Types.TypesByName.ContainsKey(types_name[i]))
+                                    {
+                                        methodid.Append("-").Append(types_name[i]);
+                                    }
+                                    else throw new TrackException($"C#对应的{types_name[i]}类型参数尚未注册");
+                                }
+                            }
+                            else throw new TrackException($"方法体{method.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length + 1}个,Method:{parameters.Length}个");
+                        }
+                        string name = methodid.ToString();
+                        if (instance.methods.TryGetValue(name, out MethodInfo item))
+                        {
+                            throw new TrackException($"服务方法{name}已存在，无法重复注册！");
+                        }
+                        instance.methods.TryAdd(name, method);
+                        methodid.Length = 0;
+                    }
+                }
             }
         }
 
@@ -94,7 +164,7 @@ namespace EtherealS.Service.Abstract
                 logEvent?.Invoke(log);
             }
         }
-        internal bool OnInterceptor(Net.Abstract.Net net,MethodInfo method, Token token)
+        internal bool OnInterceptor(Net.Abstract.Net net,MethodInfo method, BaseToken token)
         {
             if (InterceptorEvent != null)
             {

@@ -14,7 +14,7 @@ namespace EtherealS.Server.Abstract
         /// BaseUserToken实例化方法委托
         /// </summary>
         /// <returns>BaseUserToken实例</returns>
-        public delegate Token CreateInstance(); 
+        public delegate BaseToken CreateInstance(); 
         /// <summary>
         /// ServerRequestModel序列化方法委托
         /// </summary>

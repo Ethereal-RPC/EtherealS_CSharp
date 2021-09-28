@@ -1,6 +1,7 @@
 ﻿using EtherealS.Core.Model;
 using EtherealS.Net;
 using EtherealS.Request.Abstract;
+using EtherealS.Request.Interface;
 using EtherealS.Request.WebSocket;
 
 namespace EtherealS.Request
@@ -8,7 +9,7 @@ namespace EtherealS.Request
     public class RequestCore
     {
 
-        public static bool Get(string netName, string servicename, out Request.Abstract.Request reqeust)
+        public static bool Get<R>(string netName, string servicename, out R reqeust) where R:Abstract.Request
         {
             if (NetCore.Get(netName, out Net.Abstract.Net net))
             {
@@ -20,32 +21,32 @@ namespace EtherealS.Request
                 return false;
             }
         }
-        public static bool Get(Net.Abstract.Net net, string servicename, out Request.Abstract.Request reqeust)
+
+        public static bool Get<R>(Net.Abstract.Net net, string servicename, out R reqeust) where R: Abstract.Request
         {
-            return net.Requests.TryGetValue(servicename, out reqeust);
-        }
-        public static R Register<R>(Net.Abstract.Net net, string servicename, AbstractTypes type)
-        {
-            RequestConfig config = new RequestConfig(type);
-            return Register<R>(net, servicename, config);
+            bool result = net.Requests.TryGetValue(servicename, out Abstract.Request value);
+            reqeust = (R)value;
+            return result;
         }
 
-        public static R Register<R>(Net.Abstract.Net net, string servicename, RequestConfig config)
+        public static R Register<R,T>(Net.Abstract.Net net, string servicename, AbstractTypes type) where R : Abstract.Request
+        {
+            RequestConfig config = new RequestConfig(type);
+            return Register<R,T>(net, servicename, config);
+        }
+
+        public static R Register<R,T>(Net.Abstract.Net net, string servicename, RequestConfig config) where R:Abstract.Request 
         {
             net.Requests.TryGetValue(servicename, out Request.Abstract.Request request);
             if (request == null)
             {
-                if (net.Type == Net.Abstract.Net.NetType.WebSocket)
-                {
-                    request = WebSocketRequest.Register<R>(net.Name, servicename, config);
-                }
-                else throw new TrackException(TrackException.ErrorCode.Core, $"未有针对{net.Type}的Request-Register处理");
+                request = Abstract.Request.Register<R, T>(net.Name, servicename, config);
                 net.Requests[servicename] = request;
                 request.LogEvent += net.OnLog;
                 request.ExceptionEvent += net.OnException;
             }
             else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}-{servicename}已注册，无法重复注册！");
-            return (R)(request as object);
+            return (R)request;
         }
         public static bool UnRegister(string netName,string serviceName)
         {

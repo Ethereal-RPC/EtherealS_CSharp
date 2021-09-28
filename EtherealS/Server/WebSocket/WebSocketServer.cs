@@ -116,11 +116,11 @@ namespace EtherealS.Server.WebSocket
             }
         }
 
-        private void Token_ConnectEvent(Token token)
+        private void Token_ConnectEvent(BaseToken token)
         {
             
         }
-        private void Token_DisConnectEvent(Token token)
+        private void Token_DisConnectEvent(BaseToken token)
         {
 
         }

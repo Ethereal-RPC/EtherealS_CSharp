@@ -9,19 +9,19 @@ using ServiceConfig = EtherealS.Service.Abstract.ServiceConfig;
 
 namespace EtherealS_Test.ServiceDemo
 {
-    public class ServerService
+    public class ServerService : EtherealS.Service.WebSocket.WebSocketService
     {
         #region --字段--
         /// <summary>
         /// 服务端向客户端发送请求的接口
         /// </summary>
-        private ClientRequest userRequest;
+        private IClientRequest userRequest;
         [EtherealS.Service.Attribute.ServiceConfig]
         public ServiceConfig config;
         #endregion
 
         #region --属性--
-        public ClientRequest UserRequest { get => userRequest; set => userRequest = value; }
+        public IClientRequest UserRequest { get => userRequest; set => userRequest = value; }
         #endregion
 
         #region --方法--
@@ -55,7 +55,7 @@ namespace EtherealS_Test.ServiceDemo
         }
 
         [Service]
-        public int Add(Token token,int a,int b)
+        public int Add(BaseToken token,int a,int b)
         {
             return a + b;
         }

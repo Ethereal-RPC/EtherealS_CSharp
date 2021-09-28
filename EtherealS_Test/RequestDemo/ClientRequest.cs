@@ -1,14 +1,18 @@
-﻿using EtherealS_Test.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using EtherealS.Request.Attribute;
+using System.Threading.Tasks;
+using EtherealS.Request.WebSocket;
+using EtherealS_Test.Model;
 
 namespace EtherealS_Test.RequestDemo
 {
-    public interface ClientRequest
+    public class ClientRequest:WebSocketRequest,IClientRequest
     {
-        [Request]
-         void Say(User user,User sender, string message);
+        public virtual string Say(User user, User sender, string message)
+        {
+            return "sd";
+        }
     }
 }

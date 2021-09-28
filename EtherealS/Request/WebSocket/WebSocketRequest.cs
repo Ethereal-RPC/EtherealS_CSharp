@@ -15,14 +15,6 @@ namespace EtherealS.Request.WebSocket
 
         #endregion
 
-        public static new Abstract.Request Register<T>(string netName, string servicename, RequestConfig config)
-        {
-            Abstract.Request proxy = Create<T, WebSocketRequest>() as Abstract.Request;
-            proxy.Name = servicename;
-            proxy.NetName = netName ?? throw new ArgumentNullException(nameof(netName));
-            proxy.Config = config;
-            return proxy;
-        }
         protected override object Invoke(MethodInfo targetMethod, object[] args)    
         {
             Attribute.Request rpcAttribute = targetMethod.GetCustomAttribute<Attribute.Request>();
@@ -71,9 +63,9 @@ namespace EtherealS.Request.WebSocket
 
                 }
                 ServerRequestModel request = new ServerRequestModel(Name, methodid.ToString(), obj);
-                if (args[0] != null && (args[0] as Token != null))
+                if (args[0] != null && (args[0] as BaseToken != null))
                 {
-                    if (!((args[0] as Token).IsWebSocket))
+                    if (!((args[0] as BaseToken).IsWebSocket))
                     {
                         throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}传递了非WebSocket协议的Token！");
                     }
@@ -82,12 +74,10 @@ namespace EtherealS.Request.WebSocket
                     log += $"{ DateTime.Now}::{NetName}::[服 - 指令]\n{ request}\n";
                     log += "---------------------------------------------------------\n";
                     OnLog(TrackLog.LogCode.Runtime, log);
-                    (args[0] as Token).SendServerRequest(request);
-                    return null;
+                    (args[0] as BaseToken).SendServerRequest(request);
                 }
-                return null;
             }
-            return null;
+            return targetMethod.Invoke(this, args);
         }
 
     }

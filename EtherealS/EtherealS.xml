@@ -154,7 +154,7 @@
             权限检查默认实现类
             </summary>
         </member>
-        <member name="M:EtherealS.Extension.Authority.AuthorityCheck.ServiceCheck(EtherealS.Net.Abstract.Net,EtherealS.Service.Abstract.Service,System.Reflection.MethodInfo,EtherealS.Server.Abstract.Token)">
+        <member name="M:EtherealS.Extension.Authority.AuthorityCheck.ServiceCheck(EtherealS.Net.Abstract.Net,EtherealS.Service.Abstract.Service,System.Reflection.MethodInfo,EtherealS.Server.Abstract.BaseToken)">
             <summary>
             权限检查默认实现函数
             </summary>
@@ -353,7 +353,7 @@
             分布式请求
             </summary>
         </member>
-        <member name="M:EtherealS.Net.NetNode.NetNodeServer.Service.ServerNodeService.Register(EtherealS.Server.Abstract.Token,EtherealS.Net.NetNode.Model.NetNode)">
+        <member name="M:EtherealS.Net.NetNode.NetNodeServer.Service.ServerNodeService.Register(EtherealS.Server.Abstract.BaseToken,EtherealS.Net.NetNode.Model.NetNode)">
             <summary>
             注册节点
             </summary>
@@ -361,7 +361,7 @@
             <param name="netNode">节点信息</param>
             <returns></returns>
         </member>
-        <member name="M:EtherealS.Net.NetNode.NetNodeServer.Service.ServerNodeService.GetNetNode(EtherealS.Server.Abstract.Token,System.String)">
+        <member name="M:EtherealS.Net.NetNode.NetNodeServer.Service.ServerNodeService.GetNetNode(EtherealS.Server.Abstract.BaseToken,System.String)">
             <summary>
             获取对应服务的网络节点
             </summary>
@@ -369,7 +369,7 @@
             <param name="servicename"></param>
             <returns></returns>
         </member>
-        <member name="M:EtherealS.Net.NetNode.NetNodeServer.Service.ServerNodeService.Sender_DisConnectEvent(EtherealS.Server.Abstract.Token)">
+        <member name="M:EtherealS.Net.NetNode.NetNodeServer.Service.ServerNodeService.Sender_DisConnectEvent(EtherealS.Server.Abstract.BaseToken)">
             <summary>
             如果断开连接，字典中删掉该节点
             </summary>
@@ -426,58 +426,58 @@
             服务请求配置项
             </summary>
         </member>
-        <member name="T:EtherealS.Server.Abstract.Token.ConnectDelegate">
+        <member name="T:EtherealS.Server.Abstract.BaseToken.ConnectDelegate">
             <summary>
             连接委托
             </summary>
             <param name="token"></param>
         </member>
-        <member name="T:EtherealS.Server.Abstract.Token.DisConnectDelegate">
+        <member name="T:EtherealS.Server.Abstract.BaseToken.DisConnectDelegate">
             <summary>
                 
             </summary>
             <param name="token"></param>
         </member>
-        <member name="E:EtherealS.Server.Abstract.Token.ConnectEvent">
+        <member name="E:EtherealS.Server.Abstract.BaseToken.ConnectEvent">
             <summary>
             连接事件
             </summary>
         </member>
-        <member name="E:EtherealS.Server.Abstract.Token.DisConnectEvent">
+        <member name="E:EtherealS.Server.Abstract.BaseToken.DisConnectEvent">
             <summary>
             断开连接事件
             </summary>
         </member>
-        <member name="E:EtherealS.Server.Abstract.Token.LogEvent">
+        <member name="E:EtherealS.Server.Abstract.BaseToken.LogEvent">
             <summary>
             日志输出事件
             </summary>
         </member>
-        <member name="E:EtherealS.Server.Abstract.Token.ExceptionEvent">
+        <member name="E:EtherealS.Server.Abstract.BaseToken.ExceptionEvent">
             <summary>
             抛出异常事件
             </summary>
         </member>
-        <member name="M:EtherealS.Server.Abstract.Token.Register(System.Boolean)">
+        <member name="M:EtherealS.Server.Abstract.BaseToken.Register(System.Boolean)">
             <summary>
             注册Token信息至Tokens表
             </summary>
             <param name="replace">当已存在Token信息，是否替换</param>
             <returns></returns>
         </member>
-        <member name="M:EtherealS.Server.Abstract.Token.UnRegister">
+        <member name="M:EtherealS.Server.Abstract.BaseToken.UnRegister">
             <summary>
             从Tokens表中注销Token信息
             </summary>
             <returns></returns>
         </member>
-        <member name="M:EtherealS.Server.Abstract.Token.GetTokens">
+        <member name="M:EtherealS.Server.Abstract.BaseToken.GetTokens">
             <summary>
             得到该Token所属的Tokens表单
             </summary>
             <returns></returns>
         </member>
-        <member name="M:EtherealS.Server.Abstract.Token.GetToken``1(System.Object,``0@)">
+        <member name="M:EtherealS.Server.Abstract.BaseToken.GetToken``1(System.Object,``0@)">
             <summary>
             得到特定的Token信息
             </summary>
@@ -486,19 +486,19 @@
             <param name="value">返回的值</param>
             <returns></returns>
         </member>
-        <member name="M:EtherealS.Server.Abstract.Token.GetTokens(System.String)">
+        <member name="M:EtherealS.Server.Abstract.BaseToken.GetTokens(System.String)">
             <summary>
             得到某网络层{ip}-{port}中的Tokens表单
             </summary>
             <param name="serverkey"></param>
             <returns></returns>
         </member>
-        <member name="M:EtherealS.Server.Abstract.Token.OnConnect">
+        <member name="M:EtherealS.Server.Abstract.BaseToken.OnConnect">
             <summary>
             连接时激活连接事件
             </summary>
         </member>
-        <member name="M:EtherealS.Server.Abstract.Token.OnDisConnect">
+        <member name="M:EtherealS.Server.Abstract.BaseToken.OnDisConnect">
             <summary>
             断开连接时激活断开连接事件
             </summary>

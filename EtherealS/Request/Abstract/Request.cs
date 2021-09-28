@@ -60,11 +60,11 @@ namespace EtherealS.Request.Abstract
         public string NetName { get => netName; set => netName = value; }
         #endregion
 
-        public static Request Register<T>(string netName, string servicename, RequestConfig config)
+        public static R Register<R,T>(string netName, string servicename, RequestConfig config) where R:Request
         {
-            Request proxy = Create<T, Request>() as Request;
+            R proxy = Create<T, R>() as R;
             proxy.Name = servicename;
-            proxy.NetName = netName ?? throw new ArgumentNullException(nameof(netName));
+            proxy.NetName = netName;
             proxy.Config = config;
             return proxy;
         }

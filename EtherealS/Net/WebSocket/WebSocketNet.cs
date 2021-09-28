@@ -41,9 +41,9 @@ namespace EtherealS.Net.WebSocket
                         types.Add<bool>("Bool");
                         types.Add<NetNode.Model.NetNode>("NetNode");
                         //注册服务
-                        ServerNodeService serverDistributeService = (ServerNodeService)ServiceCore.Register<ServerNodeService>(this, "ServerNetNodeService", types).Instance;
+                        ServerNodeService serverDistributeService = ServiceCore.Register<ServerNodeService>(this, "ServerNetNodeService", types);
                         //注册请求
-                        serverDistributeService.DistributeRequest = RequestCore.Register<ClientNodeRequest>(this, "ClientNetNodeService", types);
+                        serverDistributeService.DistributeRequest = RequestCore.Register<ClientNodeRequest, IClientNodeRequest>(this, "ClientNetNodeService", types);
                     }
                     #endregion
 
@@ -61,7 +61,7 @@ namespace EtherealS.Net.WebSocket
                         types.Add<bool>("Bool");
                         types.Add<NetNode.Model.NetNode>("NetNode");
                         EtherealC.Net.Abstract.Net net = EtherealC.Net.NetCore.Register($"NetNodeClient-{prefixes}", EtherealC.Net.Abstract.Net.NetType.WebSocket);
-                        net.Config.NetNodeMode = false;
+                        net.Config.NetNodeMode = false; 
                         //注册服务
                         ClientNodeService clientNodeService = (ClientNodeService)EtherealC.Service.ServiceCore.Register<ClientNodeService>(net, "ClientNetNodeService", types).Instance;
                         //注册请求

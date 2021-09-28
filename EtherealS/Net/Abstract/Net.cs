@@ -14,7 +14,7 @@ namespace EtherealS.Net.Abstract
         public enum NetType { WebSocket }
 
         #region --事件字段--
-        public delegate bool InterceptorDelegate(Net net,Service.Abstract.Service service, MethodInfo method, Token token);
+        public delegate bool InterceptorDelegate(Net net,Service.Abstract.Service service, MethodInfo method, BaseToken token);
         private OnLogDelegate logEvent;
         private OnExceptionDelegate exceptionEvent;
         #endregion
@@ -62,7 +62,7 @@ namespace EtherealS.Net.Abstract
         /// <summary>
         /// Token映射表
         /// </summary>
-        protected ConcurrentDictionary<object, Token> tokens = new ConcurrentDictionary<object, Token>();
+        protected ConcurrentDictionary<object, BaseToken> tokens = new ConcurrentDictionary<object, BaseToken>();
         /// <summary>
         /// Service映射表
         /// </summary>
@@ -84,7 +84,7 @@ namespace EtherealS.Net.Abstract
         #endregion
 
         #region --属性--
-        public ConcurrentDictionary<object, Token> Tokens { get => tokens; set => tokens = value; }
+        public ConcurrentDictionary<object, BaseToken> Tokens { get => tokens; set => tokens = value; }
         public NetConfig Config { get => config; set => config = value; }
         public ConcurrentDictionary<string, Service.Abstract.Service> Services { get => services; }
         public Dictionary<string, Request.Abstract.Request> Requests { get => requests; }
@@ -101,7 +101,7 @@ namespace EtherealS.Net.Abstract
         /// <returns></returns>
         public abstract bool Publish();
 
-        public ClientResponseModel ClientRequestReceiveProcess(Token token, ClientRequestModel request)
+        public ClientResponseModel ClientRequestReceiveProcess(BaseToken token, ClientRequestModel request)
         {
             if (Services.TryGetValue(request.Service, out Service.Abstract.Service service))
             {
@@ -135,7 +135,7 @@ namespace EtherealS.Net.Abstract
                             request.Params = new_params;
                         }
 
-                        object result = method.Invoke(service.Instance, request.Params);
+                        object result = method.Invoke(service, request.Params);
                         Type return_type = method.ReturnType;
                         if (return_type != typeof(void))
                         {
@@ -186,7 +186,7 @@ namespace EtherealS.Net.Abstract
                 logEvent?.Invoke(log);
             }
         }
-        public bool OnInterceptor(Service.Abstract.Service service, MethodInfo method, Token token)
+        public bool OnInterceptor(Service.Abstract.Service service, MethodInfo method, BaseToken token)
         {
             if (InterceptorEvent != null)
             {

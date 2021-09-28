@@ -54,11 +54,11 @@ namespace EtherealS_Test
             net.ExceptionEvent += Config_ExceptionEvent;
             net.LogEvent += Config_LogEvent;
             //向网关注册服务
-            Service service = ServiceCore.Register<ServerService>(net, "Server", types);
+            ServerService service = ServiceCore.Register<ServerService>(net, "Server", types);
             //向网关注册请求
-            ClientRequest request = RequestCore.Register<ClientRequest>(net, "Client", types);
+            IClientRequest request = RequestCore.Register<ClientRequest, IClientRequest>(net, "Client", types);
             //本例中，突出服务类可作为正常类
-            (service.Instance as ServerService).UserRequest = request;
+            service.UserRequest = request;
             //向网关注册连接(提供一个生成User的方法)
             Server server = ServerCore.Register(net, new string[]{ $"{ip}:{port}/NetDemo/"} ,()=>new User());
             List<Tuple<string, EtherealC.Client.Abstract.ClientConfig>> ips = new();
@@ -67,7 +67,7 @@ namespace EtherealS_Test
              * 部署分布式集群
              */
             //开启集群
-            net.Config.NetNodeMode = false;
+            net.Config.NetNodeMode = true;
             //添加集群地址
             ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28015}/NetDemo/", clientConfig));
             ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28016}/NetDemo/", clientConfig));

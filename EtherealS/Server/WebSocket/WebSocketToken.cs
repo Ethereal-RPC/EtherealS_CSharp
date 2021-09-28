@@ -7,7 +7,7 @@ using EtherealS.Server.Abstract;
 
 namespace EtherealS.Server.WebSocket
 {
-    public abstract class WebSocketToken : Token
+    public abstract class WebSocketToken : BaseToken
     {
         #region --字段--
         private HttpListenerWebSocketContext context;

@@ -18,6 +18,10 @@ namespace EtherealS.Request.WebSocket
         protected override object Invoke(MethodInfo targetMethod, object[] args)    
         {
             Attribute.Request rpcAttribute = targetMethod.GetCustomAttribute<Attribute.Request>();
+            if (rpcAttribute == null)
+            {
+                return targetMethod.Invoke(this, args);
+            }
             object localResult = null;
             if ((rpcAttribute.InvokeType & Attribute.Request.InvokeTypeFlags.Local)!=0)
             {
@@ -76,7 +80,7 @@ namespace EtherealS.Request.WebSocket
                         localResult = targetMethod.Invoke(this, args);
                     }
                 }
-                throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}Token为空！");
+                throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}！");
             }
             else
             {

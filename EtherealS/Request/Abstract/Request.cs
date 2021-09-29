@@ -50,22 +50,25 @@ namespace EtherealS.Request.Abstract
 
         #region --字段--
         protected string name;
-        private string netName;
+        protected string netName;
         protected RequestConfig config;
+        protected AbstractTypes types;
         #endregion
 
         #region --属性--
         public string Name { get => name; set => name = value; }
         public RequestConfig Config { get => config; set => config = value; }
         public string NetName { get => netName; set => netName = value; }
+        public AbstractTypes Types { get => types; set => types = value; }
         #endregion
 
-        public static R Register<R,T>(string netName, string servicename, RequestConfig config) where R:Request
+        public static R Register<R,T>(string netName, string servicename,AbstractTypes types, RequestConfig config) where R:Request
         {
             R proxy = Create<T, R>() as R;
             proxy.Name = servicename;
             proxy.NetName = netName;
-            proxy.Config = config;
+            proxy.Types = types;
+            if(config != null) proxy.Config = config;
             return proxy;
         }
         protected override abstract object Invoke(MethodInfo targetMethod, object[] args);

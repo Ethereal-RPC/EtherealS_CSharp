@@ -15,6 +15,10 @@ namespace EtherealS.Request.WebSocket
 
         #endregion
 
+        public WebSocketRequest()
+        {
+            config = new WebSocketRequestConfig();
+        }
         protected override object Invoke(MethodInfo targetMethod, object[] args)    
         {
             Attribute.Request rpcAttribute = targetMethod.GetCustomAttribute<Attribute.Request>();
@@ -39,7 +43,7 @@ namespace EtherealS.Request.WebSocket
                         ParameterInfo[] parameters = targetMethod.GetParameters();
                         for (int i = 1; i < param_count; i++)
                         {
-                            if(Config.Types.TypesByType.TryGetValue(parameters[i].ParameterType,out AbstractType type))
+                            if(Types.TypesByType.TryGetValue(parameters[i].ParameterType,out AbstractType type))
                             {
                                 
                                 methodid.Append("-" + type.Name);
@@ -55,7 +59,7 @@ namespace EtherealS.Request.WebSocket
                         {
                             for (int i = 1; i < param_count; i++)
                             {
-                                if (Config.Types.TypesByName.TryGetValue(types_name[i], out AbstractType type))
+                                if (Types.TypesByName.TryGetValue(types_name[i], out AbstractType type))
                                 {
                                     methodid.Append("-" + type.Name);
                                     obj[i - 1] = type.Serialize(args[i]);

@@ -11,21 +11,14 @@ namespace EtherealS.Service.Abstract
     {
 
         #region --字段--
-        /// <summary>
-        /// 中间层抽象数据类配置项
-        /// </summary>
-        private AbstractTypes types;
+
         #endregion
 
         #region --属性--
-        public AbstractTypes Types { get => types; set => types = value; }
+
         #endregion
 
         #region --方法--
-        public ServiceConfig(AbstractTypes type)
-        {
-            this.types = type;
-        }
 
         #endregion
     }

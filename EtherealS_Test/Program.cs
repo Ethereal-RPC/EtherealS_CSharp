@@ -70,9 +70,9 @@ namespace EtherealS_Test
             net.Config.NetNodeMode = true;
             //添加集群地址
             ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28015}/NetDemo/", clientConfig));
-            ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28016}/NetDemo/", clientConfig));
-            ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28017}/NetDemo/", clientConfig));
-            ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28018}/NetDemo/", clientConfig));
+            //ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28016}/NetDemo/", clientConfig));
+            //ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28017}/NetDemo/", clientConfig));
+            //ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28018}/NetDemo/", clientConfig));
             net.Config.NetNodeIps = ips;
             //发布服务
             net.Publish();

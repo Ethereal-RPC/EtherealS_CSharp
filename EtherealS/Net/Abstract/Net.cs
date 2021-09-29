@@ -117,7 +117,7 @@ namespace EtherealS.Net.Abstract
                         string[] params_id = request.MethodId.Split('-');
                         for (int i = 1; i < params_id.Length; i++)
                         {
-                            if (service.Config.Types.TypesByName.TryGetValue(params_id[i], out AbstractType type))
+                            if (service.Types.TypesByName.TryGetValue(params_id[i], out AbstractType type))
                             {
                                 request.Params[i] = type.Deserialize((string)request.Params[i]);
                             }
@@ -139,7 +139,7 @@ namespace EtherealS.Net.Abstract
                         Type return_type = method.ReturnType;
                         if (return_type != typeof(void))
                         {
-                            service.Config.Types.TypesByType.TryGetValue(return_type, out AbstractType type);
+                            service.Types.TypesByType.TryGetValue(return_type, out AbstractType type);
                             return new ClientResponseModel(type.Serialize(result), type.Name, request.Id, request.Service, null);
                         }
                         else

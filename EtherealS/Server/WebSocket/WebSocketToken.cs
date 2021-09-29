@@ -100,7 +100,6 @@ namespace EtherealS.Server.WebSocket
                         SendClientResponse(new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
                     }
                     else SendClientResponse(new ClientResponseModel( null, null, null,null, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
-
                     DisConnect("发生报错");
                     return;
                 }

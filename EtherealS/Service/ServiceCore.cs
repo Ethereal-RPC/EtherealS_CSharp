@@ -12,7 +12,7 @@ namespace EtherealS.Service
         {
             if (NetCore.Get(netName, out Net.Abstract.Net net))
             {
-                return GetProxy(net, serviceName, out service);
+                return Get(net, serviceName, out service);
             }
             else
             {
@@ -20,11 +20,11 @@ namespace EtherealS.Service
                 return false;
             }
         }
-        public static bool GetProxy(string netName,string serviceName, out Service.Abstract.Service service)
+        public static bool Get(string netName,string serviceName, out Service.Abstract.Service service)
         {
             if (NetCore.Get(netName, out Net.Abstract.Net net))
             {
-                return GetProxy(net, serviceName, out service);
+                return Get(net, serviceName, out service);
             }
             else
             {
@@ -32,38 +32,20 @@ namespace EtherealS.Service
                 return false;
             }
         }
-        public static bool GetProxy(Net.Abstract.Net net, string serviceName, out Service.Abstract.Service service)
+        public static bool Get(Net.Abstract.Net net, string serviceName, out Abstract.Service service)
         {
             return net.Services.TryGetValue(serviceName, out service);
         }
-        public static T Register<T>(T instance, Net.Abstract.Net net, string servicename, AbstractTypes type) where T : Abstract.Service, new()
+        public static T Register<T>(Net.Abstract.Net net, string servicename, AbstractTypes types, ServiceConfig config = null) where T : Abstract.Service,new()
         {
-            return Register<T>(instance,net, servicename, new ServiceConfig(type));
+            return Register<T>(new T(), net, servicename,types, config);
         }
-        public static T Register<T>(Net.Abstract.Net net, string servicename, ServiceConfig config) where T : Abstract.Service, new()
+        public static T Register<T>(T instance, Net.Abstract.Net net, string servicename, AbstractTypes types, ServiceConfig config = null) where T : Abstract.Service, new()
         {
-            return Register<T>(new T(), net, servicename, config);
-        }
-        public static T Register<T>(Net.Abstract.Net net, string servicename, AbstractTypes type) where T : Abstract.Service,new()
-        {
-            return Register<T>(new T(), net, servicename, new ServiceConfig(type));
-        }
-        public static T Register<T>(T instance, Net.Abstract.Net net, string servicename, ServiceConfig config) where T : Abstract.Service, new()
-        {
-            if (string.IsNullOrEmpty(servicename))
-            {
-                throw new ArgumentException("参数为空", nameof(servicename));
-            }
-
-            if (config.Types is null)
-            {
-                throw new ArgumentNullException(nameof(config.Types));
-            }
-
             net.Services.TryGetValue(servicename, out Abstract.Service service);
             if (service == null)
             {
-                Abstract.Service.Register(instance,net.Name,servicename,config);
+                Abstract.Service.Register(instance,net.Name,servicename,types,config);
                 net.Services[servicename] = instance;
                 instance.LogEvent += net.OnLog;
                 instance.ExceptionEvent += net.OnException;

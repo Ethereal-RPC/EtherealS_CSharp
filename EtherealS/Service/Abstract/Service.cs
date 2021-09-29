@@ -61,6 +61,7 @@ namespace EtherealS.Service.Abstract
         protected ServiceConfig config;
         protected string netName;
         protected string name;
+        protected AbstractTypes types;
         #endregion
 
         #region --属性--
@@ -68,6 +69,8 @@ namespace EtherealS.Service.Abstract
         public ServiceConfig Config { get => config; set => config = value; }
         public string NetName { get => netName; set => netName = value; }
         public string Name { get => name; set => name = value; }
+        public AbstractTypes Types { get => types; set => types = value; }
+
         #endregion
 
         public void OnException(TrackException.ErrorCode code, string message)
@@ -83,20 +86,17 @@ namespace EtherealS.Service.Abstract
             }
         }
 
-        public static void Register(Service instance,string netName, string service_name, ServiceConfig config)
+        public static void Register(Service instance,string netName, string service_name,AbstractTypes types, ServiceConfig config=null)
         {
             instance.netName = netName;
             instance.name = service_name;
-            instance.config = config;
+            instance.types = types;
+            if(config != null) instance.config = config;
             //遍历所有字段
             foreach (FieldInfo field in instance.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
             {
                 Attribute.ServiceConfig rpcAttribute = field.GetCustomAttribute<Attribute.ServiceConfig>();
-                if (rpcAttribute != null)
-                {
-                    //将config赋值入该Service
-                    field.SetValue(instance, config);
-                }
+
             }
             StringBuilder methodid = new StringBuilder();
             foreach (MethodInfo method in instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
@@ -116,7 +116,7 @@ namespace EtherealS.Service.Abstract
                             {
                                 try
                                 {
-                                    methodid.Append("-" + config.Types.TypesByType[parameters[i].ParameterType].Name);
+                                    methodid.Append("-" + instance.types.TypesByType[parameters[i].ParameterType].Name);
                                 }
                                 catch (Exception)
                                 {
@@ -131,7 +131,7 @@ namespace EtherealS.Service.Abstract
                             {
                                 for (int i = 0; i < types_name.Length; i++)
                                 {
-                                    if (config.Types.TypesByName.ContainsKey(types_name[i]))
+                                    if (instance.Types.TypesByName.ContainsKey(types_name[i]))
                                     {
                                         methodid.Append("-").Append(types_name[i]);
                                     }

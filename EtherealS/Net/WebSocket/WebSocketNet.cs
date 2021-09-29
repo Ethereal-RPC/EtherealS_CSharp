@@ -17,7 +17,7 @@ namespace EtherealS.Net.WebSocket
     {
         #region --属性--
         public new WebSocketNetConfig Config { get => (WebSocketNetConfig)config; set => config = value; }
-
+        public AutoResetEvent sign = new AutoResetEvent(false);
         #endregion
 
         #region --方法--
@@ -90,25 +90,25 @@ namespace EtherealS.Net.WebSocket
                                         }
                                         //注册连接
                                         EtherealC.Client.Abstract.Client client = EtherealC.Client.ClientCore.Register(serverNodeRequest, prefixes, clientConfig);
-                                        client.ConnectEvent += Config_ConnectSuccessEvent;
-                                        client.DisConnectEvent += Config_ConnectFailEvent;
+                                        client.ConnectEvent += ClientConnectSuccessEvent;
+                                        client.ConnectFailEvent += ClientConnectFailEvent;
+                                        client.DisConnectEvent += ClientDisConnectEvent;
                                         //部署
                                         net.Publish();
                                     }
                                     else throw new TrackException(TrackException.ErrorCode.Runtime, $"NetNode-Client-未找到Request:NetNodeClient-{prefixes}-ServerNetNodeService");
                                 }
                             }
-                            catch (TrackException e)
+                            catch (Exception e)
                             {
-                                OnException(e);
+                                OnException(new TrackException(e));
                             }
                             finally
                             {
-                                Thread.Sleep((int)cycle);
+                                sign.WaitOne(config.NetNodeHeartbeatCycle);
                             }
                         }
-
-                    });
+                    }); 
                     thread.Start(config.NetNodeHeartbeatCycle);
                     #endregion
                 }
@@ -121,6 +121,8 @@ namespace EtherealS.Net.WebSocket
             return true;
         }
 
+
+
         private void Net_LogEvent(EtherealC.Core.Model.TrackLog log)
         {
             OnLog(TrackLog.LogCode.Runtime,"NetNodeClient::" + log.Message);
@@ -130,7 +132,7 @@ namespace EtherealS.Net.WebSocket
             OnException(new TrackException(exception));
         }
 
-        private void Config_ConnectSuccessEvent(EtherealC.Client.Abstract.Client client)
+        private void ClientConnectSuccessEvent(EtherealC.Client.Abstract.Client client)
         {
             //注册节点信息
             if (EtherealC.Request.RequestCore.Get($"NetNodeClient-{(client as EtherealC.Client.WebSocket.WebSocketClient).Prefixes}", "ServerNetNodeService", out EtherealC.Request.Abstract.Request serverDistributeRequest))
@@ -161,21 +163,21 @@ namespace EtherealS.Net.WebSocket
                     requestNode.Name = request.Name;
                     node.Requests.Add(requestNode.Name, requestNode);
                 }
-                ((IServerNodeRequest)serverDistributeRequest).Register(node);
                 //向目标主机注册节点信息
-                if (true)
-                {
-                    OnLog(TrackLog.LogCode.Runtime, $"分布式节点：{(client as EtherealC.Client.WebSocket.WebSocketClient).Prefixes}连接成功");
-                }
+                ((IServerNodeRequest)serverDistributeRequest).Register(node);
             }
             else throw new TrackException(TrackException.ErrorCode.Runtime, $"EtherealC中未找到 NetNodeClient-{(client as EtherealC.Client.WebSocket.WebSocketClient).Prefixes}-ServerNodeService");
         }
 
-        private void Config_ConnectFailEvent(EtherealC.Client.Abstract.Client client)
+        private void ClientConnectFailEvent(EtherealC.Client.Abstract.Client client)
         {
             EtherealC.Client.ClientCore.UnRegister(client.NetName,client.ServiceName);
         }
-
+        private void ClientDisConnectEvent(EtherealC.Client.Abstract.Client client)
+        {
+            EtherealC.Client.ClientCore.UnRegister(client.NetName, client.ServiceName);
+            sign.Set();
+        }
         #endregion
     }
 }

@@ -29,18 +29,12 @@ namespace EtherealS.Request
             return result;
         }
 
-        public static R Register<R,T>(Net.Abstract.Net net, string servicename, AbstractTypes type) where R : Abstract.Request
-        {
-            RequestConfig config = new RequestConfig(type);
-            return Register<R,T>(net, servicename, config);
-        }
-
-        public static R Register<R,T>(Net.Abstract.Net net, string servicename, RequestConfig config) where R:Abstract.Request 
+        public static R Register<R,T>(Net.Abstract.Net net, string servicename, AbstractTypes types, RequestConfig config=null) where R:Abstract.Request 
         {
             net.Requests.TryGetValue(servicename, out Request.Abstract.Request request);
             if (request == null)
             {
-                request = Abstract.Request.Register<R, T>(net.Name, servicename, config);
+                request = Abstract.Request.Register<R, T>(net.Name, servicename,types, config);
                 net.Requests[servicename] = request;
                 request.LogEvent += net.OnLog;
                 request.ExceptionEvent += net.OnException;

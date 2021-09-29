@@ -8,8 +8,6 @@ namespace EtherealS.Service.WebSocket
     /// </summary>
     public class WebSocketServiceConfig : ServiceConfig
     {
-        public WebSocketServiceConfig(AbstractTypes type) : base(type)
-        {
-        }
+
     }
 }

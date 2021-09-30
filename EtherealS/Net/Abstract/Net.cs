@@ -101,6 +101,10 @@ namespace EtherealS.Net.Abstract
         /// <returns></returns>
         public abstract bool Publish();
 
+        public Net(string name)
+        {
+            this.name = name;
+        }
         public ClientResponseModel ClientRequestReceiveProcess(BaseToken token, ClientRequestModel request)
         {
             if (Services.TryGetValue(request.Service, out Service.Abstract.Service service))

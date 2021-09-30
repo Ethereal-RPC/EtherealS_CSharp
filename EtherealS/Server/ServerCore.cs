@@ -26,36 +26,18 @@ namespace EtherealS.Server
             else return false;
         }
 
-        public static Server.Abstract.Server Register(Net.Abstract.Net net, string[] prefixes, ServerConfig.CreateInstance createMethod)
-        {
-            if (net.Type == Net.Abstract.Net.NetType.WebSocket)
-            {
-                return Register(net, prefixes, new WebSocketServerConfig(createMethod), null);
-            }
-            else throw new TrackException(TrackException.ErrorCode.Core, $"未有针对{net.Type}的Server-Register处理");
-
-        }
-        public static Server.Abstract.Server Register(Net.Abstract.Net net, string[] prefixes, ServerConfig config)
-        {
-
-            return Register(net,prefixes,config,null);
-        }
         /// <summary>
         /// 获取客户端
         /// </summary>
         /// <param name="serverIp">远程服务IP</param>
         /// <param name="port">远程服务端口</param>
         /// <returns>客户端</returns>
-        public static Server.Abstract.Server Register(Net.Abstract.Net net, string[] prefixes, ServerConfig config, Server.Abstract.Server server)
+        public static Abstract.Server Register(Net.Abstract.Net net,Abstract.Server server)
         {
-            if (net.Server == null && net is Net.Abstract.Net)
+            if (net.Server == null)
             {
-                if (net.Type == Net.Abstract.Net.NetType.WebSocket)
-                {
-                    server = new WebSocketServer(net.Name, prefixes, config);
-                }
-                else throw new TrackException(TrackException.ErrorCode.Core, $"未有针对{net.Type}的Server-Register处理");
                 net.Server = server;
+                server.NetName = net.Name;
                 server.LogEvent += net.OnLog;
                 server.ExceptionEvent += net.OnException;
             }

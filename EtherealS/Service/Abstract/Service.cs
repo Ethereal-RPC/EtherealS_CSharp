@@ -73,6 +73,11 @@ namespace EtherealS.Service.Abstract
 
         #endregion
 
+        public Service(string name, AbstractTypes types)
+        {
+            this.name = name;
+            this.types = types;
+        }
         public void OnException(TrackException.ErrorCode code, string message)
         {
             OnException(new TrackException(code, message));
@@ -86,12 +91,8 @@ namespace EtherealS.Service.Abstract
             }
         }
 
-        public static void Register(Service instance,string netName, string service_name,AbstractTypes types, ServiceConfig config=null)
+        public static void Register(Service instance)
         {
-            instance.netName = netName;
-            instance.name = service_name;
-            instance.types = types;
-            if(config != null) instance.config = config;
             //遍历所有字段
             foreach (FieldInfo field in instance.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
             {

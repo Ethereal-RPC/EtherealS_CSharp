@@ -116,7 +116,7 @@ namespace EtherealS.Server.WebSocket
         {
             try
             {
-                if (Context.WebSocket.State == WebSocketState.Open && isWebSocket)
+                if (Context.WebSocket.State == WebSocketState.Open && canRequest)
                 {
                     string log = "--------------------------------------------------\n" +
                                 $"{DateTime.Now}::{netName}::[服-返回]\n{response}" +
@@ -134,7 +134,7 @@ namespace EtherealS.Server.WebSocket
         {
             try
             {
-                if (Context.WebSocket.State == WebSocketState.Open && isWebSocket)
+                if (Context.WebSocket.State == WebSocketState.Open && canRequest)
                 {
                     string log = "--------------------------------------------------\n" +
                                 $"{DateTime.Now}::{netName}::[服-请求]\n{request}" +

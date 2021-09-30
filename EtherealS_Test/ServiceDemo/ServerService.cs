@@ -3,6 +3,7 @@ using EtherealS_Test.Model;
 using EtherealS_Test.RequestDemo;
 using System.Threading;
 using System.Threading.Tasks;
+using EtherealS.Core.Model;
 using EtherealS.Server.Abstract;
 using EtherealS.Service.Attribute;
 using ServiceConfig = EtherealS.Service.Abstract.ServiceConfig;
@@ -62,5 +63,8 @@ namespace EtherealS_Test.ServiceDemo
 
         #endregion
 
+        public ServerService(string name, AbstractTypes types) : base(name, types)
+        {
+        }
     }
 }

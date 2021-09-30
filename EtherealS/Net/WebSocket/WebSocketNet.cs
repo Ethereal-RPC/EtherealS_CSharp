@@ -41,7 +41,7 @@ namespace EtherealS.Net.WebSocket
                         types.Add<bool>("Bool");
                         types.Add<NetNode.Model.NetNode>("NetNode");
                         //注册服务
-                        ServerNodeService serverDistributeService = ServiceCore.Register<ServerNodeService>(this, "ServerNetNodeService", types);
+                        ServerNodeService serverDistributeService = ServiceCore.Register(this,new ServerNodeService("ServerNetNodeService",types));
                         //注册请求
                         serverDistributeService.DistributeRequest = RequestCore.Register<ClientNodeRequest, IClientNodeRequest>(this, "ClientNetNodeService", types);
                     }
@@ -179,5 +179,11 @@ namespace EtherealS.Net.WebSocket
             sign.Set();
         }
         #endregion
+
+        public WebSocketNet(string name) : base(name)
+        {
+            this.config = new WebSocketNetConfig();
+            this.Type = NetType.WebSocket;
+        }
     }
 }

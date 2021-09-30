@@ -62,13 +62,12 @@ namespace EtherealS.Request.Abstract
         public AbstractTypes Types { get => types; set => types = value; }
         #endregion
 
-        public static R Register<R,T>(string netName, string servicename,AbstractTypes types, RequestConfig config) where R:Request
+        public static R Register<R,T>(string netName, string servicename,AbstractTypes types) where R:Request
         {
             R proxy = Create<T, R>() as R;
             proxy.Name = servicename;
             proxy.NetName = netName;
             proxy.Types = types;
-            if(config != null) proxy.Config = config;
             return proxy;
         }
         protected override abstract object Invoke(MethodInfo targetMethod, object[] args);

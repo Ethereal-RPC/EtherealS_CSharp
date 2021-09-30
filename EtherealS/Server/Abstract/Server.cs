@@ -23,6 +23,11 @@ namespace EtherealS.Server.Abstract
         /// <param name="token"></param>
         public delegate void ListenerFailDelegate(Server listener);
 
+        /// <summary>
+        /// BaseUserToken实例化方法委托
+        /// </summary>
+        /// <returns>BaseUserToken实例</returns>
+        public delegate BaseToken CreateInstance();
         #endregion
 
         #region --事件字段--
@@ -75,22 +80,34 @@ namespace EtherealS.Server.Abstract
 
         #region --字段--
         protected string netName;
-        private ServerConfig config;
+        protected ServerConfig config;
         protected HttpListener listener;
         protected CancellationToken cancellationToken = CancellationToken.None;
         protected List<string> prefixes;
+
+        /// <summary>
+        /// 创建实例化方法委托实现
+        /// </summary>
+        protected CreateInstance createMethod;
+
         #endregion
 
         #region --属性--
-
+        public CreateInstance CreateMethod { get => createMethod; set => createMethod = value; }
         public HttpListener Listener { get => listener; set => listener = value; }
         public List<string> Prefixes { get => prefixes; set => prefixes = value; }
-        protected ServerConfig Config { get => config; set => config = value; }
+        public ServerConfig Config { get => config; set => config = value; }
+        public string NetName { get => netName; set => netName = value; }
         #endregion
 
         public abstract void Start();
         public abstract void Close();
 
+        public Server(List<string> prefixes,CreateInstance createMethod)
+        {
+            this.prefixes = prefixes;
+            this.createMethod = createMethod;
+        }
         internal abstract void SendErrorToClient(HttpListenerContext context, Error.ErrorCode code, string message);
 
         public void OnException(TrackException.ErrorCode code, string message)

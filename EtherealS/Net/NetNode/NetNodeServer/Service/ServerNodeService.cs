@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using EtherealS.Core.Model;
 using EtherealS.Net.NetNode.NetNodeServer.Request;
 using EtherealS.Server.Abstract;
 using EtherealS.Service.Attribute;
@@ -117,5 +118,8 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
 
         #endregion
 
+        public ServerNodeService(string name, AbstractTypes types) : base(name, types)
+        {
+        }
     }
 }

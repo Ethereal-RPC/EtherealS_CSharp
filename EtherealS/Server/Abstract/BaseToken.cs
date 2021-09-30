@@ -16,7 +16,7 @@ namespace EtherealS.Server.Abstract
         /// <param name="token"></param>
         public delegate void ConnectDelegate(BaseToken token);
         /// <summary>
-        ///     
+        ///  断开连接委托
         /// </summary>
         /// <param name="token"></param>
         public delegate void DisConnectDelegate(BaseToken token);
@@ -72,12 +72,12 @@ namespace EtherealS.Server.Abstract
         #region --字段--
         protected string netName;
         protected ServerConfig config;
-        protected bool isWebSocket;
+        protected bool canRequest;
         #endregion
 
         #region --属性--
         public abstract object Key { get; set; }
-        public bool IsWebSocket { get => isWebSocket; set => isWebSocket = value; }
+        public bool CanRequest { get => canRequest; set => canRequest = value; }
         public string NetName { get => netName; set => netName = value; }
         public ServerConfig Config { get => config; set => config = value; }
         #endregion

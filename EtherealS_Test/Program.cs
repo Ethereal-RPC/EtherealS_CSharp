@@ -11,6 +11,8 @@ using EtherealS_Test.RequestDemo;
 using EtherealS_Test.ServiceDemo;
 using System;
 using System.Collections.Generic;
+using EtherealS.Net.WebSocket;
+using EtherealS.Server.WebSocket;
 
 namespace EtherealS_Test
 {
@@ -50,17 +52,18 @@ namespace EtherealS_Test
             types.Add<string>("String");
             types.Add<bool>("Bool");
             //建立网关
-            Net net = NetCore.Register("demo", Net.NetType.WebSocket);
+            Net net = NetCore.Register(new WebSocketNet("demo"));
             net.ExceptionEvent += Config_ExceptionEvent;
             net.LogEvent += Config_LogEvent;
             //向网关注册服务
-            ServerService service = ServiceCore.Register<ServerService>(net, "Server", types);
+            ServerService service = ServiceCore.Register(net,new ServerService("Server",types));
             //向网关注册请求
             IClientRequest request = RequestCore.Register<ClientRequest, IClientRequest>(net, "Client", types);
             //本例中，突出服务类可作为正常类
             service.UserRequest = request;
             //向网关注册连接(提供一个生成User的方法)
-            Server server = ServerCore.Register(net, new string[]{ $"{ip}:{port}/NetDemo/"} ,()=>new User());
+            Server server = ServerCore.Register(net,new WebSocketServer(new List<string>(), () => new User()));
+            server.Prefixes.Add($"{ip}:{port}/NetDemo/");
             List<Tuple<string, EtherealC.Client.Abstract.ClientConfig>> ips = new();
             EtherealC.Client.Abstract.ClientConfig  clientConfig = new EtherealC.Client.WebSocket.WebSocketClientConfig();
             /*
@@ -69,10 +72,10 @@ namespace EtherealS_Test
             //开启集群
             net.Config.NetNodeMode = true;
             //添加集群地址
-            ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28015}/NetDemo/", clientConfig));
-            //ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28016}/NetDemo/", clientConfig));
-            //ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28017}/NetDemo/", clientConfig));
-            //ips.Add(new Tuple<string,EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28018}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28015}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28016}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28017}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28018}/NetDemo/", clientConfig));
             net.Config.NetNodeIps = ips;
             //发布服务
             net.Publish();

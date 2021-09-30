@@ -54,10 +54,6 @@ namespace EtherealS.Server.WebSocket
         #endregion
 
         #region --方法--
-        public WebSocketServerConfig(CreateInstance createMethod):base(createMethod)
-        {
-
-        }
 
         #endregion
     }

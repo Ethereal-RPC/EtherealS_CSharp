@@ -16,32 +16,26 @@ namespace EtherealS.Server.WebSocket
         public new WebSocketServerConfig Config { get => (WebSocketServerConfig)base.Config; set => base.Config = value; }
 
         #endregion
-        public WebSocketServer(string netName,string[] prefixes,ServerConfig config)
+        public WebSocketServer(List<string> prefixes,CreateInstance createMethod) : base(prefixes,createMethod)
         {
             if (!HttpListener.IsSupported)
             {
                 OnLog(TrackLog.LogCode.Runtime,"Windows XP SP2 or Server 2003 is required to use the HttpListener class.");
                 return;
             }
-            // URI prefixes are required,
-            // for example "http://contoso.com:8080/index/".
-            if (prefixes == null || prefixes.Length == 0)
-                throw new ArgumentException(" ");
-            this.netName = netName;
-            this.Config = config as WebSocketServerConfig;
-            this.prefixes = new List<string>(prefixes);
+            this.Config = new WebSocketServerConfig();
+        }
+
+        public override void Start()
+        {
             // Create a listener.
             Listener = new HttpListener();
             // Add the prefixes.
             foreach (string s in prefixes)
             {
                 Listener.Prefixes.Add("http://" + s);
-            } 
+            }
             Listener.IgnoreWriteExceptions = true;
-        }
-
-        public override void Start()
-        {
             Listener.Start();
             OnListenerSuccess();
             Listener.BeginGetContext(new AsyncCallback(ListenerCallbackAsync), null);
@@ -61,7 +55,7 @@ namespace EtherealS.Server.WebSocket
             try
             {
                 WebSocketToken baseToken = null;
-                baseToken = base.Config.CreateMethod() as WebSocketToken;
+                baseToken = base.CreateMethod() as WebSocketToken;
                 baseToken.LogEvent += OnLog;
                 baseToken.ExceptionEvent += OnException;
                 baseToken.ConnectEvent += Token_ConnectEvent;
@@ -73,7 +67,7 @@ namespace EtherealS.Server.WebSocket
                     baseToken.NetName = netName;
                     baseToken.Config = Config;
                     baseToken.CancellationToken = cancellationToken;
-                    baseToken.IsWebSocket = true;
+                    baseToken.CanRequest = true;
                     baseToken.Connect(webSocketContext);
                 }
                 else if (request.HttpMethod == "POST" && request.InputStream != null)
@@ -95,7 +89,7 @@ namespace EtherealS.Server.WebSocket
                             SendErrorToClient(context, Error.ErrorCode.NotFoundNet, $"未找到节点{netName}");
                         }
                         //构造处理请求环境
-                        baseToken.IsWebSocket = false;
+                        baseToken.CanRequest = false;
                         baseToken.OnConnect();
                         ClientResponseModel clientResponseModel = await Task.Run(() => net.ClientRequestReceiveProcess(baseToken, clientRequestModel));
                         byte[] bytes = Config.Encoding.GetBytes(base.Config.ClientResponseModelSerialize(clientResponseModel));

@@ -19,30 +19,14 @@ namespace EtherealS.Net
         {
             return nets.TryGetValue(name, out net);
         }
-
-        public static Net.Abstract.Net Register(string name,Net.Abstract.Net.NetType netType)
+        
+        public static Abstract.Net Register(Abstract.Net net)
         {
-            return Register(name, new NetConfig(), netType);
-        }
-        public static Net.Abstract.Net Register(string name, NetConfig config,Net.Abstract.Net.NetType netType)
-        {
-            if (config is null)
+            if (!nets.ContainsKey(net.Name))
             {
-                throw new ArgumentNullException(nameof(config));
+                nets.Add(net.Name,net);
             }
-            if (!nets.TryGetValue(name, out Net.Abstract.Net net))
-            {
-                if (netType == Net.Abstract.Net.NetType.WebSocket)
-                {
-                    net = new WebSocketNet();
-                    net.Config = config;
-                }
-                else throw new TrackException(TrackException.ErrorCode.Core, $"未有针对{net.Type}的Net-Register处理");
-                net.Name = name;
-                net.Config = config;
-                nets.Add(name,net);
-            }
-            else throw new TrackException(TrackException.ErrorCode.Core, $"{name} Net 已经注册");
+            else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name} Net 已经注册");
             return net;
         }
         public static bool UnRegister(string name)

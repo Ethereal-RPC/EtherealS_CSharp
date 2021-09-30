@@ -32,49 +32,43 @@ namespace EtherealS.Request.WebSocket
                 //这里要连接字符串，发现StringBuilder效率高一些.
                 StringBuilder methodid = new StringBuilder(targetMethod.Name);
                 string[] obj = null;
-                int param_count;
-                if (args != null) param_count = args.Length;
-                else param_count = 0;
-                if (param_count > 1)
+                if (args == null) throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}首参并非BaseToken实现类！");
+                obj = new string[args.Length - 1];
+                if (rpcAttribute.Paramters == null)
                 {
-                    obj = new string[param_count - 1];
-                    if (rpcAttribute.Paramters == null)
+                    ParameterInfo[] parameters = targetMethod.GetParameters();
+                    for (int i = 1; i < args.Length; i++)
                     {
-                        ParameterInfo[] parameters = targetMethod.GetParameters();
-                        for (int i = 1; i < param_count; i++)
+                        if (Types.TypesByType.TryGetValue(parameters[i].ParameterType, out AbstractType type))
                         {
-                            if(Types.TypesByType.TryGetValue(parameters[i].ParameterType,out AbstractType type))
+
+                            methodid.Append("-" + type.Name);
+                            obj[i - 1] = type.Serialize(args[i]);
+                        }
+                        else throw new TrackException($"C#对应的{args[i].GetType()}类型参数尚未注册");
+                    }
+                }
+                else
+                {
+                    string[] types_name = rpcAttribute.Paramters;
+                    if (args.Length == types_name.Length)
+                    {
+                        for (int i = 1; i < args.Length; i++)
+                        {
+                            if (Types.TypesByName.TryGetValue(types_name[i], out AbstractType type))
                             {
-                                
                                 methodid.Append("-" + type.Name);
                                 obj[i - 1] = type.Serialize(args[i]);
                             }
                             else throw new TrackException($"C#对应的{args[i].GetType()}类型参数尚未注册");
                         }
                     }
-                    else
-                    {
-                        string[] types_name = rpcAttribute.Paramters;
-                        if(param_count == types_name.Length)
-                        {
-                            for (int i = 1; i < param_count; i++)
-                            {
-                                if (Types.TypesByName.TryGetValue(types_name[i], out AbstractType type))
-                                {
-                                    methodid.Append("-" + type.Name);
-                                    obj[i - 1] = type.Serialize(args[i]);
-                                }
-                                else throw new TrackException($"C#对应的{args[i].GetType()}类型参数尚未注册") ;
-                            }
-                        }
-                        else throw new TrackException($"方法体{targetMethod.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length}个,Method:{param_count}个") ;
-                    }
-
+                    else throw new TrackException($"方法体{targetMethod.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length}个,Method:{args.Length}个");
                 }
                 ServerRequestModel request = new ServerRequestModel(Name, methodid.ToString(), obj);
-                if (args[0] != null && (args[0] as BaseToken != null))
+                if (args?[0] != null && (args[0] is BaseToken))
                 {
-                    if (!((args[0] as BaseToken).IsWebSocket))
+                    if (!((args[0] as BaseToken).CanRequest))
                     {
                         throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}传递了非WebSocket协议的Token！");
                     }
@@ -84,13 +78,12 @@ namespace EtherealS.Request.WebSocket
                         localResult = targetMethod.Invoke(this, args);
                     }
                 }
-                throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}！");
+                else throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}首参并非BaseToken实现类！");
             }
             else
             {
                 localResult = targetMethod.Invoke(this, args);
             }
-
             return localResult;
         }
     }

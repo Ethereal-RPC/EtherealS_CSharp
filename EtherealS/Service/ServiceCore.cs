@@ -36,22 +36,19 @@ namespace EtherealS.Service
         {
             return net.Services.TryGetValue(serviceName, out service);
         }
-        public static T Register<T>(Net.Abstract.Net net, string servicename, AbstractTypes types, ServiceConfig config = null) where T : Abstract.Service,new()
+
+        public static T Register<T>(Net.Abstract.Net net, T service) where T: Abstract.Service
         {
-            return Register<T>(new T(), net, servicename,types, config);
-        }
-        public static T Register<T>(T instance, Net.Abstract.Net net, string servicename, AbstractTypes types, ServiceConfig config = null) where T : Abstract.Service, new()
-        {
-            net.Services.TryGetValue(servicename, out Abstract.Service service);
-            if (service == null)
+            if (!net.Services.ContainsKey(service.Name))
             {
-                Abstract.Service.Register(instance,net.Name,servicename,types,config);
-                net.Services[servicename] = instance;
-                instance.LogEvent += net.OnLog;
-                instance.ExceptionEvent += net.OnException;
-                return instance;
+                Abstract.Service.Register(service);
+                net.Services[service.Name] = service;
+                service.NetName = net.Name;
+                service.LogEvent += net.OnLog;
+                service.ExceptionEvent += net.OnException;
+                return service;
             }
-            else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}-{servicename}已注册！");
+            else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}-{service.Name}已注册！");
         }
 
         public static bool UnRegister(string netName,string serviceName)

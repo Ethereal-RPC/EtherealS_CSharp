@@ -11,11 +11,6 @@ namespace EtherealS.Server.Abstract
     {
         #region --委托--
         /// <summary>
-        /// BaseUserToken实例化方法委托
-        /// </summary>
-        /// <returns>BaseUserToken实例</returns>
-        public delegate BaseToken CreateInstance(); 
-        /// <summary>
         /// ServerRequestModel序列化方法委托
         /// </summary>
         /// <param name="obj">待序列化ServerRequestModel对象</param>
@@ -49,14 +44,9 @@ namespace EtherealS.Server.Abstract
         /// ClientResponseModel序列化委托实现
         /// </summary>
         private ClientResponseModelSerializeDelegate clientResponseModelSerialize;
-        /// <summary>
-        /// 创建实例化方法委托实现
-        /// </summary>
-        private CreateInstance createMethod;
         #endregion
 
         #region --属性--
-        public CreateInstance CreateMethod { get => createMethod; set => createMethod = value; }
         public ServerRequestModelSerializeDelegate ServerRequestModelSerialize { get => serverRequestModelSerialize; set => serverRequestModelSerialize = value; }
         public ClientRequestModelDeserializeDelegate ClientRequestModelDeserialize { get => clientRequestModelDeserialize; set => clientRequestModelDeserialize = value; }
         public ClientResponseModelSerializeDelegate ClientResponseModelSerialize { get => clientResponseModelSerialize; set => clientResponseModelSerialize = value; }
@@ -64,9 +54,8 @@ namespace EtherealS.Server.Abstract
         #endregion
 
         #region --方法--
-        public ServerConfig(CreateInstance createMethod)
+        public ServerConfig()
         {
-            this.createMethod = createMethod;
             serverRequestModelSerialize = (obj) => JsonConvert.SerializeObject(obj);
             clientResponseModelSerialize = (obj) => JsonConvert.SerializeObject(obj);
             clientRequestModelDeserialize = (obj) => JsonConvert.DeserializeObject<ClientRequestModel>(obj);

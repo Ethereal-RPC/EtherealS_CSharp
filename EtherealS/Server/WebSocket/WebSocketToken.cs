@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.WebSockets;
 using System.Threading;
+using System.Threading.Tasks;
 using EtherealS.Core.Model;
 using EtherealS.Net;
 using EtherealS.Server.Abstract;
@@ -73,9 +74,11 @@ namespace EtherealS.Server.WebSocket
                         if (!NetCore.Get(netName, out Net.Abstract.Net net))
                         {
                             SendClientResponse(new ClientResponseModel( null, null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundNet, $"Token查询{netName} Net时 不存在", null)));
+                            DisConnect($"Token查询{netName} Net时 不存在");
                             return;
                         }
-                        SendClientResponse(net.ClientRequestReceiveProcess(this, request));
+                        ClientResponseModel clientResponseModel = await Task.Run(() => net.ClientRequestReceiveProcess(this, request));
+                        SendClientResponse(clientResponseModel);
                     }
                     else if (free == 0)
                     {
@@ -95,11 +98,7 @@ namespace EtherealS.Server.WebSocket
                 }
                 catch(Exception e)
                 {
-                    if (request != null)
-                    {
-                        SendClientResponse(new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
-                    }
-                    else SendClientResponse(new ClientResponseModel( null, null, null,null, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
+                    SendClientResponse(new ClientResponseModel(null, null, request?.Id, request?.Service, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
                     DisConnect("发生报错");
                     return;
                 }

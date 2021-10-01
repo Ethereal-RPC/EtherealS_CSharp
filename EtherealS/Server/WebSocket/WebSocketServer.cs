@@ -52,14 +52,14 @@ namespace EtherealS.Server.WebSocket
             // Call EndGetContext to complete the asynchronous operation.
             HttpListenerContext context = Listener.EndGetContext(result);
             HttpListenerRequest request = context.Request;
+            //客户端发来的一定是请求
+            ClientRequestModel clientRequestModel = null;
             try
             {
                 WebSocketToken baseToken = null;
                 baseToken = base.CreateMethod() as WebSocketToken;
                 baseToken.LogEvent += OnLog;
                 baseToken.ExceptionEvent += OnException;
-                baseToken.ConnectEvent += Token_ConnectEvent;
-                baseToken.DisConnectEvent += Token_DisConnectEvent;
                 // Construct a response.
                 if (request.IsWebSocketRequest)
                 {
@@ -77,25 +77,25 @@ namespace EtherealS.Server.WebSocket
                         //后续可以加入池优化，这里暂时先直接申请。
                         if (request.ContentLength64 > Config.MaxBufferSize)
                         {
-                            SendErrorToClient(context, Error.ErrorCode.BufferFlow, $"Net最大允许接收{Config.MaxBufferSize}字节");
+                            SendHttpToClient(context, new ClientResponseModel(null, null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.BufferFlow, $"Net最大允许接收{Config.MaxBufferSize}字节", null)));
+                            return;
                         }
+
                         byte[] body = new byte[request.ContentLength64];
                         await request.InputStream.ReadAsync(body, 0, body.Length);
-                        //客户端发来的一定是请求
-                        ClientRequestModel clientRequestModel = null;
+
                         clientRequestModel = base.Config.ClientRequestModelDeserialize(Config.Encoding.GetString(body));
                         if (!NetCore.Get(netName, out Net.Abstract.Net net))
                         {
-                            SendErrorToClient(context, Error.ErrorCode.NotFoundNet, $"未找到节点{netName}");
+                            SendHttpToClient(context, new ClientResponseModel(null, null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.NotFoundNet, $"未找到节点{netName}", null)));
+                            return;
                         }
+
                         //构造处理请求环境
                         baseToken.CanRequest = false;
                         baseToken.OnConnect();
                         ClientResponseModel clientResponseModel = await Task.Run(() => net.ClientRequestReceiveProcess(baseToken, clientRequestModel));
-                        byte[] bytes = Config.Encoding.GetBytes(base.Config.ClientResponseModelSerialize(clientResponseModel));
-                        //发送请求结果
-                        context.Response.ContentEncoding = Config.Encoding;
-                        context.Response.OutputStream.WriteAsync(bytes, cancellationToken);
+                        SendHttpToClient(context, clientResponseModel);
                     }
                     finally
                     {
@@ -103,36 +103,27 @@ namespace EtherealS.Server.WebSocket
                     }
                 }
             }
-            catch (TrackException exception)
+            catch (Exception exception)
             {
-                SendErrorToClient(context, Error.ErrorCode.Common, exception.Message);
-                OnException(exception);
+                SendHttpToClient(context, new ClientResponseModel(null,null,clientRequestModel?.Id,clientRequestModel?.Service,new Error(Error.ErrorCode.Common,exception.Message,null)));
+                OnException(new TrackException(exception));
             }
         }
 
-        private void Token_ConnectEvent(BaseToken token)
-        {
-            
-        }
-        private void Token_DisConnectEvent(BaseToken token)
-        {
-
-        }
-        internal override void SendErrorToClient(HttpListenerContext context,Error.ErrorCode code,string message)
+        internal void SendHttpToClient(HttpListenerContext context, ClientResponseModel clientResponse)
         {
             try
             {
                 context.Response.ContentEncoding = Config.Encoding;
-                string exception_serialize = base.Config.ClientResponseModelSerialize(new ClientResponseModel(null, null, null, null, new Error(code, $"{message}", null)));
+                string exception_serialize = base.Config.ClientResponseModelSerialize(clientResponse);
                 byte[] exception_bytes = Config.Encoding.GetBytes(exception_serialize);
-                context.Response.OutputStream.WriteAsync(exception_bytes, 0, exception_bytes.Length);
+                context.Response.OutputStream.Write(exception_bytes, 0, exception_bytes.Length);
                 context.Response.Close();
             }
             catch
             {
 
             }
-            throw new TrackException(TrackException.ErrorCode.Runtime, $"{message}");
         }
     }
 }

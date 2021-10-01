@@ -5,7 +5,7 @@
     /// </summary>
     public class Error
     {
-        public enum ErrorCode { Intercepted,NotFoundService,NotFoundMethod,NotFoundNet,BufferFlow,Common,MaxConnects }
+            public enum ErrorCode { Intercepted,NotFoundService,NotFoundMethod,NotFoundNet,BufferFlow,Common,MaxConnects }
         /// <summary>
         /// 错误代码
         /// </summary>

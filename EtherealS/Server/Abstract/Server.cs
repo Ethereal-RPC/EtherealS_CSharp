@@ -108,7 +108,6 @@ namespace EtherealS.Server.Abstract
             this.prefixes = prefixes;
             this.createMethod = createMethod;
         }
-        internal abstract void SendErrorToClient(HttpListenerContext context, Error.ErrorCode code, string message);
 
         public void OnException(TrackException.ErrorCode code, string message)
         {

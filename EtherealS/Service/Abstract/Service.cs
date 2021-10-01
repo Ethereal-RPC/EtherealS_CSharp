@@ -72,12 +72,7 @@ namespace EtherealS.Service.Abstract
         public AbstractTypes Types { get => types; set => types = value; }
 
         #endregion
-
-        public Service(string name, AbstractTypes types)
-        {
-            this.name = name;
-            this.types = types;
-        }
+        
         public void OnException(TrackException.ErrorCode code, string message)
         {
             OnException(new TrackException(code, message));

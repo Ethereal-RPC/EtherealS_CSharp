@@ -14,11 +14,6 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
     {
         #region --字段--
         /// <summary>
-        /// 对应服务的Config信息
-        /// </summary>
-        [EtherealS.Service.Attribute.ServiceConfig]
-        private ServiceConfig config;
-        /// <summary>
         /// 节点信息
         /// </summary>
         private Dictionary<string, Tuple<BaseToken,Model.NetNode>> netNodes = new ();
@@ -48,22 +43,17 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
         [EtherealS.Service.Attribute.Service]
         public bool Register(BaseToken token, Model.NetNode netNode)
         {
-            token.Key = $"{netNode.Name}-{string.Join("::",netNode.Prefixes)}";
+            token.key = $"{netNode.Name}-{string.Join("::",netNode.Prefixes)}";
             //自建一份字典做缓存
-            if(NetNodes.TryGetValue((string)token.Key,out Tuple<BaseToken, Model.NetNode> value))
+            if(NetNodes.TryGetValue((string)token.key,out Tuple<BaseToken, Model.NetNode> value))
             {
                 value.Item1.DisConnectEvent -= Sender_DisConnectEvent;
-                NetNodes.Remove((string)token.Key);
+                NetNodes.Remove((string)token.key);
             }
-            NetNodes.Add((string)token.Key, new (token,netNode));
+            NetNodes.Add((string)token.key, new (token,netNode));
             token.DisConnectEvent += Sender_DisConnectEvent;
-            Console.WriteLine($"{token.Key}注册节点成功");
-            StringBuilder sb = new StringBuilder();
-            foreach(Tuple<BaseToken,Model.NetNode> tuple in NetNodes.Values)
-            {
-                sb.AppendLine($"{tuple.Item1.Key}");
-            }
-            Console.WriteLine($"当前节点信息:\n{sb}");
+            OnLog(TrackLog.LogCode.Runtime, $"{token.key}注册节点成功");
+            PrintNetNode();
             return true;
         }
 
@@ -72,16 +62,16 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
         /// 获取对应服务的网络节点
         /// </summary>
         /// <param name="sender"></param>
-        /// <param name="servicename"></param>
+        /// <param name="serviceName"></param>
         /// <returns></returns>
         [EtherealS.Service.Attribute.Service]
-        public Model.NetNode GetNetNode(BaseToken sender, string servicename)
+        public Model.NetNode GetNetNode(BaseToken sender, string serviceName)
         {
             //负载均衡的优化算法后期再写，现在采取随机分配
             List<Model.NetNode> nodes = new List<Model.NetNode>();
             foreach(Tuple<BaseToken, Model.NetNode> tuple in NetNodes.Values)
             {
-                if (tuple.Item2.Services.ContainsKey(servicename))
+                if (tuple.Item2.Services.ContainsKey(serviceName))
                 {
                     nodes.Add(tuple.Item2);
                 }
@@ -106,20 +96,21 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
         /// <param name="token"></param>
         private void Sender_DisConnectEvent(BaseToken token)
         {
-            NetNodes.Remove((string)token.Key);
-            Console.WriteLine($"成功删除节点{(token.Key)}");
+            NetNodes.Remove((string)token.key);
+            OnLog(TrackLog.LogCode.Runtime,$"成功删除节点{(token.key)}");
+            PrintNetNode();
+        }
+
+        private void PrintNetNode()
+        {
             StringBuilder sb = new StringBuilder();
             foreach (Tuple<BaseToken, Model.NetNode> tuple in NetNodes.Values)
             {
                 sb.AppendLine($"{tuple.Item2.Name}");
             }
-            Console.WriteLine($"当前节点信息:\n{sb}");
+            OnLog(TrackLog.LogCode.Runtime, $"当前节点信息:\n{sb}");
         }
-
         #endregion
-
-        public ServerNodeService(string name, AbstractTypes types) : base(name, types)
-        {
-        }
+        
     }
 }

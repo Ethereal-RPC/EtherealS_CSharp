@@ -18,7 +18,7 @@ namespace EtherealS.Service.WebSocket
 
         #region --方法--
 
-        public WebSocketService(string name, AbstractTypes types) : base(name,types)
+        public WebSocketService()
         {
             config = new WebSocketServiceConfig();
         }

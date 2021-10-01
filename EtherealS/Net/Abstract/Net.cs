@@ -107,60 +107,67 @@ namespace EtherealS.Net.Abstract
         }
         public ClientResponseModel ClientRequestReceiveProcess(BaseToken token, ClientRequestModel request)
         {
-            if (Services.TryGetValue(request.Service, out Service.Abstract.Service service))
+            try
             {
-                if (service.Methods.TryGetValue(request.MethodId, out MethodInfo method))
+                if (Services.TryGetValue(request.Service, out Service.Abstract.Service service))
                 {
-                    string log = "--------------------------------------------------\n" +
-                        $"{DateTime.Now}::{name}::[客-请求]\n{request}\n" +
-                        "--------------------------------------------------\n";
-                    OnLog(TrackLog.LogCode.Runtime, log);
-                    if (OnInterceptor(service, method, token) &&
-                        service.OnInterceptor(this,method, token))
+                    if (service.Methods.TryGetValue(request.MethodId, out MethodInfo method))
                     {
-                        string[] params_id = request.MethodId.Split('-');
-                        for (int i = 1; i < params_id.Length; i++)
+                        string log = "--------------------------------------------------\n" +
+                            $"{DateTime.Now}::{name}::[客-请求]\n{request}\n" +
+                            "--------------------------------------------------\n";
+                        OnLog(TrackLog.LogCode.Runtime, log);
+                        if (OnInterceptor(service, method, token) &&
+                            service.OnInterceptor(this, method, token))
                         {
-                            if (service.Types.TypesByName.TryGetValue(params_id[i], out AbstractType type))
+                            string[] params_id = request.MethodId.Split('-');
+                            for (int i = 1; i < params_id.Length; i++)
                             {
-                                request.Params[i] = type.Deserialize((string)request.Params[i]);
+                                if (service.Types.TypesByName.TryGetValue(params_id[i], out AbstractType type))
+                                {
+                                    request.Params[i] = type.Deserialize((string)request.Params[i]);
+                                }
+                                else throw new TrackException($"RPC中的{params_id[i]}类型中尚未被注册");
                             }
-                            else throw new TrackException($"RPC中的{params_id[i]}类型中尚未被注册");
-                        }
 
-                        if (method.GetParameters().Length == request.Params.Length) request.Params[0] = token;
-                        else if (request.Params.Length > 1)
-                        {
-                            object[] new_params = new object[request.Params.Length - 1];
-                            for (int i = 0; i < new_params.Length; i++)
+                            if (method.GetParameters().Length == request.Params.Length) request.Params[0] = token;
+                            else if (request.Params.Length > 1)
                             {
-                                new_params[i] = request.Params[i + 1];
+                                object[] new_params = new object[request.Params.Length - 1];
+                                for (int i = 0; i < new_params.Length; i++)
+                                {
+                                    new_params[i] = request.Params[i + 1];
+                                }
+                                request.Params = new_params;
                             }
-                            request.Params = new_params;
-                        }
 
-                        object result = method.Invoke(service, request.Params);
-                        Type return_type = method.ReturnType;
-                        if (return_type != typeof(void))
-                        {
-                            service.Types.TypesByType.TryGetValue(return_type, out AbstractType type);
-                            return new ClientResponseModel(type.Serialize(result), type.Name, request.Id, request.Service, null);
+                            object result = method.Invoke(service, request.Params);
+                            Type return_type = method.ReturnType;
+                            if (return_type != typeof(void))
+                            {
+                                service.Types.TypesByType.TryGetValue(return_type, out AbstractType type);
+                                return new ClientResponseModel(type.Serialize(result), type.Name, request.Id, request.Service, null);
+                            }
+                            else
+                            {
+                                return null;
+                            }
                         }
-                        else
-                        {
-                            return null;
-                        }
+                        else return new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.Intercepted, $"请求已被拦截", null));
                     }
-                    else return new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.Intercepted, $"请求已被拦截", null));
+                    else
+                    {
+                        return new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundMethod, $"未找到方法[{name}:{request.Service}:{request.MethodId}]", null));
+                    }
                 }
                 else
                 {
-                    return new ClientResponseModel(null,null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundMethod, $"未找到方法[{name}:{request.Service}:{request.MethodId}]",null));
+                    return new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundService, $"未找到服务[{name}:{request.Service}]", null));
                 }
             }
-            else
+            catch(Exception e)
             {
-                return new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundService, $"未找到服务[{name}:{request.Service}]",null));
+                return new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundService, $"{e.Message}\n {e.StackTrace}", null));
             }
         }
 

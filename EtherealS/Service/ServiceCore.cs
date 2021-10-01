@@ -37,15 +37,21 @@ namespace EtherealS.Service
             return net.Services.TryGetValue(serviceName, out service);
         }
 
-        public static T Register<T>(Net.Abstract.Net net, T service) where T: Abstract.Service
+        public static T Register<T>(Net.Abstract.Net net, T service) where T : Abstract.Service
         {
+            return Register(net, service, null, null);
+        }
+        public static T Register<T>(Net.Abstract.Net net, T service, string serviceName, AbstractTypes types) where T: Abstract.Service
+        {
+            if (serviceName != null) service.Name = serviceName;
+            if (types != null) service.Types = types;
+            Abstract.Service.Register(service);
             if (!net.Services.ContainsKey(service.Name))
             {
-                Abstract.Service.Register(service);
-                net.Services[service.Name] = service;
                 service.NetName = net.Name;
                 service.LogEvent += net.OnLog;
                 service.ExceptionEvent += net.OnException;
+                net.Services[service.Name] = service;
                 return service;
             }
             else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}-{service.Name}已注册！");

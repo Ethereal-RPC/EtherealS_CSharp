@@ -73,10 +73,10 @@ namespace EtherealS.Server.Abstract
         protected string netName;
         protected ServerConfig config;
         protected bool canRequest;
+        protected internal object key;
         #endregion
 
         #region --属性--
-        public abstract object Key { get; set; }
         public bool CanRequest { get => canRequest; set => canRequest = value; }
         public string NetName { get => netName; set => netName = value; }
         public ServerConfig Config { get => config; set => config = value; }
@@ -96,9 +96,9 @@ namespace EtherealS.Server.Abstract
             }
             if (replace)
             {
-                net.Tokens.TryRemove(Key, out BaseToken token);
+                net.Tokens.TryRemove(key, out BaseToken token);
             }
-            return net.Tokens.TryAdd(Key, this);
+            return net.Tokens.TryAdd(key, this);
         }
         /// <summary>
         /// 从Tokens表中注销Token信息
@@ -106,12 +106,12 @@ namespace EtherealS.Server.Abstract
         /// <returns></returns>
         public bool UnRegister()
         {
-            if (Key == null) return true;
+            if (key == null) return true;
             if (!NetCore.Get(NetName, out Net.Abstract.Net net))
             {
                 throw new TrackException(TrackException.ErrorCode.Runtime, $"{NetName}Net未找到");
             }
-            return net.Tokens.TryRemove(Key, out BaseToken value);
+            return net.Tokens.TryRemove(key, out BaseToken value);
         }
         /// <summary>
         /// 得到该Token所属的Tokens表单

@@ -14,15 +14,13 @@ namespace EtherealS_Test.Model
         /// 用户名
         /// </summary>
         private string username;
-
-        private string key;
         #endregion
 
 
         #region --属性--
         public long Id { get => id; set => id = value; }
         public string Username { get => username; set => username = value; }
-        public override object Key { get => key; set => key = (string)value; }
+        public object Key { get => key; set => key = (string)value; }
         #endregion
 
     }

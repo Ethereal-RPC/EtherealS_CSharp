@@ -1,4 +1,5 @@
-﻿using EtherealS.Net.NetNode.NetNodeClient.Request;
+﻿using EtherealC.Core.Model;
+using EtherealS.Net.NetNode.NetNodeClient.Request;
 
 namespace EtherealS.Net.NetNode.NetNodeClient.Service
 {
@@ -18,9 +19,9 @@ namespace EtherealS.Net.NetNode.NetNodeClient.Service
         #endregion
 
         #region --普通方法--
-
-
+        
         #endregion
+
 
     }
 }

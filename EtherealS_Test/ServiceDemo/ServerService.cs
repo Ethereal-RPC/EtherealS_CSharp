@@ -17,8 +17,6 @@ namespace EtherealS_Test.ServiceDemo
         /// 服务端向客户端发送请求的接口
         /// </summary>
         private IClientRequest userRequest;
-        [EtherealS.Service.Attribute.ServiceConfig]
-        public ServiceConfig config;
         #endregion
 
         #region --属性--
@@ -62,9 +60,6 @@ namespace EtherealS_Test.ServiceDemo
         }
 
         #endregion
-
-        public ServerService(string name, AbstractTypes types) : base(name, types)
-        {
-        }
+        
     }
 }

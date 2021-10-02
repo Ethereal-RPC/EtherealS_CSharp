@@ -1,4 +1,6 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using Newtonsoft.Json;
 
 namespace EtherealS.Core.Model
@@ -12,6 +14,7 @@ namespace EtherealS.Core.Model
         private object[] @params;
         private string id;
         private string service;
+        [JsonIgnore]
         private AutoResetEvent sign = new AutoResetEvent(false);
         public ClientResponseModel Result { get => result; set => result = value; } 
         public string Type { get => type; set => type = value; }
@@ -43,12 +46,17 @@ namespace EtherealS.Core.Model
             }
             return Result;
         }
+
         public override string ToString()
         {
-            return "Type:" + Type + "\n"
-                + "Service:" + Service + "\n"
-                + "Methodid:" + MethodId + "\n"
-                + "Params:" + JsonConvert.SerializeObject(Params);
+            return "ClientRequestModel{" +
+                    "result=" + result +
+                    ", type='" + type + '\'' +
+                    ", methodId='" + methodId + '\'' +
+                    ", params=" + string.Join("参数：",@params) +
+                    ", id='" + id + '\'' +
+                    ", service='" + service + '\'' +
+                    '}';
         }
     }
 }

@@ -106,7 +106,7 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
             StringBuilder sb = new StringBuilder();
             foreach (Tuple<BaseToken, Model.NetNode> tuple in NetNodes.Values)
             {
-                sb.AppendLine($"{tuple.Item2.Name}");
+                sb.AppendLine($"{tuple.Item2.Name}::{string.Join("&&", tuple.Item2.Prefixes)}");
             }
             OnLog(TrackLog.LogCode.Runtime, $"当前节点信息:\n{sb}");
         }

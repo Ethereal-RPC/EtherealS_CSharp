@@ -33,7 +33,7 @@ namespace EtherealS.Server.WebSocket
             // Add the prefixes.
             foreach (string s in prefixes)
             {
-                Listener.Prefixes.Add("http://" + s);
+                Listener.Prefixes.Add(s.Replace("ethereal://","http://"));
             }
             Listener.IgnoreWriteExceptions = true;
             Listener.Start();
@@ -70,21 +70,28 @@ namespace EtherealS.Server.WebSocket
                     baseToken.CanRequest = true;
                     baseToken.Connect(webSocketContext);
                 }
-                else if (request.HttpMethod == "POST" && request.InputStream != null)
+                else if (request.HttpMethod == "POST")
                 {
                     try
                     {
+                        if (request.ContentLength64 == -1)
+                        {
+                            SendHttpToClient(context, new ClientResponseModel(null, null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.BufferFlow, $"HTTP请求头请携带ContentLength", null)));
+                            return;
+                        }
                         //后续可以加入池优化，这里暂时先直接申请。
                         if (request.ContentLength64 > Config.MaxBufferSize)
                         {
                             SendHttpToClient(context, new ClientResponseModel(null, null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.BufferFlow, $"Net最大允许接收{Config.MaxBufferSize}字节", null)));
                             return;
                         }
-
                         byte[] body = new byte[request.ContentLength64];
                         await request.InputStream.ReadAsync(body, 0, body.Length);
-
                         clientRequestModel = base.Config.ClientRequestModelDeserialize(Config.Encoding.GetString(body));
+                        string log = "--------------------------------------------------\n" +
+                                     $"{DateTime.Now}::{netName}::[服-返回]\n{request}\n" +
+                                     "--------------------------------------------------\n";
+                        if (config.Debug) OnLog(TrackLog.LogCode.Runtime, log);
                         if (!NetCore.Get(netName, out Net.Abstract.Net net))
                         {
                             SendHttpToClient(context, new ClientResponseModel(null, null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.NotFoundNet, $"未找到节点{netName}", null)));

@@ -20,7 +20,7 @@ namespace EtherealS.Server.WebSocket
         /// </summary>
         private int bufferSize = 1024;        
         /// <summary>
-        /// 最大缓冲池
+        /// 最大WebSocket缓冲池
         /// </summary>
         private int maxBufferSize = 10240;
         /// <summary>

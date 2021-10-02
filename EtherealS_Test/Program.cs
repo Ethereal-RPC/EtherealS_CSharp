@@ -22,7 +22,7 @@ namespace EtherealS_Test
         public static void Main()
         {
             string ip = "127.0.0.1";
-            string port = "28015";
+            string port;
             Console.WriteLine("请选择端口(0-3)");
             int mode = int.Parse(Console.ReadLine());
             switch (mode)
@@ -63,7 +63,7 @@ namespace EtherealS_Test
             service.UserRequest = request;
             //向网关注册连接(提供一个生成User的方法)
             Server server = ServerCore.Register(net,new WebSocketServer(new List<string>(), () => new User()));
-            server.Prefixes.Add($"{ip}:{port}/NetDemo/");
+            server.Prefixes.Add($"ethereal://{ip}:{port}/NetDemo/");
             List<Tuple<string, EtherealC.Client.Abstract.ClientConfig>> ips = new();
             EtherealC.Client.Abstract.ClientConfig  clientConfig = new EtherealC.Client.WebSocket.WebSocketClientConfig();
             /*
@@ -72,22 +72,17 @@ namespace EtherealS_Test
             //开启集群
             net.Config.NetNodeMode = true;
             //添加集群地址
-            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28015}/NetDemo/", clientConfig));
-            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28016}/NetDemo/", clientConfig));
-            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28017}/NetDemo/", clientConfig));
-            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"{ip}:{28018}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"ethereal://{ip}:{28015}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"ethereal://{ip}:{28016}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"ethereal://{ip}:{28017}/NetDemo/", clientConfig));
+            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"ethereal://{ip}:{28018}/NetDemo/", clientConfig));
             net.Config.NetNodeIps = ips;
             //发布服务
             net.Publish();
             Console.WriteLine("服务器初始化完成....");
             Console.ReadKey();
         }
-
-
-        private static void Program_Event(string a)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         private static void Config_LogEvent(TrackLog log)
         {

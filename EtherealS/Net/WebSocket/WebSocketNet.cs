@@ -53,35 +53,6 @@ namespace EtherealS.Net.WebSocket
                     #endregion
 
                     #region --Client--
-
-                    foreach (Tuple<string, EtherealC.Client.Abstract.ClientConfig> item in config.NetNodeIps)
-                    {
-                        string prefixes = item.Item1;
-                        EtherealC.Client.Abstract.ClientConfig clientConfig = item.Item2;
-                        //tip:S项目引入C，对于C的引用，命名必须全部采取全名引用，避免冲突。
-                        //注册数据类型
-                        EtherealC.Core.Model.AbstractTypes types = new EtherealC.Core.Model.AbstractTypes();
-                        types.Add<int>("Int");
-                        types.Add<long>("Long");
-                        types.Add<string>("String");
-                        types.Add<bool>("Bool");
-                        types.Add<NetNode.Model.NetNode>("NetNode");
-                        EtherealC.Net.Abstract.Net net =
-                            EtherealC.Net.NetCore.Register(
-                                new EtherealC.Net.WebSocket.WebSocketNet($"NetNodeClient-{prefixes}"));
-                        net.Config.NetNodeMode = false;
-                        //注册服务
-                        ClientNodeService clientNodeService =
-                            EtherealC.Service.ServiceCore.Register(net, new ClientNodeService(), "ClientNetNodeService",
-                                types);
-                        //注册请求
-                        clientNodeService.ServerNodeRequest =
-                            EtherealC.Request.RequestCore.Register<ServerNodeRequest, IServerNodeRequest>(net,
-                                "ServerNetNodeService", types);
-                        net.LogEvent += Net_LogEvent;
-                        net.ExceptionEvent += Net_ExceptionEvent;
-                    }
-
                     Thread thread = new Thread((cycle) =>
                     {
                         while (NetCore.Get(name, out Abstract.Net temp))
@@ -96,18 +67,25 @@ namespace EtherealS.Net.WebSocket
                                     if (!EtherealC.Net.NetCore.Get($"NetNodeClient-{prefixes}",
                                         out EtherealC.Net.Abstract.Net net))
                                     {
-                                        throw new TrackException(TrackException.ErrorCode.Runtime,
-                                            $"NetNode-Client-未找到Net:NetNodeClient-{prefixes}");
+                                        net = EtherealC.Net.NetCore.Register(new EtherealC.Net.WebSocket.WebSocketNet($"NetNodeClient-{prefixes}"));
+                                        net.Config.NetNodeMode = false;
+                                        net.LogEvent += Net_LogEvent;
+                                        net.ExceptionEvent += Net_ExceptionEvent;
                                     }
 
-                                    if (EtherealC.Request.RequestCore.Get(net, "ServerNetNodeService",
-                                        out EtherealC.Request.Abstract.Request serverNodeRequest))
+                                    if (!EtherealC.Request.RequestCore.Get(net, $"ServerNetNodeService", out ServerNodeRequest serverNodeRequest))
                                     {
-                                        if (serverNodeRequest.Client != null)
-                                        {
-                                            continue;
-                                        }
+                                        //注册请求
+                                        serverNodeRequest = EtherealC.Request.RequestCore.Register<ServerNodeRequest, IServerNodeRequest>(net);
+                                    }
 
+                                    if (!EtherealC.Service.ServiceCore.Get(net, "ClientNetNodeService", out ClientNodeService clientNodeService))
+                                    {
+                                        //注册服务
+                                        clientNodeService = EtherealC.Service.ServiceCore.Register(net, new ClientNodeService());
+                                    }
+                                    if (serverNodeRequest.Client == null)
+                                    {
                                         EtherealC.Client.Abstract.Client client =
                                             new EtherealC.Client.WebSocket.WebSocketClient(prefixes);
                                         client.Config = clientConfig;
@@ -119,9 +97,6 @@ namespace EtherealS.Net.WebSocket
                                         //部署
                                         net.Publish();
                                     }
-                                    else
-                                        throw new TrackException(TrackException.ErrorCode.Runtime,
-                                            $"NetNode-Client-未找到Request:NetNodeClient-{prefixes}-ServerNetNodeService");
                                 }
                             }
                             catch (Exception e)
@@ -138,7 +113,6 @@ namespace EtherealS.Net.WebSocket
 
                     #endregion
                 }
-
                 server.Start();
             }
             catch (TrackException e)
@@ -147,7 +121,7 @@ namespace EtherealS.Net.WebSocket
             }
             catch (Exception e)
             {
-                OnException((TrackException)e);
+                OnException(new TrackException(e));
             }
             return true;
         }
@@ -156,7 +130,7 @@ namespace EtherealS.Net.WebSocket
 
         private void Net_LogEvent(EtherealC.Core.Model.TrackLog log)
         {
-            OnLog(TrackLog.LogCode.Runtime,"NetNodeClient::" + log.Message);
+            OnLog(TrackLog.LogCode.Runtime,"NetNodeClient\n" + log.Message);
         }
         private void Net_ExceptionEvent(EtherealC.Core.Model.TrackException exception)
         {
@@ -170,7 +144,7 @@ namespace EtherealS.Net.WebSocket
             {
                 //生成节点信息
                 NetNode.Model.NetNode node = new NetNode.Model.NetNode();
-                node.Prefixes = new List<string>(server.Prefixes).ToArray();
+                node.Prefixes = server.Prefixes.ToArray();
                 node.Name = $"{name}";
                 node.HardwareInformation = new HardwareInformation();
                 node.HardwareInformation.NetworkInterfaces = Utils.NetworkInterfaceHelper.GetAllNetworkInterface();
@@ -187,7 +161,7 @@ namespace EtherealS.Net.WebSocket
                     serviceNode.Name = service.Name;
                     node.Services.Add(serviceNode.Name, serviceNode);
                 }
-                //添加请求信息
+                //添加请求信息    
                 foreach (Request.Abstract.Request request in requests.Values)
                 {
                     RequestNode requestNode = new RequestNode();

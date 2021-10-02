@@ -47,10 +47,14 @@
         }
         public override string ToString()
         {
-
-            return "Type:" + Type + "\n"
-                + "Id:" + Id + "\n"
-                + "Result:" + Result + "\n";
+            return "ClientResponseModel{" +
+                    "type='" + type + '\'' +
+                    ", result='" + result + '\'' +
+                    ", resultType='" + resultType + '\'' +
+                    ", error=" + error +
+                    ", id='" + id + '\'' +
+                    ", service='" + service + '\'' +
+                    '}';
         }
     }
 }

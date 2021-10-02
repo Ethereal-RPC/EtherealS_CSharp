@@ -6,11 +6,20 @@ namespace EtherealS.Net.NetNode.NetNodeClient.Service
     public class ClientNodeService:EtherealC.Service.WebSocket.WebSocketService
     {
         #region --字段--
-        private IServerNodeRequest serverNodeRequest;
+
+        public ClientNodeService()
+        {
+            name = "ClientNetNodeService";
+            types.Add<int>("Int");
+            types.Add<long>("Long");
+            types.Add<string>("String");
+            types.Add<bool>("Bool");
+            types.Add<Model.NetNode>("NetNode");
+        }
         #endregion
 
         #region --属性--
-        public IServerNodeRequest ServerNodeRequest { get => serverNodeRequest; set => serverNodeRequest = value; }
+
         #endregion
 
         #region --RPC方法--

@@ -33,7 +33,7 @@ namespace EtherealS.Net.Abstract
         /// <summary>
         /// 网络节点心跳周期
         /// </summary>
-        private int netNodeHeartbeatCycle = 10000;//默认60秒心跳一次
+        private int netNodeHeartbeatCycle = 20000;//默认60秒心跳一次
 
 
         #endregion

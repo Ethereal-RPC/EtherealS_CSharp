@@ -44,12 +44,15 @@ namespace EtherealS.Server.Abstract
         /// ClientResponseModel序列化委托实现
         /// </summary>
         private ClientResponseModelSerializeDelegate clientResponseModelSerialize;
+
+        private bool debug;
         #endregion
 
         #region --属性--
         public ServerRequestModelSerializeDelegate ServerRequestModelSerialize { get => serverRequestModelSerialize; set => serverRequestModelSerialize = value; }
         public ClientRequestModelDeserializeDelegate ClientRequestModelDeserialize { get => clientRequestModelDeserialize; set => clientRequestModelDeserialize = value; }
         public ClientResponseModelSerializeDelegate ClientResponseModelSerialize { get => clientResponseModelSerialize; set => clientResponseModelSerialize = value; }
+        public bool Debug { get => debug; set => debug = value; }
 
         #endregion
 

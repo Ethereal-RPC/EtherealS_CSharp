@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace EtherealS.Core.Model
 {
@@ -37,7 +38,7 @@ namespace EtherealS.Core.Model
             return "ServerRequestModel{" +
                     "type='" + type + '\'' +
                     ", methodId='" + methodId + '\'' +
-                    ", params=" + string.Join("参数：",@params) +
+                    ", params=" + string.Join(",",@params) +
                     ", service='" + service + '\'' +
                     '}';
         }

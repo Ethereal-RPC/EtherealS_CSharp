@@ -16,14 +16,8 @@ namespace EtherealS.Request.Attribute
             All = 0x4,
         }
 
-        /// <summary>
-        /// 提供自定义MethodId的抽象参数名
-        /// </summary>
-        private string[] paramters = null;
-
         private InvokeTypeFlags invokeType = InvokeTypeFlags.Remote;
 
         public InvokeTypeFlags InvokeType { get => invokeType; set => invokeType = value; }
-        public string[] Paramters { get => paramters; set => paramters = value; }
     }
 }

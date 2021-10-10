@@ -1,12 +1,9 @@
-﻿using System;
+﻿using EtherealS.Core.Attribute;
+using EtherealS.Server.Abstract;
+using EtherealS.Server.Attribute;
+using EtherealS.Service.Attribute;
 using EtherealS_Test.Model;
 using EtherealS_Test.RequestDemo;
-using System.Threading;
-using System.Threading.Tasks;
-using EtherealS.Core.Model;
-using EtherealS.Server.Abstract;
-using EtherealS.Service.Attribute;
-using ServiceConfig = EtherealS.Service.Abstract.ServiceConfig;
 
 namespace EtherealS_Test.ServiceDemo
 {
@@ -26,7 +23,7 @@ namespace EtherealS_Test.ServiceDemo
         #region --方法--
         //Token 
         [Service]
-        public bool Register(User user, string username, long id)
+        public bool Register([Token]User user, string username, long id)
         {
             user.Username = username;
             user.Id = id;
@@ -41,7 +38,8 @@ namespace EtherealS_Test.ServiceDemo
         /// <returns></returns>
 
         [Service]
-        public bool SendSay(User sender, long listener_id, string message)
+        
+        public bool SendSay([Token] User sender, long listener_id, string message)
         {
             //查找对应ID的用户 1
             if (sender.GetToken(listener_id, out User listener))
@@ -54,7 +52,7 @@ namespace EtherealS_Test.ServiceDemo
         }
 
         [Service]
-        public int Add(BaseToken token,int a,int b)
+        public int Add([Token] BaseToken token,int a,int b)
         {
             return a + b;
         }

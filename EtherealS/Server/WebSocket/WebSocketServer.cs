@@ -76,13 +76,13 @@ namespace EtherealS.Server.WebSocket
                     {
                         if (request.ContentLength64 == -1)
                         {
-                            SendHttpToClient(context, new ClientResponseModel(null, null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.BufferFlow, $"HTTP请求头请携带ContentLength", null)));
+                            SendHttpToClient(context, new ClientResponseModel(null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.BufferFlow, $"HTTP请求头请携带ContentLength", null)));
                             return;
                         }
                         //后续可以加入池优化，这里暂时先直接申请。
                         if (request.ContentLength64 > Config.MaxBufferSize)
                         {
-                            SendHttpToClient(context, new ClientResponseModel(null, null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.BufferFlow, $"Net最大允许接收{Config.MaxBufferSize}字节", null)));
+                            SendHttpToClient(context, new ClientResponseModel(null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.BufferFlow, $"Net最大允许接收{Config.MaxBufferSize}字节", null)));
                             return;
                         }
                         byte[] body = new byte[request.ContentLength64];
@@ -94,7 +94,7 @@ namespace EtherealS.Server.WebSocket
                         if (config.Debug) OnLog(TrackLog.LogCode.Runtime, log);
                         if (!NetCore.Get(netName, out Net.Abstract.Net net))
                         {
-                            SendHttpToClient(context, new ClientResponseModel(null, null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.NotFoundNet, $"未找到节点{netName}", null)));
+                            SendHttpToClient(context, new ClientResponseModel(null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.NotFoundNet, $"未找到节点{netName}", null)));
                             return;
                         }
 
@@ -104,6 +104,10 @@ namespace EtherealS.Server.WebSocket
                         ClientResponseModel clientResponseModel = await Task.Run(() => net.ClientRequestReceiveProcess(baseToken, clientRequestModel));
                         SendHttpToClient(context, clientResponseModel);
                     }
+                    catch(Exception e)
+                    {
+                        SendHttpToClient(context, new ClientResponseModel(null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.Common, $"{e.Message}\n{e.StackTrace}", null)));
+                    }
                     finally
                     {
                         context.Response.Close();
@@ -112,7 +116,7 @@ namespace EtherealS.Server.WebSocket
             }
             catch (Exception exception)
             {
-                SendHttpToClient(context, new ClientResponseModel(null,null,clientRequestModel?.Id,clientRequestModel?.Service,new Error(Error.ErrorCode.Common,exception.Message,null)));
+                SendHttpToClient(context, new ClientResponseModel(null,clientRequestModel?.Id,clientRequestModel?.Service,new Error(Error.ErrorCode.Common,exception.Message,null)));
                 OnException(new TrackException(exception));
             }
         }

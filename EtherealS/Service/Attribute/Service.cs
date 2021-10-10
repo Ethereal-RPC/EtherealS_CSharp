@@ -10,14 +10,9 @@ namespace EtherealS.Service.Attribute
     public class Service : System.Attribute, IAuthoritable
     {
         /// <summary>
-        /// 提供自定义MethodId的抽象参数名
-        /// </summary>
-        private string[] paramters = null;
-        /// <summary>
         /// 服务实现IAuthoritable 接口
         /// </summary>
         public object authority = null;
-        public string[] Paramters { get => paramters; set => paramters = value; }
         public object Authority { get => authority; set => authority = value; }
     }
 }

@@ -76,7 +76,7 @@ namespace EtherealS.Server.WebSocket
                         if(config.Debug)OnLog(TrackLog.LogCode.Runtime, log);
                         if (!NetCore.Get(netName, out Net.Abstract.Net net))
                         {
-                            SendClientResponse(new ClientResponseModel( null, null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundNet, $"Token查询{netName} Net时 不存在", null)));
+                            SendClientResponse(new ClientResponseModel(null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundNet, $"Token查询{netName} Net时 不存在", null)));
                             DisConnect($"Token查询{netName} Net时 不存在");
                             return;
                         }
@@ -88,7 +88,7 @@ namespace EtherealS.Server.WebSocket
                         var newSize = receiveBuffer.Length + Config.BufferSize;
                         if (newSize > Config.MaxBufferSize)
                         {
-                            SendClientResponse(new ClientResponseModel(null, null, null, null, new Error(Error.ErrorCode.NotFoundNet, $"缓冲区:{newSize}-超过最大字节数:{Config.MaxBufferSize}，已断开连接！", null)));
+                            SendClientResponse(new ClientResponseModel(null, null, null, new Error(Error.ErrorCode.NotFoundNet, $"缓冲区:{newSize}-超过最大字节数:{Config.MaxBufferSize}，已断开连接！", null)));
                             DisConnect($"缓冲区:{newSize}-超过最大字节数:{Config.MaxBufferSize}，已断开连接！");
                             return;
                         }
@@ -101,7 +101,7 @@ namespace EtherealS.Server.WebSocket
                 }
                 catch(Exception e)
                 {
-                    SendClientResponse(new ClientResponseModel(null, null, null, null, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
+                    SendClientResponse(new ClientResponseModel(null, null, null, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
                     DisConnect("发生报错");
                     return;
                 }

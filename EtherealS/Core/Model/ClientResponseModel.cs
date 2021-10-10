@@ -1,4 +1,7 @@
-﻿namespace EtherealS.Core.Model
+﻿using System;
+using System.Collections.Generic;
+
+namespace EtherealS.Core.Model
 {
     /// <summary>
     /// 客户端请求返回模型
@@ -12,7 +15,7 @@
         /// <summary>
         /// 结果值
         /// </summary>
-        private object result = null;
+        private string result;
         /// <summary>
         /// 错误信息
         /// </summary>
@@ -25,24 +28,18 @@
         /// 请求服务
         /// </summary>
         private string service;
-        /// <summary>
-        /// 结果值类型
-        /// </summary>
-        private string resultType;
 
         public string Type { get => type; set => type = value; }
-        public object Result { get => result; set => result = value; }
+        public string Result { get => result; set => result = value; }
         public Error Error { get => error; set => error = value; }
         public string Id { get => id; set => id = value; }
-        public string ResultType { get => resultType; set => resultType = value; }
         public string Service { get => service; set => service = value; }
 
-        public ClientResponseModel(object result, string resultType, string id, string service, Error error)
+        public ClientResponseModel(string result,string id, string service, Error error)
         {
             Result = result;
             Error = error;
             Id = id;
-            ResultType = resultType;
             Service = service;
         }
         public override string ToString()
@@ -50,7 +47,6 @@
             return "ClientResponseModel{" +
                     "type='" + type + '\'' +
                     ", result='" + result + '\'' +
-                    ", resultType='" + resultType + '\'' +
                     ", error=" + error +
                     ", id='" + id + '\'' +
                     ", service='" + service + '\'' +

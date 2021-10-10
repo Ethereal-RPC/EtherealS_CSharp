@@ -21,6 +21,7 @@ namespace EtherealS_Test
 
         public static void Main()
         {
+
             string ip = "127.0.0.1";
             string port;
             Console.WriteLine("请选择端口(0-3)");

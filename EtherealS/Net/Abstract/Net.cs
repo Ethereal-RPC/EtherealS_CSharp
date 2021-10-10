@@ -6,6 +6,7 @@ using EtherealS.Core.Delegates;
 using EtherealS.Core.Model;
 using EtherealS.Net.Interface;
 using EtherealS.Server.Abstract;
+using EtherealS.Service.Attribute;
 
 namespace EtherealS.Net.Abstract
 {
@@ -120,54 +121,57 @@ namespace EtherealS.Net.Abstract
                         if (OnInterceptor(service, method, token) &&
                             service.OnInterceptor(this, method, token))
                         {
-                            string[] params_id = request.MethodId.Split('-');
-                            for (int i = 1; i < params_id.Length; i++)
+                            ParameterInfo[] parameterInfos = method.GetParameters();
+                            List<object> parameters = new List<object>(parameterInfos.Length);
+                            int i = 0;
+                            foreach (ParameterInfo parameterInfo in parameterInfos)
                             {
-                                if (service.Types.TypesByName.TryGetValue(params_id[i], out AbstractType type))
+                                if (parameterInfo.GetCustomAttribute<Server.Attribute.Token>(true) != null)
                                 {
-                                    request.Params[i] = type.Deserialize((string)request.Params[i]);
+                                    parameters.Add(token);
                                 }
-                                else throw new TrackException($"RPC中的{params_id[i]}类型中尚未被注册");
-                            }
-
-                            if (method.GetParameters().Length == request.Params.Length) request.Params[0] = token;
-                            else if (request.Params.Length > 1)
-                            {
-                                object[] new_params = new object[request.Params.Length - 1];
-                                for (int i = 0; i < new_params.Length; i++)
+                                else if (service.Types.TypesByType.TryGetValue(parameterInfo.ParameterType, out AbstractType type)
+                                    || service.Types.TypesByName.TryGetValue(parameterInfo.GetCustomAttribute<Core.Attribute.AbstractType>(true)?.AbstractName, out type))
                                 {
-                                    new_params[i] = request.Params[i + 1];
+                                    parameters.Add(type.Deserialize(request.Params[i]));
+                                    i++;
                                 }
-                                request.Params = new_params;
+                                else return new ClientResponseModel(null, request.Id, request.Service, new Error(Error.ErrorCode.Intercepted, $"RPC中的{request.Params[i]}类型中尚未被注册", null));
                             }
-
-                            object result = method.Invoke(service, request.Params);
+                            object result = method.Invoke(service, parameters.ToArray());
                             Type return_type = method.ReturnType;
                             if (return_type != typeof(void))
                             {
-                                service.Types.TypesByType.TryGetValue(return_type, out AbstractType type);
-                                return new ClientResponseModel(type.Serialize(result), type.Name, request.Id, request.Service, null);
+                                if (service.Types.TypesByType.TryGetValue(return_type, out AbstractType type)
+                                || service.Types.TypesByName.TryGetValue(method.GetCustomAttribute<Core.Attribute.AbstractType>(true)?.AbstractName, out type))
+                                {
+                                    return new ClientResponseModel(type.Serialize(result), request.Id, request.Service, null);
+                                }
+                                else return new ClientResponseModel(null, request.Id, request.Service, new Error(Error.ErrorCode.Intercepted, $"RPC中的{return_type}类型中尚未被注册", null));
                             }
                             else
                             {
                                 return null;
                             }
                         }
-                        else return new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.Intercepted, $"请求已被拦截", null));
+                        else
+                        {
+                            return new ClientResponseModel(null, request.Id, request.Service, new Error(Error.ErrorCode.Intercepted, $"请求已被拦截", null));
+                        }
                     }
                     else
                     {
-                        return new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundMethod, $"未找到方法[{name}:{request.Service}:{request.MethodId}]", null));
+                        return new ClientResponseModel(null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundMethod, $"未找到方法[{name}:{request.Service}:{request.MethodId}]", null));
                     }
                 }
                 else
                 {
-                    return new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundService, $"未找到服务[{name}:{request.Service}]", null));
+                    return new ClientResponseModel(null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundService, $"未找到服务[{name}:{request.Service}]", null));
                 }
             }
             catch(Exception e)
             {
-                return new ClientResponseModel(null, null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundService, $"{e.Message}\n {e.StackTrace}", null));
+                return new ClientResponseModel(null, request.Id, request.Service, new Error(Error.ErrorCode.Common, $"{e.Message}\n {e.StackTrace}", null));
             }
         }
 

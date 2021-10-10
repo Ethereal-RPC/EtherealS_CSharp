@@ -6,6 +6,8 @@ using EtherealC.Service.Interface;
 using EtherealS.Core.Delegates;
 using EtherealS.Core.Model;
 using EtherealS.Server.Abstract;
+using EtherealS.Server.Attribute;
+using EtherealS.Service.Attribute;
 
 namespace EtherealS.Service.Abstract
 {
@@ -88,12 +90,6 @@ namespace EtherealS.Service.Abstract
 
         public static void Register(Service instance)
         {
-            //遍历所有字段
-            foreach (FieldInfo field in instance.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
-            {
-                Attribute.ServiceConfig rpcAttribute = field.GetCustomAttribute<Attribute.ServiceConfig>();
-
-            }
             StringBuilder methodid = new StringBuilder();
             foreach (MethodInfo method in instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
             {
@@ -103,38 +99,19 @@ namespace EtherealS.Service.Abstract
                     if (!method.IsAbstract)
                     {
                         methodid.Append(method.Name);
-                        ParameterInfo[] parameters = method.GetParameters();
-                        int start_idx = 1;
-                        if (parameters.Length > 0 && (parameters[0].ParameterType.BaseType != typeof(BaseToken) && parameters[0].ParameterType != typeof(BaseToken))) start_idx = 0;
-                        if (rpcAttribute.Paramters == null)
+                        ParameterInfo[] parameterInfos = method.GetParameters();
+                        foreach (ParameterInfo parameterInfo in parameterInfos)
                         {
-                            for (int i = start_idx; i < parameters.Length; i++)
+                            if (parameterInfo.GetCustomAttribute<Token>(true) != null)
                             {
-                                try
-                                {
-                                    methodid.Append("-" + instance.types.TypesByType[parameters[i].ParameterType].Name);
-                                }
-                                catch (Exception)
-                                {
-                                    throw new TrackException($"{method.Name}方法中的{parameters[i].ParameterType}类型参数尚未注册");
-                                }
+                                continue;
                             }
-                        }
-                        else
-                        {
-                            string[] types_name = rpcAttribute.Paramters;
-                            if (parameters.Length == types_name.Length + 1)
+                            else if (instance.Types.TypesByType.TryGetValue(parameterInfo.ParameterType, out AbstractType type)
+                                || instance.Types.TypesByName.TryGetValue(parameterInfo.GetCustomAttribute<Core.Attribute.AbstractType>(true)?.AbstractName, out type))
                             {
-                                for (int i = 0; i < types_name.Length; i++)
-                                {
-                                    if (instance.Types.TypesByName.ContainsKey(types_name[i]))
-                                    {
-                                        methodid.Append("-").Append(types_name[i]);
-                                    }
-                                    else throw new TrackException($"C#对应的{types_name[i]}类型参数尚未注册");
-                                }
+                                methodid.Append("-" + type.Name);
                             }
-                            else throw new TrackException($"方法体{method.Name}中[RPCMethod]与实际参数数量不符,[RPCMethod]:{types_name.Length + 1}个,Method:{parameters.Length}个");
+                            else throw new TrackException($"{method.Name}方法中的{parameterInfo.ParameterType}类型参数尚未注册");
                         }
                         string name = methodid.ToString();
                         if (instance.methods.TryGetValue(name, out MethodInfo item))

@@ -4,6 +4,7 @@ using System.Text;
 using EtherealS.Core.Model;
 using EtherealS.Net.NetNode.NetNodeServer.Request;
 using EtherealS.Server.Abstract;
+using EtherealS.Server.Attribute;
 using EtherealS.Service.Attribute;
 using EtherealS.Service.WebSocket;
 using ServiceConfig = EtherealS.Service.Abstract.ServiceConfig;
@@ -41,7 +42,7 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
         /// <param name="netNode">节点信息</param>
         /// <returns></returns>
         [EtherealS.Service.Attribute.Service]
-        public bool Register(BaseToken token, Model.NetNode netNode)
+        public bool Register([Token]BaseToken token, Model.NetNode netNode)
         {
             token.key = $"{netNode.Name}-{string.Join("::",netNode.Prefixes)}";
             //自建一份字典做缓存
@@ -65,7 +66,7 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
         /// <param name="serviceName"></param>
         /// <returns></returns>
         [EtherealS.Service.Attribute.Service]
-        public Model.NetNode GetNetNode(BaseToken sender, string serviceName)
+        public Model.NetNode GetNetNode([Token]BaseToken sender, string serviceName)
         {
             //负载均衡的优化算法后期再写，现在采取随机分配
             List<Model.NetNode> nodes = new List<Model.NetNode>();

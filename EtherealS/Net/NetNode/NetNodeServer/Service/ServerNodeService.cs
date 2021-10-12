@@ -17,7 +17,7 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
         /// <summary>
         /// 节点信息
         /// </summary>
-        private Dictionary<string, Tuple<BaseToken,Model.NetNode>> netNodes = new ();
+        private Dictionary<string, Tuple<Server.Abstract.Token,Model.NetNode>> netNodes = new ();
         /// <summary>
         /// 分布式请求
         /// </summary>
@@ -29,7 +29,7 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
         #region --属性--
 
         public ClientNodeRequest DistributeRequest { get => distributeRequest; set => distributeRequest = value; }
-        public Dictionary<string, Tuple<BaseToken, Model.NetNode>> NetNodes { get => netNodes; set => netNodes = value; }
+        public Dictionary<string, Tuple<Server.Abstract.Token, Model.NetNode>> NetNodes { get => netNodes; set => netNodes = value; }
         #endregion
 
 
@@ -42,11 +42,11 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
         /// <param name="netNode">节点信息</param>
         /// <returns></returns>
         [EtherealS.Service.Attribute.Service]
-        public bool Register([Token]BaseToken token, Model.NetNode netNode)
+        public bool Register([Server.Attribute.Token] Server.Abstract.Token token, Model.NetNode netNode)
         {
             token.key = $"{netNode.Name}-{string.Join("::",netNode.Prefixes)}";
             //自建一份字典做缓存
-            if(NetNodes.TryGetValue((string)token.key,out Tuple<BaseToken, Model.NetNode> value))
+            if(NetNodes.TryGetValue((string)token.key,out Tuple<Server.Abstract.Token, Model.NetNode> value))
             {
                 value.Item1.DisConnectEvent -= Sender_DisConnectEvent;
                 NetNodes.Remove((string)token.key);
@@ -66,11 +66,11 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
         /// <param name="serviceName"></param>
         /// <returns></returns>
         [EtherealS.Service.Attribute.Service]
-        public Model.NetNode GetNetNode([Token]BaseToken sender, string serviceName)
+        public Model.NetNode GetNetNode([Server.Attribute.Token] Server.Abstract.Token sender, string serviceName)
         {
             //负载均衡的优化算法后期再写，现在采取随机分配
             List<Model.NetNode> nodes = new List<Model.NetNode>();
-            foreach(Tuple<BaseToken, Model.NetNode> tuple in NetNodes.Values)
+            foreach(Tuple<Server.Abstract.Token, Model.NetNode> tuple in NetNodes.Values)
             {
                 if (tuple.Item2.Services.ContainsKey(serviceName))
                 {
@@ -95,7 +95,7 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
         /// 如果断开连接，字典中删掉该节点
         /// </summary>
         /// <param name="token"></param>
-        private void Sender_DisConnectEvent(BaseToken token)
+        private void Sender_DisConnectEvent(Server.Abstract.Token token)
         {
             NetNodes.Remove((string)token.key);
             OnLog(TrackLog.LogCode.Runtime,$"成功删除节点{(token.key)}");
@@ -105,7 +105,7 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
         private void PrintNetNode()
         {
             StringBuilder sb = new StringBuilder();
-            foreach (Tuple<BaseToken, Model.NetNode> tuple in NetNodes.Values)
+            foreach (Tuple<Server.Abstract.Token, Model.NetNode> tuple in NetNodes.Values)
             {
                 sb.AppendLine($"{tuple.Item2.Name}::{string.Join("&&", tuple.Item2.Prefixes)}");
             }

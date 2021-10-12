@@ -6,7 +6,7 @@ using EtherealS.Server.Interface;
 
 namespace EtherealS.Server.Abstract
 {
-    public abstract class BaseToken: IBaseToken
+    public abstract class Token: IToken
     {
 
         #region --委托--
@@ -14,12 +14,12 @@ namespace EtherealS.Server.Abstract
         /// 连接委托
         /// </summary>
         /// <param name="token"></param>
-        public delegate void ConnectDelegate(BaseToken token);
+        public delegate void ConnectDelegate(Token token);
         /// <summary>
         ///  断开连接委托
         /// </summary>
         /// <param name="token"></param>
-        public delegate void DisConnectDelegate(BaseToken token);
+        public delegate void DisConnectDelegate(Token token);
 
         #endregion
 
@@ -96,7 +96,7 @@ namespace EtherealS.Server.Abstract
             }
             if (replace)
             {
-                net.Tokens.TryRemove(key, out BaseToken token);
+                net.Tokens.TryRemove(key, out Token token);
             }
             return net.Tokens.TryAdd(key, this);
         }
@@ -111,13 +111,13 @@ namespace EtherealS.Server.Abstract
             {
                 throw new TrackException(TrackException.ErrorCode.Runtime, $"{NetName}Net未找到");
             }
-            return net.Tokens.TryRemove(key, out BaseToken value);
+            return net.Tokens.TryRemove(key, out Token value);
         }
         /// <summary>
         /// 得到该Token所属的Tokens表单
         /// </summary>
         /// <returns></returns>
-        public ConcurrentDictionary<object, BaseToken> GetTokens()
+        public ConcurrentDictionary<object, Token> GetTokens()
         {
             if (!NetCore.Get(NetName, out Net.Abstract.Net net))
             {
@@ -132,13 +132,13 @@ namespace EtherealS.Server.Abstract
         /// <param name="key">Token唯一凭据Key</param>
         /// <param name="value">返回的值</param>
         /// <returns></returns>
-        public bool GetToken<T>(object key, out T value) where T : BaseToken
+        public bool GetToken<T>(object key, out T value) where T : Token
         {
             if (!NetCore.Get(NetName, out Net.Abstract.Net net))
             {
                 throw new TrackException(TrackException.ErrorCode.Runtime, $"{NetName}Net未找到");
             }
-            if (net.Tokens.TryGetValue(key, out BaseToken result))
+            if (net.Tokens.TryGetValue(key, out Token result))
             {
                 value = (T)result;
                 return true;
@@ -154,7 +154,7 @@ namespace EtherealS.Server.Abstract
         /// </summary>
         /// <param name="serverkey"></param>
         /// <returns></returns>
-        public ConcurrentDictionary<object, BaseToken> GetTokens(string netName)
+        public ConcurrentDictionary<object, Token> GetTokens(string netName)
         {
             if (!NetCore.Get(netName, out Net.Abstract.Net net))
             {

@@ -2,7 +2,7 @@
 
 namespace EtherealS.Server.Interface
 {
-    public interface IBaseToken:ILogEvent,IExceptionEvent
+    public interface IToken : ILogEvent, IExceptionEvent
     {
         public void DisConnect(string reason);
     }

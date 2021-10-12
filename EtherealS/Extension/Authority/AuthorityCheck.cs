@@ -16,7 +16,7 @@ namespace EtherealS.Extension.Authority
         /// <param name="method">方法信息</param>
         /// <param name="token">Token信息</param>
         /// <returns></returns>
-        public static bool ServiceCheck(Net.Abstract.Net net,Service.Abstract.Service service, MethodInfo method, BaseToken token)
+        public static bool ServiceCheck(Net.Abstract.Net net,Service.Abstract.Service service, MethodInfo method, Token token)
         {
             Service.Attribute.Service annotation = method.GetCustomAttribute<Service.Attribute.Service>();
             if (annotation.Authority != null)

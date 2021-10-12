@@ -27,7 +27,7 @@ namespace EtherealS.Server.Abstract
         /// BaseUserToken实例化方法委托
         /// </summary>
         /// <returns>BaseUserToken实例</returns>
-        public delegate BaseToken CreateInstance();
+        public delegate Token CreateInstance();
         #endregion
 
         #region --事件字段--

@@ -17,7 +17,7 @@ namespace EtherealS.Service.Abstract
         #region --委托字段--
         private OnLogDelegate logEvent;
         private OnExceptionDelegate exceptionEvent;
-        public delegate bool InterceptorDelegate(Net.Abstract.Net net,Service service, MethodInfo method, BaseToken token);
+        public delegate bool InterceptorDelegate(Net.Abstract.Net net,Service service, MethodInfo method, Server.Abstract.Token token);
         #endregion
 
         #region --委托属性--
@@ -102,7 +102,7 @@ namespace EtherealS.Service.Abstract
                         ParameterInfo[] parameterInfos = method.GetParameters();
                         foreach (ParameterInfo parameterInfo in parameterInfos)
                         {
-                            if (parameterInfo.GetCustomAttribute<Token>(true) != null)
+                            if (parameterInfo.GetCustomAttribute<Server.Attribute.Token>(true) != null)
                             {
                                 continue;
                             }
@@ -137,7 +137,7 @@ namespace EtherealS.Service.Abstract
                 logEvent?.Invoke(log);
             }
         }
-        internal bool OnInterceptor(Net.Abstract.Net net,MethodInfo method, BaseToken token)
+        internal bool OnInterceptor(Net.Abstract.Net net,MethodInfo method, Server.Abstract.Token token)
         {
             if (InterceptorEvent != null)
             {

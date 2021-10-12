@@ -35,15 +35,15 @@ namespace EtherealS.Request.WebSocket
                 //这里要连接字符串，发现StringBuilder效率高一些.
                 StringBuilder methodid = new StringBuilder(targetMethod.Name);
                 if (args == null) throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}首参并非BaseToken实现类！");
-                BaseToken token = null;
+                Server.Abstract.Token token = null;
                 ParameterInfo[] parameterInfos = targetMethod.GetParameters();
                 //理想状态下为抛出Token的参数数量，但后期可能会存在不只是一个特殊类的问题，所以改为了动态数组。
                 List<string> @params = new List<string>(parameterInfos.Length - 1);
                 for (int i = 0;i < parameterInfos.Length;i++)
                 {
-                    if (parameterInfos[i].GetCustomAttribute<Token>(true) != null)
+                    if (parameterInfos[i].GetCustomAttribute<Server.Attribute.Token>(true) != null)
                     {
-                        token = args[i] as BaseToken;
+                        token = args[i] as Server.Abstract.Token;
                     }
                     else if (Types.TypesByType.TryGetValue(parameterInfos[i].ParameterType, out AbstractType type)
                     || Types.TypesByName.TryGetValue(parameterInfos[i].GetCustomAttribute<Core.Attribute.AbstractType>(true)?.AbstractName, out type))

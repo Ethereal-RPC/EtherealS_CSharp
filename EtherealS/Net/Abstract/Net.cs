@@ -15,7 +15,7 @@ namespace EtherealS.Net.Abstract
         public enum NetType { WebSocket }
 
         #region --事件字段--
-        public delegate bool InterceptorDelegate(Net net,Service.Abstract.Service service, MethodInfo method, BaseToken token);
+        public delegate bool InterceptorDelegate(Net net,Service.Abstract.Service service, MethodInfo method, Token token);
         private OnLogDelegate logEvent;
         private OnExceptionDelegate exceptionEvent;
         #endregion
@@ -63,7 +63,7 @@ namespace EtherealS.Net.Abstract
         /// <summary>
         /// Token映射表
         /// </summary>
-        protected ConcurrentDictionary<object, BaseToken> tokens = new ConcurrentDictionary<object, BaseToken>();
+        protected ConcurrentDictionary<object, Token> tokens = new ConcurrentDictionary<object, Token>();
         /// <summary>
         /// Service映射表
         /// </summary>
@@ -85,7 +85,7 @@ namespace EtherealS.Net.Abstract
         #endregion
 
         #region --属性--
-        public ConcurrentDictionary<object, BaseToken> Tokens { get => tokens; set => tokens = value; }
+        public ConcurrentDictionary<object, Token> Tokens { get => tokens; set => tokens = value; }
         public NetConfig Config { get => config; set => config = value; }
         public ConcurrentDictionary<string, Service.Abstract.Service> Services { get => services; }
         public Dictionary<string, Request.Abstract.Request> Requests { get => requests; }
@@ -106,7 +106,7 @@ namespace EtherealS.Net.Abstract
         {
             this.name = name;
         }
-        public ClientResponseModel ClientRequestReceiveProcess(BaseToken token, ClientRequestModel request)
+        public ClientResponseModel ClientRequestReceiveProcess(Token token, ClientRequestModel request)
         {
             try
             {
@@ -133,8 +133,7 @@ namespace EtherealS.Net.Abstract
                                 else if (service.Types.TypesByType.TryGetValue(parameterInfo.ParameterType, out AbstractType type)
                                     || service.Types.TypesByName.TryGetValue(parameterInfo.GetCustomAttribute<Core.Attribute.AbstractType>(true)?.AbstractName, out type))
                                 {
-                                    parameters.Add(type.Deserialize(request.Params[i]));
-                                    i++;
+                                    parameters.Add(type.Deserialize(request.Params[i++]));
                                 }
                                 else return new ClientResponseModel(null, request.Id, request.Service, new Error(Error.ErrorCode.Intercepted, $"RPC中的{request.Params[i]}类型中尚未被注册", null));
                             }
@@ -201,7 +200,7 @@ namespace EtherealS.Net.Abstract
                 logEvent?.Invoke(log);
             }
         }
-        public bool OnInterceptor(Service.Abstract.Service service, MethodInfo method, BaseToken token)
+        public bool OnInterceptor(Service.Abstract.Service service, MethodInfo method, Token token)
         {
             if (InterceptorEvent != null)
             {

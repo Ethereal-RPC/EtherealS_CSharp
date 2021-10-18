@@ -1,4 +1,4 @@
-﻿namespace EtherealS.Extension.Authority
+﻿namespace EtherealS.Service.Extension.Authority
 {
     /// <summary>
     /// 权限检查接口,实现此接口默认视为实现了可权限化接口

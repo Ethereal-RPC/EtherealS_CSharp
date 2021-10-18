@@ -1,4 +1,4 @@
-﻿namespace EtherealS.Net.NetNode.NetNodeClient.Request
+﻿namespace EtherealS.Net.Extension.NetNode.NetNodeClient.Request
 {
     public interface IServerNodeRequest
     {

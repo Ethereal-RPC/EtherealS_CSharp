@@ -13,6 +13,9 @@ using System;
 using System.Collections.Generic;
 using EtherealS.Net.WebSocket;
 using EtherealS.Server.WebSocket;
+using EtherealS_Test.SystemPath;
+using System.Reflection;
+using System.Runtime.Loader;
 
 namespace EtherealS_Test
 {
@@ -21,7 +24,14 @@ namespace EtherealS_Test
 
         public static void Main()
         {
-
+            AssemblyLoadContext assemblyLoadContext = new AssemblyLoadContext("asd", true);
+            Assembly assembly = assemblyLoadContext.LoadFromAssemblyPath("C:\\Users\\mzh\\source\\repos\\Ethereal-RPC\\EtherealS_CSharp\\EtherealS_Test\\bin\\Debug\\net5.0\\EtherealS.dll");
+            foreach(var item in assembly.Modules)
+            {
+                Console.WriteLine(item.FullyQualifiedName);
+            }
+            Listen listen = new Listen();
+            listen.Start();
             string ip = "127.0.0.1";
             string port;
             Console.WriteLine("请选择端口(0-3)");
@@ -71,7 +81,7 @@ namespace EtherealS_Test
              * 部署分布式集群
              */
             //开启集群
-            net.Config.NetNodeMode = true;
+            net.Config.NetNodeMode = false;
             //添加集群地址
             ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"ethereal://{ip}:{28015}/NetDemo/", clientConfig));
             ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"ethereal://{ip}:{28016}/NetDemo/", clientConfig));

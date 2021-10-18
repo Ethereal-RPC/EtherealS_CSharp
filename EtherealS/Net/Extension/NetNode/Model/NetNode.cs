@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EtherealS.Net.NetNode.Model
+namespace EtherealS.Net.Extension.NetNode.Model
 {
     public class NetNode
     {

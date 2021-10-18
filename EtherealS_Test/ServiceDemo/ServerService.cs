@@ -38,7 +38,6 @@ namespace EtherealS_Test.ServiceDemo
         /// <returns></returns>
 
         [Service]
-        
         public bool SendSay([EtherealS.Server.Attribute.Token] User sender, long listener_id, string message)
         {
             //查找对应ID的用户 1
@@ -57,7 +56,17 @@ namespace EtherealS_Test.ServiceDemo
             return a + b;
         }
 
+        public override void Initialization()
+        {
+            
+        }
+
+        public override void UnInitialization()
+        {
+            
+        }
+
         #endregion
-        
+
     }
 }

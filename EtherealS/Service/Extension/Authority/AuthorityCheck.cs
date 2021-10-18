@@ -2,7 +2,7 @@
 using EtherealS.Server.Abstract;
 using EtherealS.Service.Attribute;
 
-namespace EtherealS.Extension.Authority
+namespace EtherealS.Service.Extension.Authority
 {
     /// <summary>
     /// 权限检查默认实现类

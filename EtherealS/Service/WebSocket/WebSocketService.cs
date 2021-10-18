@@ -8,7 +8,7 @@ using EtherealS.Service.Abstract;
 
 namespace EtherealS.Service.WebSocket
 {
-    public class WebSocketService:Abstract.Service
+    public abstract class WebSocketService:Abstract.Service
     {
         #region --属性--
         public new WebSocketServiceConfig Config { get => (WebSocketServiceConfig)config; set => config = value; }

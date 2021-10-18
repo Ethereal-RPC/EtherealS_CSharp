@@ -5,6 +5,7 @@ using System.Text;
 using EtherealC.Service.Interface;
 using EtherealS.Core.Delegates;
 using EtherealS.Core.Model;
+using EtherealS.Net.Extension.Plugins;
 using EtherealS.Server.Abstract;
 using EtherealS.Server.Attribute;
 using EtherealS.Service.Attribute;
@@ -13,7 +14,6 @@ namespace EtherealS.Service.Abstract
 {
     public abstract class Service:Interface.IService
     {
-
         #region --委托字段--
         private OnLogDelegate logEvent;
         private OnExceptionDelegate exceptionEvent;
@@ -64,6 +64,7 @@ namespace EtherealS.Service.Abstract
         protected string netName;
         protected string name;
         protected AbstractTypes types;
+        private ServicePluginManager pluginManager;
         #endregion
 
         #region --属性--
@@ -72,9 +73,10 @@ namespace EtherealS.Service.Abstract
         public string NetName { get => netName; set => netName = value; }
         public string Name { get => name; set => name = value; }
         public AbstractTypes Types { get => types; set => types = value; }
+        protected ServicePluginManager PluginManager { get => pluginManager; set => pluginManager = value; }
 
         #endregion
-        
+
         public void OnException(TrackException.ErrorCode code, string message)
         {
             OnException(new TrackException(code, message));
@@ -149,5 +151,7 @@ namespace EtherealS.Service.Abstract
             }
             else return true;
         }
+        public abstract void Initialization();
+        public abstract void UnInitialization();
     }
 }

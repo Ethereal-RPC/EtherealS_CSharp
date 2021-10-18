@@ -1,7 +1,7 @@
 ﻿using EtherealC.Core.Model;
-using EtherealS.Net.NetNode.NetNodeClient.Request;
+using EtherealS.Net.Extension.NetNode.NetNodeClient.Request;
 
-namespace EtherealS.Net.NetNode.NetNodeClient.Service
+namespace EtherealS.Net.Extension.NetNode.NetNodeClient.Service
 {
     public class ClientNodeService:EtherealC.Service.WebSocket.WebSocketService
     {

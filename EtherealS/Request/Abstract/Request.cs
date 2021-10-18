@@ -94,5 +94,8 @@ namespace EtherealS.Request.Abstract
                 logEvent?.Invoke(log);
             }
         }
+
+        public abstract void Initialization();
+        public abstract void UnInitialization();
     }
 }

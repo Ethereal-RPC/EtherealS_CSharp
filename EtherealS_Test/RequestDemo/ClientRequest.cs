@@ -10,9 +10,19 @@ namespace EtherealS_Test.RequestDemo
 {
     public class ClientRequest:WebSocketRequest,IClientRequest
     {
+        public override void Initialization()
+        {
+
+        }
+
         public virtual string Say(User user, User sender, string message)
         {
             return "sd";
+        }
+
+        public override void UnInitialization()
+        {
+
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EtherealS.Net.NetNode.NetNodeClient.Request
+namespace EtherealS.Net.Extension.NetNode.NetNodeClient.Request
 {
     public class ServerNodeRequest : EtherealC.Request.WebSocket.WebSocketRequest,IServerNodeRequest
     {

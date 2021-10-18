@@ -52,6 +52,7 @@ namespace EtherealS.Service
                 service.LogEvent += net.OnLog;
                 service.ExceptionEvent += net.OnException;
                 net.Services[service.Name] = service;
+                service.Initialization();
                 return service;
             }
             else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}-{service.Name}已注册！");
@@ -74,6 +75,7 @@ namespace EtherealS.Service
                 {
                     service.LogEvent -= net.OnLog;
                     service.ExceptionEvent -= net.OnException;
+                    service.UnInitialization();
                 }
             }
             return true;

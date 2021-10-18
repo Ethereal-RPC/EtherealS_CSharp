@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 using EtherealS.Core.Model;
-using EtherealS.Net.NetNode.NetNodeServer.Request;
+using EtherealS.Net.Extension.NetNode.NetNodeServer.Request;
 using EtherealS.Server.Abstract;
 using EtherealS.Server.Attribute;
 using EtherealS.Service.Attribute;
 using EtherealS.Service.WebSocket;
 using ServiceConfig = EtherealS.Service.Abstract.ServiceConfig;
 
-namespace EtherealS.Net.NetNode.NetNodeServer.Service
+namespace EtherealS.Net.Extension.NetNode.NetNodeServer.Service
 {
     public class ServerNodeService:WebSocketService
     {
@@ -111,7 +111,17 @@ namespace EtherealS.Net.NetNode.NetNodeServer.Service
             }
             OnLog(TrackLog.LogCode.Runtime, $"当前节点信息:\n{sb}");
         }
+
+        public override void Initialization()
+        {
+            
+        }
+
+        public override void UnInitialization()
+        {
+            
+        }
         #endregion
-        
+
     }
 }

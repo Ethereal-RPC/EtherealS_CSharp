@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using EtherealS.Core.Model;
-using EtherealS.Net.NetNode.Model;
-using EtherealS.Net.NetNode.NetNodeClient.Request;
-using EtherealS.Net.NetNode.NetNodeClient.Service;
-using EtherealS.Net.NetNode.NetNodeServer.Request;
-using EtherealS.Net.NetNode.NetNodeServer.Service;
+using EtherealS.Net.Extension.NetNode.Model;
+using EtherealS.Net.Extension.NetNode.NetNodeClient.Request;
+using EtherealS.Net.Extension.NetNode.NetNodeClient.Service;
+using EtherealS.Net.Extension.NetNode.NetNodeServer.Request;
+using EtherealS.Net.Extension.NetNode.NetNodeServer.Service;
 using EtherealS.Request;
 using EtherealS.Service;
 
@@ -40,7 +40,7 @@ namespace EtherealS.Net.WebSocket
                         types.Add<long>("Long");
                         types.Add<string>("String");
                         types.Add<bool>("Bool");
-                        types.Add<NetNode.Model.NetNode>("NetNode");
+                        types.Add<NetNode>("NetNode");
                         //注册服务
                         ServerNodeService serverDistributeService = ServiceCore.Register(this, new ServerNodeService(),
                             "ServerNetNodeService", types);
@@ -143,7 +143,7 @@ namespace EtherealS.Net.WebSocket
             if (EtherealC.Request.RequestCore.Get($"NetNodeClient-{client.Prefixes}", "ServerNetNodeService", out EtherealC.Request.Abstract.Request serverDistributeRequest))
             {
                 //生成节点信息
-                NetNode.Model.NetNode node = new NetNode.Model.NetNode();
+                NetNode node = new NetNode();
                 node.Prefixes = server.Prefixes.ToArray();
                 node.Name = $"{name}";
                 node.HardwareInformation = new HardwareInformation();

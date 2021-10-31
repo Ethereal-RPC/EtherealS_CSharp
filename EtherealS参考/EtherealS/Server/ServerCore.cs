@@ -1,0 +1,70 @@
+﻿using EtherealS.Core.Model;
+using EtherealS.Net;
+using EtherealS.Server.Abstract;
+using EtherealS.Server.WebSocket;
+
+namespace EtherealS.Server
+{
+    public class ServerCore
+    {
+        public static bool Get(string netName, out Server.Abstract.Server socketserver)
+        {
+            if (NetCore.Get(netName, out Net.Abstract.Net net))
+            {
+                return Get(net, out socketserver);
+            }
+            else
+            {
+                socketserver = null;
+                return false;
+            }
+        }
+        public static bool Get(Net.Abstract.Net net, out Server.Abstract.Server socketserver)
+        {
+            socketserver = net.Server;
+            if (net.Server != null) return true;
+            else return false;
+        }
+
+        /// <summary>
+        /// 获取客户端
+        /// </summary>
+        /// <param name="serverIp">远程服务IP</param>
+        /// <param name="port">远程服务端口</param>
+        /// <returns>客户端</returns>
+        public static Abstract.Server Register(Net.Abstract.Net net,Abstract.Server server)
+        {
+            if (net.Server == null)
+            {
+                net.Server = server;
+                server.NetName = net.Name;
+                server.LogEvent += net.OnLog;
+                server.ExceptionEvent += net.OnException;
+            }
+            return server;
+        }
+
+        public static bool UnRegister(string netName)
+        {
+            if (NetCore.Get(netName, out Net.Abstract.Net net))
+            {
+                return UnRegister(net);
+            }
+            else
+            {
+                return true;
+            }
+        }
+        public static bool UnRegister(Net.Abstract.Net net)
+        {
+            if(net != null)
+            {
+                net.Server.LogEvent -= net.OnLog;
+                net.Server.ExceptionEvent -= net.OnException;
+                net.Server.Close();
+                net.Server = null;
+            }
+            return true;
+        }
+    }
+}

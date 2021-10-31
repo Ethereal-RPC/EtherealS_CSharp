@@ -1,19 +1,19 @@
 ﻿using EtherealS.Core.Model;
 using EtherealS.Net;
 using EtherealS.Net.Abstract;
+using EtherealS.Net.WebSocket;
 using EtherealS.Request;
 using EtherealS.Server;
 using EtherealS.Server.Abstract;
+using EtherealS.Server.WebSocket;
 using EtherealS.Service;
-using EtherealS.Service.Abstract;
+using EtherealS.Service.WebSocket;
 using EtherealS_Test.Model;
 using EtherealS_Test.RequestDemo;
 using EtherealS_Test.ServiceDemo;
+using EtherealS_Test.SystemPath;
 using System;
 using System.Collections.Generic;
-using EtherealS.Net.WebSocket;
-using EtherealS.Server.WebSocket;
-using EtherealS_Test.SystemPath;
 using System.Reflection;
 using System.Runtime.Loader;
 
@@ -24,14 +24,8 @@ namespace EtherealS_Test
 
         public static void Main()
         {
-            AssemblyLoadContext assemblyLoadContext = new AssemblyLoadContext("asd", true);
-            Assembly assembly = assemblyLoadContext.LoadFromAssemblyPath("C:\\Users\\mzh\\source\\repos\\Ethereal-RPC\\EtherealS_CSharp\\EtherealS_Test\\bin\\Debug\\net5.0\\EtherealS.dll");
-            foreach(var item in assembly.Modules)
-            {
-                Console.WriteLine(item.FullyQualifiedName);
-            }
-            Listen listen = new Listen();
-            listen.Start();
+            //Listen listen = new Listen();
+            //listen.Start();
             string ip = "127.0.0.1";
             string port;
             Console.WriteLine("请选择端口(0-3)");
@@ -75,19 +69,6 @@ namespace EtherealS_Test
             //向网关注册连接(提供一个生成User的方法)
             Server server = ServerCore.Register(net,new WebSocketServer(new List<string>(), () => new User()));
             server.Prefixes.Add($"ethereal://{ip}:{port}/NetDemo/");
-            List<Tuple<string, EtherealC.Client.Abstract.ClientConfig>> ips = new();
-            EtherealC.Client.Abstract.ClientConfig  clientConfig = new EtherealC.Client.WebSocket.WebSocketClientConfig();
-            /*
-             * 部署分布式集群
-             */
-            //开启集群
-            net.Config.NetNodeMode = false;
-            //添加集群地址
-            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"ethereal://{ip}:{28015}/NetDemo/", clientConfig));
-            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"ethereal://{ip}:{28016}/NetDemo/", clientConfig));
-            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"ethereal://{ip}:{28017}/NetDemo/", clientConfig));
-            ips.Add(new Tuple<string, EtherealC.Client.Abstract.ClientConfig>($"ethereal://{ip}:{28018}/NetDemo/", clientConfig));
-            net.Config.NetNodeIps = ips;
             //发布服务
             net.Publish();
             Console.WriteLine("服务器初始化完成....");

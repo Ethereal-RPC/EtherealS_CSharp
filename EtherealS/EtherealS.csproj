@@ -4,7 +4,8 @@
     <TargetFramework>net5.0</TargetFramework>
     <Authors>Jianxian</Authors>
     <Company>XianYu</Company>
-    <Version>1.2.4</Version>
+    <Version>1.2.6</Version>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -12,7 +13,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EtherealC" Version="0.5.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 

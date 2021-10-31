@@ -10,7 +10,7 @@ namespace EtherealS_Test.RequestDemo
 {
     public class ClientRequest:WebSocketRequest,IClientRequest
     {
-        public override void Initialization()
+        public override void Initialize()
         {
 
         }
@@ -20,7 +20,7 @@ namespace EtherealS_Test.RequestDemo
             return "sd";
         }
 
-        public override void UnInitialization()
+        public override void UnInitialize()
         {
 
         }

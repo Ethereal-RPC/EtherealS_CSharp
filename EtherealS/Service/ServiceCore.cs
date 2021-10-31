@@ -52,7 +52,7 @@ namespace EtherealS.Service
                 service.LogEvent += net.OnLog;
                 service.ExceptionEvent += net.OnException;
                 net.Services[service.Name] = service;
-                service.Initialization();
+                service.Initialize();
                 return service;
             }
             else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}-{service.Name}已注册！");
@@ -66,16 +66,24 @@ namespace EtherealS.Service
             }
             return true;
         }
+        public static bool UnRegister(Abstract.Service service)
+        {
+            if (NetCore.Get(service.NetName, out Net.Abstract.Net net))
+            {
+                return UnRegister(net, service.Name);
+            }
+            return true;
+        }
         public static bool UnRegister(Net.Abstract.Net net, string serviceName)
         {
             if(net != null)
             {
-                net.Services.TryRemove(serviceName, out Service.Abstract.Service service);
+                net.Services.TryRemove(serviceName, out Abstract.Service service);
                 if(service != null)
                 {
                     service.LogEvent -= net.OnLog;
                     service.ExceptionEvent -= net.OnException;
-                    service.UnInitialization();
+                    service.UnInitialize();
                 }
             }
             return true;

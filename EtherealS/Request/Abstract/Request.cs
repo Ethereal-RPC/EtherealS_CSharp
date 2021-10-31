@@ -52,7 +52,7 @@ namespace EtherealS.Request.Abstract
         protected string name;
         protected string netName;
         protected RequestConfig config;
-        protected AbstractTypes types;
+        protected AbstractTypes types = new AbstractTypes();
         #endregion
 
         #region --属性--
@@ -95,7 +95,7 @@ namespace EtherealS.Request.Abstract
             }
         }
 
-        public abstract void Initialization();
-        public abstract void UnInitialization();
+        public abstract void Initialize();
+        public abstract void UnInitialize();
     }
 }

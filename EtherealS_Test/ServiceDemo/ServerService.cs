@@ -22,7 +22,7 @@ namespace EtherealS_Test.ServiceDemo
 
         #region --方法--
         //Token 
-        [Service]
+        [Method]
         public bool Register([EtherealS.Server.Attribute.Token]User user, string username, long id)
         {
             user.Username = username;
@@ -37,7 +37,7 @@ namespace EtherealS_Test.ServiceDemo
         /// <param name="message"></param>
         /// <returns></returns>
 
-        [Service]
+        [Method]
         public bool SendSay([EtherealS.Server.Attribute.Token] User sender, long listener_id, string message)
         {
             //查找对应ID的用户 1
@@ -50,18 +50,18 @@ namespace EtherealS_Test.ServiceDemo
             else return false;
         }
 
-        [Service]
+        [Method]
         public int Add([EtherealS.Server.Attribute.Token] EtherealS.Server.Abstract.Token token,int a,int b)
         {
             return a + b;
         }
 
-        public override void Initialization()
+        public override void Initialize()
         {
             
         }
 
-        public override void UnInitialization()
+        public override void UnInitialize()
         {
             
         }

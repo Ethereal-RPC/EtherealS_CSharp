@@ -44,7 +44,7 @@ namespace EtherealS.Request
                 request.LogEvent += net.OnLog;
                 request.ExceptionEvent += net.OnException;
                 net.Requests[request.Name] = request;
-                request.Initialization();
+                request.Initialize();
                 return (R)request;
             }
             else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}-{serviceName}已注册，无法重复注册！");
@@ -61,12 +61,12 @@ namespace EtherealS.Request
         {
             if(net != null)
             {
-                net.Requests.Remove(serviceName, out Request.Abstract.Request request);
+                net.Requests.TryRemove(serviceName, out Abstract.Request request);
                 if(request != null)
                 {
                     request.LogEvent -= net.OnLog;
                     request.ExceptionEvent -= net.OnException;
-                    request.UnInitialization();
+                    request.UnInitialize();
                 }
             }
             return true;

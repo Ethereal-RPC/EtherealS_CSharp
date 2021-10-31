@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using EtherealS.Core.Delegates;
 using EtherealS.Core.Model;
+using EtherealS.Net.Extension.Plugins;
 using EtherealS.Net.Interface;
 using EtherealS.Server.Abstract;
 using EtherealS.Service.Attribute;
@@ -71,7 +72,7 @@ namespace EtherealS.Net.Abstract
         /// <summary>
         /// Reqeust映射表
         /// </summary>
-        protected Dictionary<string, Request.Abstract.Request> requests = new Dictionary<string, Request.Abstract.Request>();
+        protected ConcurrentDictionary<string, Request.Abstract.Request> requests = new ConcurrentDictionary<string, Request.Abstract.Request>();
         protected NetConfig config;
         /// <summary>
         /// Server
@@ -81,17 +82,25 @@ namespace EtherealS.Net.Abstract
         /// Net网关名
         /// </summary>
         protected string name;
+        /// <summary>
+        /// Net类型
+        /// </summary>
         protected NetType type;
+        /// <summary>
+        /// 插件管理器
+        /// </summary>
+        protected PluginManager pluginManager;
         #endregion
 
         #region --属性--
         public ConcurrentDictionary<object, Token> Tokens { get => tokens; set => tokens = value; }
         public NetConfig Config { get => config; set => config = value; }
         public ConcurrentDictionary<string, Service.Abstract.Service> Services { get => services; }
-        public Dictionary<string, Request.Abstract.Request> Requests { get => requests; }
+        public ConcurrentDictionary<string, Request.Abstract.Request> Requests { get => requests; }
         public string Name { get => name; set => name = value; }
         public Server.Abstract.Server Server { get => server; set => server = value; }
         public NetType Type { get => type; set => type = value; }
+        protected PluginManager PluginManager { get => pluginManager; set => pluginManager = value; }
 
         #endregion
 
@@ -100,7 +109,28 @@ namespace EtherealS.Net.Abstract
         /// 部署节点
         /// </summary>
         /// <returns></returns>
-        public abstract bool Publish();
+        public virtual bool Publish()
+        {
+            try
+            {
+                if (config.PluginMode)
+                {
+                    pluginManager = new PluginManager(name);
+                    pluginManager.Listen();
+                }
+                server.Start();
+            }
+            catch (TrackException e)
+            {
+                OnException(e);
+            }
+            catch (Exception e)
+            {
+                OnException(new TrackException(e));
+            }
+            return true;
+            return true;
+        }
 
         public Net(string name)
         {

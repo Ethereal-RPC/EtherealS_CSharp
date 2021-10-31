@@ -1,17 +1,13 @@
-﻿using System;
+﻿using EtherealS.Core.Delegates;
+using EtherealS.Core.Model;
+using EtherealS.Net.Extension.Plugins;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
-using EtherealC.Service.Interface;
-using EtherealS.Core.Delegates;
-using EtherealS.Core.Model;
-using EtherealS.Net.Extension.Plugins;
-using EtherealS.Server.Abstract;
-using EtherealS.Server.Attribute;
-using EtherealS.Service.Attribute;
 
 namespace EtherealS.Service.Abstract
 {
+    [Attribute.Service]
     public abstract class Service:Interface.IService
     {
         #region --委托字段--
@@ -59,12 +55,12 @@ namespace EtherealS.Service.Abstract
         #endregion
 
         #region --字段--
-        protected Dictionary<string, MethodInfo> methods = new Dictionary<string, MethodInfo>();
-        protected ServiceConfig config;
         protected string netName;
         protected string name;
-        protected AbstractTypes types;
-        private ServicePluginManager pluginManager;
+        protected Dictionary<string, MethodInfo> methods = new Dictionary<string, MethodInfo>();
+        protected ServiceConfig config;
+        protected AbstractTypes types = new AbstractTypes();
+        protected PluginDomain pluginDomain;
         #endregion
 
         #region --属性--
@@ -73,7 +69,7 @@ namespace EtherealS.Service.Abstract
         public string NetName { get => netName; set => netName = value; }
         public string Name { get => name; set => name = value; }
         public AbstractTypes Types { get => types; set => types = value; }
-        protected ServicePluginManager PluginManager { get => pluginManager; set => pluginManager = value; }
+        public PluginDomain PluginDomain { get => pluginDomain; set => pluginDomain = value; }
 
         #endregion
 
@@ -95,7 +91,7 @@ namespace EtherealS.Service.Abstract
             StringBuilder methodid = new StringBuilder();
             foreach (MethodInfo method in instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
             {
-                Attribute.Service rpcAttribute = method.GetCustomAttribute<Attribute.Service>();
+                Attribute.Method rpcAttribute = method.GetCustomAttribute<Attribute.Method>();
                 if (rpcAttribute != null)
                 {
                     if (!method.IsAbstract)
@@ -151,7 +147,7 @@ namespace EtherealS.Service.Abstract
             }
             else return true;
         }
-        public abstract void Initialization();
-        public abstract void UnInitialization();
+        public abstract void Initialize();
+        public abstract void UnInitialize();
     }
 }

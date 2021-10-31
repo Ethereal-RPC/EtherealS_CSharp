@@ -1,8 +1,6 @@
-﻿using System;
+﻿using EtherealS.Net.Interface;
+using System;
 using System.Collections.Generic;
-using System.Reflection;
-using EtherealS.Net.Interface;
-using EtherealS.Server.Abstract;
 
 namespace EtherealS.Net.Abstract
 {
@@ -27,22 +25,21 @@ namespace EtherealS.Net.Abstract
         /// </summary>
         private bool netNodeMode = false;
         /// <summary>
-        /// 分布式IP组
-        /// </summary>
-        private List<Tuple<string,EtherealC.Client.Abstract.ClientConfig>> netNodeIps;
-        /// <summary>
         /// 网络节点心跳周期
         /// </summary>
         private int netNodeHeartbeatCycle = 20000;//默认60秒心跳一次
-
+        /// <summary>
+        /// 插件模式
+        /// </summary>
+        private bool pluginMode = true;
 
         #endregion
 
         #region --属性--
 
         public bool NetNodeMode { get => netNodeMode; set => netNodeMode = value; }
-        public List<Tuple<string, EtherealC.Client.Abstract.ClientConfig>> NetNodeIps { get => netNodeIps; set => netNodeIps = value; }
         public int NetNodeHeartbeatCycle { get => netNodeHeartbeatCycle; set => netNodeHeartbeatCycle = value; }
+        public bool PluginMode { get => pluginMode; set => pluginMode = value; }
 
         #endregion
 

@@ -1,0 +1,704 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EtherealS</name>
+    </assembly>
+    <members>
+        <member name="T:EtherealS.Core.Model.AbstractType">
+            <summary>
+            中间层抽象数据类
+            </summary>
+        </member>
+        <member name="T:EtherealS.Core.Model.AbstractType.DeserializeDelegage">
+            <summary>
+            序列化委托
+            </summary>
+            <param name="obj">序列化对象</param>
+            <returns></returns>
+        </member>
+        <member name="T:EtherealS.Core.Model.AbstractType.SerializeDelegage">
+            <summary>
+            反序列化委托
+            </summary>
+            <param name="obj">反序列化文本</param>
+            <returns></returns>
+        </member>
+        <member name="F:EtherealS.Core.Model.AbstractType.deserialize">
+            <summary>
+            反序列化委托实现
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.AbstractType.serialize">
+            <summary>
+            序列化委托实现
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.AbstractType.type">
+            <summary>
+            映射类
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.AbstractType.name">
+            <summary>
+            映射名
+            </summary>
+        </member>
+        <member name="T:EtherealS.Core.Model.AbstractTypes">
+            <summary>
+            RPCType配置项
+            </summary>
+        </member>
+        <member name="P:EtherealS.Core.Model.AbstractTypes.TypesByType">
+            <summary>
+            从Type到RPCType的映射表
+            </summary>
+        </member>
+        <member name="P:EtherealS.Core.Model.AbstractTypes.TypesByName">
+            <summary>
+            从Name到RPCTYpe的映射表
+            </summary>
+        </member>
+        <member name="M:EtherealS.Core.Model.AbstractTypes.Add(EtherealS.Core.Model.AbstractType)">
+            <summary>
+            注册RPCType
+            </summary>
+            <param name="type">RPCType</param>
+        </member>
+        <member name="T:EtherealS.Core.Model.ClientResponseModel">
+            <summary>
+            客户端请求返回模型
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.ClientResponseModel.type">
+            <summary>
+            Ethereal-RPC 版本
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.ClientResponseModel.result">
+            <summary>
+            结果值
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.ClientResponseModel.error">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.ClientResponseModel.id">
+            <summary>
+            请求ID
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.ClientResponseModel.service">
+            <summary>
+            请求服务
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.ClientResponseModel.resultType">
+            <summary>
+            结果值类型
+            </summary>
+        </member>
+        <member name="T:EtherealS.Core.Model.Error">
+            <summary>
+            网络传输错误类
+            </summary>
+        </member>
+        <member name="P:EtherealS.Core.Model.Error.Code">
+            <summary>
+            错误代码
+            </summary>
+        </member>
+        <member name="P:EtherealS.Core.Model.Error.Message">
+            <summary>
+            错误信息
+            </summary>
+        </member>
+        <member name="P:EtherealS.Core.Model.Error.Data">
+            <summary>
+            绑定数据
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.ServerRequestModel.type">
+            <summary>
+            Ethereal-RPC 版本
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.ServerRequestModel.methodId">
+            <summary>
+            方法ID
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.ServerRequestModel.params">
+            <summary>
+            方法参数
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.ServerRequestModel.service">
+            <summary>
+            请求服务
+            </summary>
+        </member>
+        <member name="T:EtherealS.Core.Model.TrackException">
+            <summary>
+            Ethereal-RPC异常类
+            </summary>
+        </member>
+        <member name="F:EtherealS.Core.Model.TrackException.errorCode">
+            <summary>
+            错误代码
+            </summary>
+        </member>
+        <member name="T:EtherealS.Extension.Authority.AuthorityCheck">
+            <summary>
+            权限检查默认实现类
+            </summary>
+        </member>
+        <member name="M:EtherealS.Extension.Authority.AuthorityCheck.ServiceCheck(EtherealS.Net.Abstract.Net,EtherealS.Service.Abstract.Service,System.Reflection.MethodInfo,EtherealS.Server.Abstract.BaseToken)">
+            <summary>
+            权限检查默认实现函数
+            </summary>
+            <param name="service">服务信息</param>  
+            <param name="method">方法信息</param>
+            <param name="token">Token信息</param>
+            <returns></returns>
+        </member>
+        <member name="T:EtherealS.Extension.Authority.IAuthoritable">
+            <summary>
+            可权限化接口
+            </summary>
+        </member>
+        <member name="P:EtherealS.Extension.Authority.IAuthoritable.Authority">
+            <summary>
+            权限信息
+            </summary>
+        </member>
+        <member name="T:EtherealS.Extension.Authority.IAuthorityCheck">
+            <summary>
+            权限检查接口,实现此接口默认视为实现了可权限化接口
+            </summary>
+        </member>
+        <member name="M:EtherealS.Extension.Authority.IAuthorityCheck.Check(EtherealS.Extension.Authority.IAuthoritable)">
+            <summary>
+            权限接口检查函数
+            </summary>
+            <param name="authoritable"></param>
+            <returns></returns>
+        </member>
+        <member name="E:EtherealS.Net.Abstract.Net.InterceptorEvent">
+            <summary>
+            拦截器事件
+            </summary>
+        </member>
+        <member name="E:EtherealS.Net.Abstract.Net.LogEvent">
+            <summary>
+            日志输出事件
+            </summary>
+        </member>
+        <member name="E:EtherealS.Net.Abstract.Net.ExceptionEvent">
+            <summary>
+            抛出异常事件
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.Abstract.Net.tokens">
+            <summary>
+            Token映射表
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.Abstract.Net.services">
+            <summary>
+            Service映射表
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.Abstract.Net.requests">
+            <summary>
+            Reqeust映射表
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.Abstract.Net.server">
+            <summary>
+            Server
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.Abstract.Net.name">
+            <summary>
+            Net网关名
+            </summary>
+        </member>
+        <member name="M:EtherealS.Net.Abstract.Net.Publish">
+            <summary>
+            部署节点
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:EtherealS.Net.Abstract.NetConfig">
+            <summary>
+            Ethereal网关
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.Abstract.NetConfig.netNodeMode">
+            <summary>
+            分布式模式是否开启
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.Abstract.NetConfig.netNodeIps">
+            <summary>
+            分布式IP组
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.Abstract.NetConfig.netNodeHeartbeatCycle">
+            <summary>
+            网络节点心跳周期
+            </summary>
+        </member>
+        <member name="M:EtherealS.Net.Interface.INet.Publish">
+            <summary>
+            部署节点
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:EtherealS.Net.Interface.INetConfig">
+            <summary>
+            Ethereal网关
+            </summary>
+        </member>
+        <member name="T:EtherealS.Net.NetCore">
+            <summary>
+            网关核心
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.HardwareInformation.oSDescription">
+            <summary>
+            系统名称
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.HardwareInformation.oSArchitecture">
+            <summary>
+            系统架构
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.HardwareInformation.processArchitecture">
+            <summary>
+            进程架构
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.HardwareInformation.is64BitOperatingSystem">
+            <summary>
+            是否64位操作系统
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.HardwareInformation.networkInterfaces">
+            <summary>
+            网络接口信息
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.NetNode.name">
+            <summary>
+            Net节点名
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.NetNode.connects">
+            <summary>
+            连接数量
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.NetNode.services">
+            <summary>
+            服务信息
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.NetNode.requests">
+            <summary>
+            接口信息
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.NetNode.prefixes">
+            <summary>
+            前缀
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.NetNode.hardwareInformation">
+            <summary>
+            硬件信息
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.RequestNode.name">
+            <summary>
+            服务名
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.Model.ServiceNode.name">
+            <summary>
+            服务名
+            </summary>
+        </member>
+        <member name="M:EtherealS.Net.NetNode.NetNodeClient.Request.ServerNodeRequest.Register(EtherealS.Net.NetNode.Model.NetNode)">
+            <summary>
+            注册节点信息
+            </summary>
+            <param name="node">节点信息</param>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.NetNodeServer.Service.ServerNodeService.config">
+            <summary>
+            对应服务的Config信息
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.NetNodeServer.Service.ServerNodeService.netNodes">
+            <summary>
+            节点信息
+            </summary>
+        </member>
+        <member name="F:EtherealS.Net.NetNode.NetNodeServer.Service.ServerNodeService.distributeRequest">
+            <summary>
+            分布式请求
+            </summary>
+        </member>
+        <member name="M:EtherealS.Net.NetNode.NetNodeServer.Service.ServerNodeService.Register(EtherealS.Server.Abstract.BaseToken,EtherealS.Net.NetNode.Model.NetNode)">
+            <summary>
+            注册节点
+            </summary>
+            <param name="token">Tooken</param>
+            <param name="netNode">节点信息</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtherealS.Net.NetNode.NetNodeServer.Service.ServerNodeService.GetNetNode(EtherealS.Server.Abstract.BaseToken,System.String)">
+            <summary>
+            获取对应服务的网络节点
+            </summary>
+            <param name="sender"></param>
+            <param name="servicename"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EtherealS.Net.NetNode.NetNodeServer.Service.ServerNodeService.Sender_DisConnectEvent(EtherealS.Server.Abstract.BaseToken)">
+            <summary>
+            如果断开连接，字典中删掉该节点
+            </summary>
+            <param name="token"></param>
+        </member>
+        <member name="M:EtherealS.Net.WebSocket.WebSocketNet.Publish">
+            <summary>
+            部署节点
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:EtherealS.Net.WebSocket.WebSocketNetConfig">
+            <summary>
+            Ethereal网关
+            </summary>
+        </member>
+        <member name="E:EtherealS.Request.Abstract.Request.LogEvent">
+            <summary>
+            日志输出事件
+            </summary>
+        </member>
+        <member name="E:EtherealS.Request.Abstract.Request.ExceptionEvent">
+            <summary>
+            抛出异常事件
+            </summary>
+        </member>
+        <member name="T:EtherealS.Request.Abstract.RequestConfig">
+            <summary>
+            服务请求配置项
+            </summary>
+        </member>
+        <member name="F:EtherealS.Request.Abstract.RequestConfig.types">
+            <summary>
+            中间层抽象数据类配置项
+            </summary>
+        </member>
+        <member name="T:EtherealS.Request.Attribute.Request">
+            <summary>
+            作为服务器请求方法的标注类
+            </summary>
+        </member>
+        <member name="F:EtherealS.Request.Attribute.Request.paramters">
+            <summary>
+            提供自定义MethodId的抽象参数名
+            </summary>
+        </member>
+        <member name="T:EtherealS.Request.Interface.IRequestConfig">
+            <summary>
+            服务请求配置项
+            </summary>
+        </member>
+        <member name="T:EtherealS.Request.WebSocket.WebSocketRequestConfig">
+            <summary>
+            服务请求配置项
+            </summary>
+        </member>
+        <member name="T:EtherealS.Server.Abstract.BaseToken.ConnectDelegate">
+            <summary>
+            连接委托
+            </summary>
+            <param name="token"></param>
+        </member>
+        <member name="T:EtherealS.Server.Abstract.BaseToken.DisConnectDelegate">
+            <summary>
+                
+            </summary>
+            <param name="token"></param>
+        </member>
+        <member name="E:EtherealS.Server.Abstract.BaseToken.ConnectEvent">
+            <summary>
+            连接事件
+            </summary>
+        </member>
+        <member name="E:EtherealS.Server.Abstract.BaseToken.DisConnectEvent">
+            <summary>
+            断开连接事件
+            </summary>
+        </member>
+        <member name="E:EtherealS.Server.Abstract.BaseToken.LogEvent">
+            <summary>
+            日志输出事件
+            </summary>
+        </member>
+        <member name="E:EtherealS.Server.Abstract.BaseToken.ExceptionEvent">
+            <summary>
+            抛出异常事件
+            </summary>
+        </member>
+        <member name="M:EtherealS.Server.Abstract.BaseToken.Register(System.Boolean)">
+            <summary>
+            注册Token信息至Tokens表
+            </summary>
+            <param name="replace">当已存在Token信息，是否替换</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtherealS.Server.Abstract.BaseToken.UnRegister">
+            <summary>
+            从Tokens表中注销Token信息
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EtherealS.Server.Abstract.BaseToken.GetTokens">
+            <summary>
+            得到该Token所属的Tokens表单
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:EtherealS.Server.Abstract.BaseToken.GetToken``1(System.Object,``0@)">
+            <summary>
+            得到特定的Token信息
+            </summary>
+            <typeparam name="T">返回的类型</typeparam>
+            <param name="key">Token唯一凭据Key</param>
+            <param name="value">返回的值</param>
+            <returns></returns>
+        </member>
+        <member name="M:EtherealS.Server.Abstract.BaseToken.GetTokens(System.String)">
+            <summary>
+            得到某网络层{ip}-{port}中的Tokens表单
+            </summary>
+            <param name="serverkey"></param>
+            <returns></returns>
+        </member>
+        <member name="M:EtherealS.Server.Abstract.BaseToken.OnConnect">
+            <summary>
+            连接时激活连接事件
+            </summary>
+        </member>
+        <member name="M:EtherealS.Server.Abstract.BaseToken.OnDisConnect">
+            <summary>
+            断开连接时激活断开连接事件
+            </summary>
+        </member>
+        <member name="T:EtherealS.Server.Abstract.Server.ListenerSuccessDelegate">
+            <summary>
+            连接委托
+            </summary>
+            <param name="token"></param>
+        </member>
+        <member name="T:EtherealS.Server.Abstract.Server.ListenerFailDelegate">
+            <summary>
+                
+            </summary>
+            <param name="token"></param>
+        </member>
+        <member name="E:EtherealS.Server.Abstract.Server.LogEvent">
+            <summary>
+            日志输出事件
+            </summary>
+        </member>
+        <member name="E:EtherealS.Server.Abstract.Server.ExceptionEvent">
+            <summary>
+            抛出异常事件
+            </summary>
+        </member>
+        <member name="E:EtherealS.Server.Abstract.Server.ListenerSuccessEvent">
+            <summary>
+            连接事件
+            </summary>
+        </member>
+        <member name="E:EtherealS.Server.Abstract.Server.ListenerFailEvent">
+            <summary>
+            断开连接事件
+            </summary>
+        </member>
+        <member name="M:EtherealS.Server.Abstract.Server.OnListenerSuccess">
+            <summary>
+            连接时激活连接事件
+            </summary>
+        </member>
+        <member name="M:EtherealS.Server.Abstract.Server.OnListenerFail">
+            <summary>
+            断开连接时激活断开连接事件
+            </summary>
+        </member>
+        <member name="T:EtherealS.Server.Abstract.ServerConfig">
+            <summary>
+            Server配置项
+            </summary>
+        </member>
+        <member name="T:EtherealS.Server.Abstract.ServerConfig.CreateInstance">
+            <summary>
+            BaseUserToken实例化方法委托
+            </summary>
+            <returns>BaseUserToken实例</returns>
+        </member>
+        <member name="T:EtherealS.Server.Abstract.ServerConfig.ServerRequestModelSerializeDelegate">
+            <summary>
+            ServerRequestModel序列化方法委托
+            </summary>
+            <param name="obj">待序列化ServerRequestModel对象</param>
+            <returns>序列化文本</returns>
+        </member>
+        <member name="T:EtherealS.Server.Abstract.ServerConfig.ClientRequestModelDeserializeDelegate">
+            <summary>
+            ClientRequestModel逆序列化方法委托
+            </summary>
+            <param name="obj">序列化文本</param>
+            <returns>序列化结果类</returns>
+        </member>
+        <member name="T:EtherealS.Server.Abstract.ServerConfig.ClientResponseModelSerializeDelegate">
+            <summary>
+            ClientResponseModel序列化方法委托
+            </summary>
+            <param name="obj">待序列化ClientResponseModel对象</param>
+            <returns>序列化文本</returns>
+        </member>
+        <member name="F:EtherealS.Server.Abstract.ServerConfig.serverRequestModelSerialize">
+            <summary>
+            ServerRequestModel序列化委托实现
+            </summary>
+        </member>
+        <member name="F:EtherealS.Server.Abstract.ServerConfig.clientRequestModelDeserialize">
+            <summary>
+            ClientRequestModel逆序列化委托实现
+            </summary>
+        </member>
+        <member name="F:EtherealS.Server.Abstract.ServerConfig.clientResponseModelSerialize">
+            <summary>
+            ClientResponseModel序列化委托实现
+            </summary>
+        </member>
+        <member name="F:EtherealS.Server.Abstract.ServerConfig.createMethod">
+            <summary>
+            创建实例化方法委托实现
+            </summary>
+        </member>
+        <member name="T:EtherealS.Server.Interface.IServerConfig">
+            <summary>
+            Server配置项
+            </summary>
+        </member>
+        <member name="M:EtherealS.Server.ServerCore.Register(EtherealS.Net.Abstract.Net,System.String[],EtherealS.Server.Abstract.ServerConfig,EtherealS.Server.Abstract.Server)">
+            <summary>
+            获取客户端
+            </summary>
+            <param name="serverIp">远程服务IP</param>
+            <param name="port">远程服务端口</param>
+            <returns>客户端</returns>
+        </member>
+        <member name="T:EtherealS.Server.WebSocket.WebSocketServerConfig">
+            <summary>
+            Server配置项
+            </summary>
+        </member>
+        <member name="F:EtherealS.Server.WebSocket.WebSocketServerConfig.maxConnections">
+            <summary>
+            最大的连接数
+            </summary>
+        </member>
+        <member name="F:EtherealS.Server.WebSocket.WebSocketServerConfig.bufferSize">
+            <summary>
+            默认缓冲池
+            </summary>
+        </member>
+        <member name="F:EtherealS.Server.WebSocket.WebSocketServerConfig.maxBufferSize">
+            <summary>
+            最大缓冲池
+            </summary>
+        </member>
+        <member name="F:EtherealS.Server.WebSocket.WebSocketServerConfig.numChannels">
+            <summary>
+            多行道[C# 行道为5行道并行接收请求和处理请求（待更改）]
+            </summary>
+        </member>
+        <member name="F:EtherealS.Server.WebSocket.WebSocketServerConfig.autoManageTokens">
+            <summary>
+            自动管理Token
+            </summary>
+        </member>
+        <member name="F:EtherealS.Server.WebSocket.WebSocketServerConfig.encoding">
+            <summary>
+            编码类型
+            </summary>
+        </member>
+        <member name="F:EtherealS.Server.WebSocket.WebSocketServerConfig.keepAliveInterval">
+            <summary>
+            心跳周期
+            </summary>
+        </member>
+        <member name="E:EtherealS.Service.Abstract.Service.InterceptorEvent">
+            <summary>
+            网络级拦截器事件
+            </summary>
+        </member>
+        <member name="E:EtherealS.Service.Abstract.Service.LogEvent">
+            <summary>
+            日志输出事件
+            </summary>
+        </member>
+        <member name="E:EtherealS.Service.Abstract.Service.ExceptionEvent">
+            <summary>
+            抛出异常事件
+            </summary>
+        </member>
+        <member name="T:EtherealS.Service.Abstract.ServiceConfig">
+            <summary>
+            服务配置项
+            </summary>
+        </member>
+        <member name="F:EtherealS.Service.Abstract.ServiceConfig.types">
+            <summary>
+            中间层抽象数据类配置项
+            </summary>
+        </member>
+        <member name="T:EtherealS.Service.Attribute.Service">
+            <summary>
+            作为服务器服务方法的标注类
+            </summary>
+        </member>
+        <member name="F:EtherealS.Service.Attribute.Service.paramters">
+            <summary>
+            提供自定义MethodId的抽象参数名
+            </summary>
+        </member>
+        <member name="F:EtherealS.Service.Attribute.Service.authority">
+            <summary>
+            服务实现IAuthoritable 接口
+            </summary>
+        </member>
+        <member name="T:EtherealS.Service.Interface.IServiceConfig">
+            <summary>
+            服务配置项
+            </summary>
+        </member>
+        <member name="T:EtherealS.Service.WebSocket.WebSocketServiceConfig">
+            <summary>
+            服务配置项
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Threading;
 
 namespace EtherealS.Net.Extension.Plugins
 {
@@ -52,7 +53,6 @@ namespace EtherealS.Net.Extension.Plugins
 		/// 获取当前实例是否已经初始化
 		/// </summary>
 		public bool IsInitialized { get; set; }
-
 		/// <summary>
 		/// 获取当前实例是否已经销毁
 		/// </summary>
@@ -101,7 +101,6 @@ namespace EtherealS.Net.Extension.Plugins
 			this.AssemblyPath = assemblyPath;
 			this.AssemblyName = Path.GetFileNameWithoutExtension(this.AssemblyPath);   // 获取文件名
 			this.BaseDirectory = baseDirectory;
-
 			this.DataDirectory = dataDirectory;
 			this.PrivateLibDirectory = libDirectory;
 			this.CachesDirectory = cachesDirectory;
@@ -119,24 +118,25 @@ namespace EtherealS.Net.Extension.Plugins
 		}
 		public bool Initialize(Abstract.Net net)
         {
-			#region 初始化目录配置
-			assemlyLoad = new AssemblyLoadContext(AssemblyName, true);
-			//载入依赖项
-			foreach (FileInfo file in new DirectoryInfo(PrivateLibDirectory).GetFiles("*.dll", SearchOption.AllDirectories))
-			{
-				assemlyLoad.LoadFromAssemblyPath(file.DirectoryName);
-			}
+			assemlyLoad = new AssemblyLoadContext(null,true);
+			#region 加载Lib
 			//将所有Lib复制到卷影目录
 			foreach (FileInfo fileInfo in new DirectoryInfo(PrivateLibDirectory).GetFiles("*.dll", SearchOption.AllDirectories))
 			{
-				File.Copy(fileInfo.FullName, Path.Combine(ShadowCopyDirectory, fileInfo.Name));
+				File.Copy(fileInfo.FullName, Path.Combine(ShadowCopyDirectory, fileInfo.Name), true);
 			}
-			AssemblyShadowCopyPath = Path.Combine(ShadowCopyDirectory, Path.GetFileName(AssemblyPath));
-			//将核心入口Dll复制到卷影目录
-			File.Replace(AssemblyPath, AssemblyShadowCopyPath, null);
+			//载入Lib
+			foreach (FileInfo file in new DirectoryInfo(ShadowCopyDirectory).GetFiles("*.dll", SearchOption.AllDirectories))
+			{
+				//考虑到有用户会把EtherealS.dll误放入Lib导致重复加载
+				if(file.Name != "EtherealS.dll")assemlyLoad.LoadFromAssemblyPath(file.FullName);
+			}
 			#endregion
 
 			#region 加载程序
+			AssemblyShadowCopyPath = Path.Combine(ShadowCopyDirectory, Path.GetFileName(AssemblyPath));
+			//将核心入口Dll复制到卷影目录
+			File.Copy(AssemblyPath, AssemblyShadowCopyPath, true);
 			//加载Assembly
 			Assembly assembly = assemlyLoad.LoadFromAssemblyPath(this.AssemblyShadowCopyPath);
 			//扫描Service
@@ -145,30 +145,38 @@ namespace EtherealS.Net.Extension.Plugins
 				Service.Attribute.Service serviceAttribute = type.GetCustomAttribute<Service.Attribute.Service>();
 				if (serviceAttribute != null && serviceAttribute.Plugin)
 				{
-					if (type.BaseType == typeof(Service.Abstract.Service))
-					{
-						Service.Abstract.Service service = Activator.CreateInstance(type) as Service.Abstract.Service;
-						ServiceCore.Register(net, service);
-						services.Add(service);
-						service.PluginDomain = this;
-					}
+					Service.Abstract.Service service = Activator.CreateInstance(type) as Service.Abstract.Service;
+					ServiceCore.Register(net, service);
+					services.Add(service);
+					service.PluginDomain = this;
 				}
 			}
 			#endregion
+			IsInitialized = true;
 			return true;
 		}
 		public bool UnInitialize()
         {
-			foreach(Service.Abstract.Service service in services)
+            if (IsInitialized && !IsDisposed)
             {
-				services.Remove(service);
-				service.PluginDomain = null;
-				ServiceCore.UnRegister(service);
-            }
-			AssemlyLoad.Unload();
-			assemlyLoad = null;
-			//清理影卷复制目录
-			Directory.Delete(ShadowCopyDirectory);
+				foreach (Service.Abstract.Service service in services)
+				{
+					service.PluginDomain = null;
+					ServiceCore.UnRegister(service);
+				}
+				services.Clear();
+				//创建弱引用，跟踪销毁情况。
+				WeakReference weakReference = new WeakReference(assemlyLoad,true);
+				assemlyLoad = null;
+				(weakReference.Target as AssemblyLoadContext).Unload();
+				//一般第二次,IsAlive就会变为False,即AssemblyLoadContext卸载.
+				for (int i = 0; weakReference.IsAlive && (i < 10); i++)
+				{
+					GC.Collect();
+					GC.WaitForPendingFinalizers();
+				}
+				IsDisposed = true;
+			}
 			return true;
 		}
 	}

@@ -15,6 +15,7 @@ namespace EtherealS.Net.Extension.Plugins
         private string netName;
         private List<PluginDomain> plugins = new List<PluginDomain>();
         private PluginConfig config = new PluginConfig();
+        FileSystemWatcher watcher;
         #endregion
 
         #region --属性--
@@ -27,6 +28,7 @@ namespace EtherealS.Net.Extension.Plugins
         public PluginManager(string netName)
         {
             this.netName = netName;
+            config.BaseDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $@"Nets\{netName}");
         }
         public void Listen()
         {
@@ -36,97 +38,74 @@ namespace EtherealS.Net.Extension.Plugins
                 {
                     Directory.CreateDirectory(config.BaseDirectory);
                 }
-                FileSystemWatcher watcher = new FileSystemWatcher();
+                watcher = new FileSystemWatcher();
                 watcher.Path = config.BaseDirectory;
+                watcher.Filter = "*.services";
                 watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
-                   | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-                watcher.Filter = "*.*";
+                                | NotifyFilters.FileName | NotifyFilters.DirectoryName;
                 watcher.IncludeSubdirectories = true;
-                watcher.Created += ReLoad;
-                watcher.Changed += ReLoad;
-                watcher.Renamed += ReName;
-                watcher.Deleted += ReLoad;
+                watcher.Created += Created;
+                watcher.Renamed += ReNamed;
+                watcher.Deleted += Deleted;
                 watcher.EnableRaisingEvents = true;
                 //初始扫描所有文件，寻找入口
-                foreach(FileInfo fileInfo in new DirectoryInfo(config.BaseDirectory).GetFiles("*.dll",SearchOption.AllDirectories))
+                foreach(FileInfo fileInfo in new DirectoryInfo(config.BaseDirectory).GetFiles("*.services", SearchOption.AllDirectories))
                 {
-                    //扫描入口
-                    foreach (var type in Assembly.LoadFile(fileInfo.FullName).GetTypes())
-                    {
-                        Service.Attribute.Service serviceAttribute = type.GetCustomAttribute<Service.Attribute.Service>();
-                        if (serviceAttribute != null && serviceAttribute.Plugin)
-                        {
-                            //找到了入口程序集
-                            if (type.BaseType == typeof(Service.Abstract.Service))
-                            {
-                                LoadPlugin(net, fileInfo);
-                            }
-                            else throw new TrackException(TrackException.ErrorCode.Runtime, $"{fileInfo.FullName}-{type.BaseType}并非Service,您可能错误标注了");
-                        }
-                    }
+                    if(!fileInfo.Directory.Name.Equals("shadow"))LoadPlugin(net, fileInfo);
                 }
             }
             else throw new TrackException(TrackException.ErrorCode.Runtime, $"PluginManager未找到Net:{netName}");
         }
 
-        private void ReName(object sender, RenamedEventArgs e)
+        private void Created(object sender, FileSystemEventArgs e)
         {
-            foreach(PluginDomain plugin in plugins)
-            {
-                if(plugin.AssemblyPath == e.OldFullPath)
-                {
-                    plugin.AssemblyPath = e.FullPath;
-                    plugin.AssemblyName = e.Name;
-                }
-            }
-        }
-
-        private void ReLoad(object sender, FileSystemEventArgs e)
-        {
+            DirectoryInfo directory = new DirectoryInfo(e.FullPath).Parent;
+            if (directory.Name.Equals("shadow")) return;
             if (!NetCore.Get(netName, out Abstract.Net net))
             {
                 throw new TrackException(TrackException.ErrorCode.Runtime, $"PluginManager未找到Net:{netName}");
             }
-            else if (Path.GetDirectoryName(e.FullPath).Split(@"\").Last().Equals("shadow"))
-            {
-                //无视影卷目录复制操作
-            }
-            DirectoryInfo directory = new DirectoryInfo(e.FullPath);
-            //到插件根目录停止扫描
-            while(directory.FullName != config.BaseDirectory)
-            {
-                foreach (FileInfo fileInfo in directory.GetFiles("*.dll", SearchOption.TopDirectoryOnly))
-                {
-                    //扫描入口
-                    foreach (var type in Assembly.LoadFile(fileInfo.FullName).GetTypes())
-                    {
-                        Service.Attribute.Service serviceAttribute = type.GetCustomAttribute<Service.Attribute.Service>();
-                        if (serviceAttribute != null && serviceAttribute.Plugin)
-                        {
-                            //找到了入口程序集
-                            if (type.BaseType == typeof(Service.Abstract.Service))
-                            {
-                                LoadPlugin(net, fileInfo);
-                            }
-                            else throw new TrackException(TrackException.ErrorCode.Runtime, $"{fileInfo.FullName}-{type.BaseType}并非Service,您可能错误标注了");
-                        }
-                    }
-                }
-                //继续扫描上一级
-                directory = directory.Parent;
-            }
+            LoadPlugin(net, new FileInfo(e.FullPath));
         }
-        private bool LoadPlugin(Abstract.Net net,FileInfo fileInfo)
+
+        private void Deleted(object sender, FileSystemEventArgs e)
         {
+            DirectoryInfo directory = new DirectoryInfo(e.FullPath).Parent;
+            if (directory.Name.Equals("shadow")) return;
+            if (!NetCore.Get(netName, out Abstract.Net net))
+            {
+                throw new TrackException(TrackException.ErrorCode.Runtime, $"PluginManager未找到Net:{netName}");
+            }
             //判断是否已载入该插件
-            PluginDomain plugin = plugins.Where(plugin => plugin.AssemblyPath == fileInfo.FullName).First();
+            PluginDomain plugin = plugins.Where(plugin => plugin.AssemblyPath == e.FullPath).FirstOrDefault();
             if (plugin != null)
             {
                 UnPlugin(plugin);
             }
-            plugin = new PluginDomain(fileInfo.FullName, fileInfo.DirectoryName,
-                fileInfo.DirectoryName + @"\lib", fileInfo.DirectoryName + @"\config", fileInfo.DirectoryName + @"\cache",
-                fileInfo.DirectoryName + @"\shadow");
+        }
+
+        private void ReNamed(object sender, RenamedEventArgs e)
+        {
+            DirectoryInfo directory = new DirectoryInfo(e.FullPath).Parent;
+            if (directory.Name.Equals("shadow")) return;
+            if (!NetCore.Get(netName, out Abstract.Net net))
+            {
+                throw new TrackException(TrackException.ErrorCode.Runtime, $"PluginManager未找到Net:{netName}");
+            }
+            //判断是否已载入该插件
+            PluginDomain plugin = plugins.Where(plugin => plugin.AssemblyPath == e.OldFullPath).FirstOrDefault();
+            if (plugin != null)
+            {
+                UnPlugin(plugin);
+            }
+            LoadPlugin(net, new FileInfo(e.FullPath));
+        }
+        private bool LoadPlugin(Abstract.Net net,FileInfo fileInfo)
+        {
+            //判断是否已载入该插件
+            PluginDomain plugin = new PluginDomain(fileInfo.FullName, fileInfo.DirectoryName,
+            fileInfo.DirectoryName + @"\lib", fileInfo.DirectoryName + @"\config", fileInfo.DirectoryName + @"\cache",
+            fileInfo.DirectoryName + @"\shadow");
             plugins.Add(plugin);
             plugin.Initialize(net);
             return true;

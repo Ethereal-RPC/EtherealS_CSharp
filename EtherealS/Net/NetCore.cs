@@ -14,8 +14,9 @@ namespace EtherealS.Net
     /// </summary>
     public class NetCore
     {
-        public static Dictionary<string, Net.Abstract.Net> nets = new Dictionary<string, Net.Abstract.Net>();
-        public static bool Get(string name, out Net.Abstract.Net net)
+        public static Dictionary<string, Abstract.Net> nets = new Dictionary<string, Abstract.Net>();
+
+        public static bool Get(string name, out Abstract.Net net)
         {
             return nets.TryGetValue(name, out net);
         }

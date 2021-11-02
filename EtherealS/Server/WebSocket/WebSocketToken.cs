@@ -69,6 +69,8 @@ namespace EtherealS.Server.WebSocket
                         string data = Config.Encoding.GetString(receiveBuffer);
                         offset = 0;
                         free = Config.BufferSize;
+                        string a = Config.Encoding.GetString(receiveBuffer);
+                        Console.WriteLine(a);
                         ClientRequestModel request = Config.ClientRequestModelDeserialize(Config.Encoding.GetString(receiveBuffer));
                         string log = "--------------------------------------------------\n" +
                                      $"{DateTime.Now}::{netName}::[服-返回]\n{request}\n" +

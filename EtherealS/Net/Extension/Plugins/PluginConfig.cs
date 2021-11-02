@@ -12,7 +12,7 @@ namespace EtherealS.Net.Extension.Plugins
         /// <summary>
         /// 插件目录
         /// </summary>
-        private string baseDirectory = AppDomain.CurrentDomain.BaseDirectory + @"\Plugins";
+        private string baseDirectory;
         #endregion
 
         #region --属性--

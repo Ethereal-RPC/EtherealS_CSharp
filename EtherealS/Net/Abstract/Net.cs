@@ -115,7 +115,6 @@ namespace EtherealS.Net.Abstract
             {
                 if (config.PluginMode)
                 {
-                    pluginManager = new PluginManager(name);
                     pluginManager.Listen();
                 }
                 server.Start();
@@ -129,12 +128,12 @@ namespace EtherealS.Net.Abstract
                 OnException(new TrackException(e));
             }
             return true;
-            return true;
         }
 
         public Net(string name)
         {
             this.name = name;
+            pluginManager = new PluginManager(name);
         }
         public ClientResponseModel ClientRequestReceiveProcess(Token token, ClientRequestModel request)
         {

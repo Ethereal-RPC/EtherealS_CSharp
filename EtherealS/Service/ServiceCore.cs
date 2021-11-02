@@ -83,6 +83,9 @@ namespace EtherealS.Service
                 {
                     service.LogEvent -= net.OnLog;
                     service.ExceptionEvent -= net.OnException;
+                    service.Methods.Clear();
+                    service.Config = null;
+                    service.Types = null;
                     service.UnInitialize();
                 }
             }

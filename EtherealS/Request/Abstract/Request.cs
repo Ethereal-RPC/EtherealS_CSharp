@@ -6,6 +6,7 @@ using EtherealS.Request.Interface;
 
 namespace EtherealS.Request.Abstract
 {
+    [Attribute.Request]
     public abstract class Request : DispatchProxy,IRequest
     {
 

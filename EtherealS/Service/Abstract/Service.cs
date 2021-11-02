@@ -91,7 +91,7 @@ namespace EtherealS.Service.Abstract
             StringBuilder methodid = new StringBuilder();
             foreach (MethodInfo method in instance.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static))
             {
-                Attribute.Method rpcAttribute = method.GetCustomAttribute<Attribute.Method>();
+                Attribute.ServiceMethod rpcAttribute = method.GetCustomAttribute<Attribute.ServiceMethod>();
                 if (rpcAttribute != null)
                 {
                     if (!method.IsAbstract)

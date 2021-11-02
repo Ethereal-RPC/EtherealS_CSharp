@@ -1,7 +1,4 @@
-﻿using EtherealS.Core.Attribute;
-using EtherealS.Server.Abstract;
-using EtherealS.Server.Attribute;
-using EtherealS.Service.Attribute;
+﻿using EtherealS.Service.Attribute;
 using EtherealS_Test.Model;
 using EtherealS_Test.RequestDemo;
 
@@ -22,7 +19,7 @@ namespace EtherealS_Test.ServiceDemo
 
         #region --方法--
         //Token 
-        [Method]
+        [ServiceMethod]
         public bool Register([EtherealS.Server.Attribute.Token]User user, string username, long id)
         {
             user.Username = username;
@@ -37,7 +34,7 @@ namespace EtherealS_Test.ServiceDemo
         /// <param name="message"></param>
         /// <returns></returns>
 
-        [Method]
+        [ServiceMethod]
         public bool SendSay([EtherealS.Server.Attribute.Token] User sender, long listener_id, string message)
         {
             //查找对应ID的用户 1
@@ -50,7 +47,7 @@ namespace EtherealS_Test.ServiceDemo
             else return false;
         }
 
-        [Method]
+        [ServiceMethod]
         public int Add([EtherealS.Server.Attribute.Token] EtherealS.Server.Abstract.Token token,int a,int b)
         {
             return a + b;

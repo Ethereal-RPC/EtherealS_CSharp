@@ -7,7 +7,7 @@ namespace EtherealS.Service.Attribute
     /// 作为服务器服务方法的标注类
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class Method : System.Attribute, IAuthoritable
+    public class ServiceMethod : System.Attribute, IAuthoritable
     {
         /// <summary>
         /// 服务实现IAuthoritable 接口

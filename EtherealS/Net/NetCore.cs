@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using EtherealS.Core.Model;
-using EtherealS.Net.Abstract;
-using EtherealS.Net.WebSocket;
+﻿using EtherealS.Core.Model;
 using EtherealS.Request;
 using EtherealS.Server;
 using EtherealS.Service;
+using System.Collections.Generic;
 
 namespace EtherealS.Net
 {
@@ -32,25 +29,25 @@ namespace EtherealS.Net
         }
         public static bool UnRegister(string name)
         {
-            if (Get(name, out Net.Abstract.Net net))
+            if (Get(name, out Abstract.Net net))
             {
                 return UnRegister(net);
             }
             return true;
         }
-        public static bool UnRegister(Net.Abstract.Net net)
+        public static bool UnRegister(Abstract.Net net)
         {
             if(net != null)
             {
-                foreach (string serviceName in net.Services.Keys)
+                foreach (Service.Abstract.Service service in net.Services.Values)
                 {
-                    ServiceCore.UnRegister(net, serviceName);
+                    ServiceCore.UnRegister(service);
                 }
-                foreach (string requestName in net.Requests.Keys)
+                foreach (Request.Abstract.Request request in net.Requests.Values)
                 {
-                    RequestCore.UnRegister(net, requestName);
+                    RequestCore.UnRegister(request);
                 }
-                ServerCore.UnRegister(net);
+                ServerCore.UnRegister(net.Server);
                 nets.Remove(net.Name);
             }
             return true;

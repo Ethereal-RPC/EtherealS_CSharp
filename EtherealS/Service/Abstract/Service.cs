@@ -55,7 +55,7 @@ namespace EtherealS.Service.Abstract
         #endregion
 
         #region --字段--
-        protected string netName;
+        protected Net.Abstract.Net net;
         protected string name;
         protected Dictionary<string, MethodInfo> methods = new Dictionary<string, MethodInfo>();
         protected ServiceConfig config;
@@ -66,7 +66,7 @@ namespace EtherealS.Service.Abstract
         #region --属性--
         public Dictionary<string, MethodInfo> Methods { get => methods; set => methods = value; }
         public ServiceConfig Config { get => config; set => config = value; }
-        public string NetName { get => netName; set => netName = value; }
+        public Net.Abstract.Net Net { get => net; set => net = value; }
         public string Name { get => name; set => name = value; }
         public AbstractTypes Types { get => types; set => types = value; }
         public PluginDomain PluginDomain { get => pluginDomain; set => pluginDomain = value; }

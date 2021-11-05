@@ -70,7 +70,7 @@ namespace EtherealS.Server.Abstract
         #endregion
 
         #region --字段--
-        protected string netName;
+        protected Server server;
         protected ServerConfig config;
         protected bool canRequest;
         public object key;
@@ -78,7 +78,7 @@ namespace EtherealS.Server.Abstract
 
         #region --属性--
         public bool CanRequest { get => canRequest; set => canRequest = value; }
-        public string NetName { get => netName; set => netName = value; }
+        public Server Server { get => server; set => server = value; }
         public ServerConfig Config { get => config; set => config = value; }
         #endregion
 
@@ -90,15 +90,11 @@ namespace EtherealS.Server.Abstract
         /// <returns></returns>
         public bool Register(bool replace = false)
         {
-            if (!NetCore.Get(NetName, out Net.Abstract.Net net))
-            {
-                throw new TrackException(TrackException.ErrorCode.Runtime, $"{NetName}Net未找到");
-            }
             if (replace)
             {
-                net.Tokens.TryRemove(key, out Token token);
+                Server.Net.Tokens.TryRemove(key, out Token token);
             }
-            return net.Tokens.TryAdd(key, this);
+            return Server.Net.Tokens.TryAdd(key, this);
         }
         /// <summary>
         /// 从Tokens表中注销Token信息
@@ -107,11 +103,7 @@ namespace EtherealS.Server.Abstract
         public bool UnRegister()
         {
             if (key == null) return true;
-            if (!NetCore.Get(NetName, out Net.Abstract.Net net))
-            {
-                throw new TrackException(TrackException.ErrorCode.Runtime, $"{NetName}Net未找到");
-            }
-            return net.Tokens.TryRemove(key, out Token value);
+            return Server.Net.Tokens.TryRemove(key, out Token value);
         }
         /// <summary>
         /// 得到该Token所属的Tokens表单
@@ -119,11 +111,7 @@ namespace EtherealS.Server.Abstract
         /// <returns></returns>
         public ConcurrentDictionary<object, Token> GetTokens()
         {
-            if (!NetCore.Get(NetName, out Net.Abstract.Net net))
-            {
-                throw new TrackException(TrackException.ErrorCode.Runtime, $"{NetName}Net未找到");
-            }
-            return net.Tokens;
+            return Server.Net.Tokens;
         }
         /// <summary>
         /// 得到特定的Token信息
@@ -134,11 +122,7 @@ namespace EtherealS.Server.Abstract
         /// <returns></returns>
         public bool GetToken<T>(object key, out T value) where T : Token
         {
-            if (!NetCore.Get(NetName, out Net.Abstract.Net net))
-            {
-                throw new TrackException(TrackException.ErrorCode.Runtime, $"{NetName}Net未找到");
-            }
-            if (net.Tokens.TryGetValue(key, out Token result))
+            if (Server.Net.Tokens.TryGetValue(key, out Token result))
             {
                 value = (T)result;
                 return true;
@@ -156,11 +140,7 @@ namespace EtherealS.Server.Abstract
         /// <returns></returns>
         public ConcurrentDictionary<object, Token> GetTokens(string netName)
         {
-            if (!NetCore.Get(netName, out Net.Abstract.Net net))
-            {
-                throw new TrackException(TrackException.ErrorCode.Runtime, $"{netName}Net未找到");
-            }
-            return net.Tokens;
+            return Server.Net.Tokens;
         }
         #endregion
 

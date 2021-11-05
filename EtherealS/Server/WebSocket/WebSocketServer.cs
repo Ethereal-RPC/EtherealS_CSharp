@@ -64,7 +64,7 @@ namespace EtherealS.Server.WebSocket
                 if (request.IsWebSocketRequest)
                 {
                     HttpListenerWebSocketContext webSocketContext = await context.AcceptWebSocketAsync(null, Config.KeepAliveInterval);
-                    baseToken.NetName = netName;
+                    baseToken.Server = this;
                     baseToken.Config = Config;
                     baseToken.CancellationToken = cancellationToken;
                     baseToken.CanRequest = true;
@@ -89,15 +89,9 @@ namespace EtherealS.Server.WebSocket
                         await request.InputStream.ReadAsync(body, 0, body.Length);
                         clientRequestModel = base.Config.ClientRequestModelDeserialize(Config.Encoding.GetString(body));
                         string log = "--------------------------------------------------\n" +
-                                     $"{DateTime.Now}::{netName}::[服-返回]\n{request}\n" +
+                                     $"{DateTime.Now}::{base.net}::[服-返回]\n{request}\n" +
                                      "--------------------------------------------------\n";
                         if (config.Debug) OnLog(TrackLog.LogCode.Runtime, log);
-                        if (!NetCore.Get(netName, out Net.Abstract.Net net))
-                        {
-                            SendHttpToClient(context, new ClientResponseModel(null, clientRequestModel?.Id, clientRequestModel?.Service, new Error(Error.ErrorCode.NotFoundNet, $"未找到节点{netName}", null)));
-                            return;
-                        }
-
                         //构造处理请求环境
                         baseToken.CanRequest = false;
                         baseToken.OnConnect();

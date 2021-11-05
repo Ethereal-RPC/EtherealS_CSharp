@@ -48,7 +48,7 @@ namespace EtherealS.Service
             Abstract.Service.Register(service);
             if (!net.Services.ContainsKey(service.Name))
             {
-                service.NetName = net.Name;
+                service.Net = net;
                 service.LogEvent += net.OnLog;
                 service.ExceptionEvent += net.OnException;
                 net.Services[service.Name] = service;
@@ -57,38 +57,16 @@ namespace EtherealS.Service
             }
             else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}-{service.Name}已注册！");
         }
-
-        public static bool UnRegister(string netName,string serviceName)
-        {
-            if (NetCore.Get(netName, out Net.Abstract.Net net))
-            {
-                return UnRegister(net, serviceName);
-            }
-            return true;
-        }
         public static bool UnRegister(Abstract.Service service)
         {
-            if (NetCore.Get(service.NetName, out Net.Abstract.Net net))
-            {
-                return UnRegister(net, service.Name);
-            }
-            return true;
-        }
-        public static bool UnRegister(Net.Abstract.Net net, string serviceName)
-        {
-            if(net != null)
-            {
-                net.Services.TryRemove(serviceName, out Abstract.Service service);
-                if(service != null)
-                {
-                    service.LogEvent -= net.OnLog;
-                    service.ExceptionEvent -= net.OnException;
-                    service.Methods.Clear();
-                    service.Config = null;
-                    service.Types = null;
-                    service.UnInitialize();
-                }
-            }
+            service.Net.Services.TryRemove(service.Name, out service);
+            service.LogEvent -= service.Net.OnLog;
+            service.ExceptionEvent -= service.Net.OnException;
+            service.Methods.Clear();
+            service.Net = null;
+            service.Config = null;
+            service.Types = null;
+            service.UnInitialize();
             return true;
         }
     }

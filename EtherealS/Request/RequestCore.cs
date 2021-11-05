@@ -40,7 +40,7 @@ namespace EtherealS.Request
             if (types != null) request.Types = types;
             if (!net.Requests.ContainsKey(request.Name))
             {
-                request.NetName = net.Name;
+                request.Net = net;
                 request.LogEvent += net.OnLog;
                 request.ExceptionEvent += net.OnException;
                 net.Requests[request.Name] = request;
@@ -48,27 +48,14 @@ namespace EtherealS.Request
                 return (R)request;
             }
             else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}-{serviceName}已注册，无法重复注册！");
-        }
-        public static bool UnRegister(string netName,string serviceName)
+        }   
+        public static bool UnRegister(Abstract.Request request)
         {
-            if (NetCore.Get(netName, out Net.Abstract.Net net))
-            {
-                return UnRegister(net, serviceName);
-            }
-            return true;
-        }
-        public static bool UnRegister(Net.Abstract.Net net, string serviceName)
-        {
-            if(net != null)
-            {
-                net.Requests.TryRemove(serviceName, out Abstract.Request request);
-                if(request != null)
-                {
-                    request.LogEvent -= net.OnLog;
-                    request.ExceptionEvent -= net.OnException;
-                    request.UnInitialize();
-                }
-            }
+            request.Net.Requests.TryRemove(request.Name, out request);
+            request.LogEvent -= request.Net.OnLog;
+            request.ExceptionEvent -= request.Net.OnException;
+            request.Net = null;
+            request.UnInitialize();
             return true;
         }
     }

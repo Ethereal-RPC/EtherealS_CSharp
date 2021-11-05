@@ -51,7 +51,7 @@ namespace EtherealS.Request.Abstract
 
         #region --字段--
         protected string name;
-        protected string netName;
+        protected Net.Abstract.Net net;
         protected RequestConfig config;
         protected AbstractTypes types = new AbstractTypes();
         #endregion
@@ -59,7 +59,7 @@ namespace EtherealS.Request.Abstract
         #region --属性--
         public string Name { get => name; set => name = value; }
         public RequestConfig Config { get => config; set => config = value; }
-        public string NetName { get => netName; set => netName = value; }
+        public Net.Abstract.Net Net { get => net; set => net = value; }
         public AbstractTypes Types { get => types; set => types = value; }
         #endregion
 

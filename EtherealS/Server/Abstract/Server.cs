@@ -79,7 +79,7 @@ namespace EtherealS.Server.Abstract
         #endregion
 
         #region --字段--
-        protected string netName;
+        protected Net.Abstract.Net net;
         protected ServerConfig config;
         protected HttpListener listener;
         protected CancellationToken cancellationToken = CancellationToken.None;
@@ -97,7 +97,7 @@ namespace EtherealS.Server.Abstract
         public HttpListener Listener { get => listener; set => listener = value; }
         public List<string> Prefixes { get => prefixes; set => prefixes = value; }
         public ServerConfig Config { get => config; set => config = value; }
-        public string NetName { get => netName; set => netName = value; }
+        public Net.Abstract.Net Net { get => net; set => net = value; }
         #endregion
 
         public abstract void Start();

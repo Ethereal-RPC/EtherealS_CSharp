@@ -73,13 +73,13 @@ namespace EtherealS.Server.WebSocket
                         Console.WriteLine(a);
                         ClientRequestModel request = Config.ClientRequestModelDeserialize(Config.Encoding.GetString(receiveBuffer));
                         string log = "--------------------------------------------------\n" +
-                                     $"{DateTime.Now}::{netName}::[服-返回]\n{request}\n" +
+                                     $"{DateTime.Now}::{server.Net.Name}::[服-返回]\n{request}\n" +
                                      "--------------------------------------------------\n";
                         if(config.Debug)OnLog(TrackLog.LogCode.Runtime, log);
-                        if (!NetCore.Get(netName, out Net.Abstract.Net net))
+                        if (!NetCore.Get(server.Net.Name, out Net.Abstract.Net net))
                         {
-                            SendClientResponse(new ClientResponseModel(null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundNet, $"Token查询{netName} Net时 不存在", null)));
-                            DisConnect($"Token查询{netName} Net时 不存在");
+                            SendClientResponse(new ClientResponseModel(null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundNet, $"Token查询{server.Net.Name} Net时 不存在", null)));
+                            DisConnect($"Token查询{server.Net.Name} Net时 不存在");
                             return;
                         }
                         ClientResponseModel clientResponseModel = await Task.Run(() => net.ClientRequestReceiveProcess(this, request));
@@ -124,7 +124,7 @@ namespace EtherealS.Server.WebSocket
                 {
 
                     string log = "--------------------------------------------------\n" +
-                                $"{DateTime.Now}::{netName}::[服-返回]\n{response}\n" +
+                                $"{DateTime.Now}::{server.Net.Name}::[服-返回]\n{response}\n" +
                                 "--------------------------------------------------\n";
                     if (config.Debug) OnLog(TrackLog.LogCode.Runtime, log);
                     Context.WebSocket.SendAsync(Config.Encoding.GetBytes(Config.ClientResponseModelSerialize(response)), WebSocketMessageType.Text, true, CancellationToken);
@@ -142,7 +142,7 @@ namespace EtherealS.Server.WebSocket
                 if (Context.WebSocket.State == WebSocketState.Open && canRequest)
                 {
                     string log = "--------------------------------------------------\n" +
-                                $"{DateTime.Now}::{netName}::[服-请求]\n{request}\n" +
+                                $"{DateTime.Now}::{server.Net.Name}::[服-请求]\n{request}\n" +
                                 "--------------------------------------------------\n";
                     if (config.Debug) OnLog(TrackLog.LogCode.Runtime, log);
                     Context.WebSocket.SendAsync(Config.Encoding.GetBytes(Config.ServerRequestModelSerialize(request)), WebSocketMessageType.Text, true, CancellationToken);

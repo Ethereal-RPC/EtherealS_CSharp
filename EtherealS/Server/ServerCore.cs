@@ -37,33 +37,18 @@ namespace EtherealS.Server
             if (net.Server == null)
             {
                 net.Server = server;
-                server.NetName = net.Name;
+                server.Net = net;
                 server.LogEvent += net.OnLog;
                 server.ExceptionEvent += net.OnException;
             }
             return server;
         }
-
-        public static bool UnRegister(string netName)
+        public static bool UnRegister(Abstract.Server server)
         {
-            if (NetCore.Get(netName, out Net.Abstract.Net net))
-            {
-                return UnRegister(net);
-            }
-            else
-            {
-                return true;
-            }
-        }
-        public static bool UnRegister(Net.Abstract.Net net)
-        {
-            if(net != null)
-            {
-                net.Server.LogEvent -= net.OnLog;
-                net.Server.ExceptionEvent -= net.OnException;
-                net.Server.Close();
-                net.Server = null;
-            }
+            server.LogEvent -= server.Net.OnLog;
+            server.ExceptionEvent -= server.Net.OnException;
+            server.Net = null;
+            server.Close();
             return true;
         }
     }

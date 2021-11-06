@@ -18,7 +18,7 @@ namespace EtherealS.Server.WebSocket
         #region --属性--
         public CancellationToken CancellationToken { get => cancellationToken; set => cancellationToken = value; }
         public HttpListenerWebSocketContext Context { get => context; set => context = value; }
-        public new WebSocketServerConfig Config { get => (WebSocketServerConfig)config; set => config = value; }
+        public new WebSocketServerConfig Config { get => (WebSocketServerConfig)Server.Config; set => Server.Config = value; }
 
         #endregion
 
@@ -75,7 +75,7 @@ namespace EtherealS.Server.WebSocket
                         string log = "--------------------------------------------------\n" +
                                      $"{DateTime.Now}::{server.Net.Name}::[服-返回]\n{request}\n" +
                                      "--------------------------------------------------\n";
-                        if(config.Debug)OnLog(TrackLog.LogCode.Runtime, log);
+                        if(Config.Debug)OnLog(TrackLog.LogCode.Runtime, log);
                         if (!NetCore.Get(server.Net.Name, out Net.Abstract.Net net))
                         {
                             SendClientResponse(new ClientResponseModel(null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundNet, $"Token查询{server.Net.Name} Net时 不存在", null)));
@@ -126,7 +126,7 @@ namespace EtherealS.Server.WebSocket
                     string log = "--------------------------------------------------\n" +
                                 $"{DateTime.Now}::{server.Net.Name}::[服-返回]\n{response}\n" +
                                 "--------------------------------------------------\n";
-                    if (config.Debug) OnLog(TrackLog.LogCode.Runtime, log);
+                    if (Config.Debug) OnLog(TrackLog.LogCode.Runtime, log);
                     Context.WebSocket.SendAsync(Config.Encoding.GetBytes(Config.ClientResponseModelSerialize(response)), WebSocketMessageType.Text, true, CancellationToken);
                 }
             }
@@ -144,7 +144,7 @@ namespace EtherealS.Server.WebSocket
                     string log = "--------------------------------------------------\n" +
                                 $"{DateTime.Now}::{server.Net.Name}::[服-请求]\n{request}\n" +
                                 "--------------------------------------------------\n";
-                    if (config.Debug) OnLog(TrackLog.LogCode.Runtime, log);
+                    if (Config.Debug) OnLog(TrackLog.LogCode.Runtime, log);
                     Context.WebSocket.SendAsync(Config.Encoding.GetBytes(Config.ServerRequestModelSerialize(request)), WebSocketMessageType.Text, true, CancellationToken);
                 }
             }

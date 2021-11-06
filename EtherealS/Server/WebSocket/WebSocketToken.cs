@@ -18,7 +18,7 @@ namespace EtherealS.Server.WebSocket
         #region --属性--
         public CancellationToken CancellationToken { get => cancellationToken; set => cancellationToken = value; }
         public HttpListenerWebSocketContext Context { get => context; set => context = value; }
-        public new WebSocketServerConfig Config { get => (WebSocketServerConfig)Server.Config; set => Server.Config = value; }
+        public WebSocketServerConfig Config { get => (WebSocketServerConfig)Server.Config; set => Server.Config = value; }
 
         #endregion
 

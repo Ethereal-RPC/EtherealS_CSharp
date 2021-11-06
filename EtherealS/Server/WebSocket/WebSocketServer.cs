@@ -23,7 +23,7 @@ namespace EtherealS.Server.WebSocket
                 OnLog(TrackLog.LogCode.Runtime,"Windows XP SP2 or Server 2003 is required to use the HttpListener class.");
                 return;
             }
-            this.Config = new WebSocketServerConfig();
+            Config = new WebSocketServerConfig();
         }
 
         public override void Start()

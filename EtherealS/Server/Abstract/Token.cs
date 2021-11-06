@@ -71,7 +71,6 @@ namespace EtherealS.Server.Abstract
 
         #region --字段--
         protected Server server;
-        protected ServerConfig config;
         protected bool canRequest;
         public object key;
         #endregion
@@ -79,7 +78,6 @@ namespace EtherealS.Server.Abstract
         #region --属性--
         public bool CanRequest { get => canRequest; set => canRequest = value; }
         public Server Server { get => server; set => server = value; }
-        public ServerConfig Config { get => config; set => config = value; }
         #endregion
 
         #region --方法--

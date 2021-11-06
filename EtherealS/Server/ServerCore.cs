@@ -47,6 +47,7 @@ namespace EtherealS.Server
         {
             server.LogEvent -= server.Net.OnLog;
             server.ExceptionEvent -= server.Net.OnException;
+            server.Net.Server = null;
             server.Net = null;
             server.Close();
             return true;

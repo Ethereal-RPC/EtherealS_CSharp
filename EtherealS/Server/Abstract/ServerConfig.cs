@@ -1,6 +1,7 @@
 ﻿using EtherealS.Core.Model;
 using EtherealS.Server.Interface;
 using Newtonsoft.Json;
+using System;
 
 namespace EtherealS.Server.Abstract
 {
@@ -10,58 +11,45 @@ namespace EtherealS.Server.Abstract
     public abstract class ServerConfig:IServerConfig
     {
         #region --委托--
-        /// <summary>
-        /// ServerRequestModel序列化方法委托
-        /// </summary>
-        /// <param name="obj">待序列化ServerRequestModel对象</param>
-        /// <returns>序列化文本</returns>
-        public delegate string ServerRequestModelSerializeDelegate(ServerRequestModel obj);
-        /// <summary>
-        /// ClientRequestModel逆序列化方法委托
-        /// </summary>
-        /// <param name="obj">序列化文本</param>
-        /// <returns>序列化结果类</returns>
-        public delegate ClientRequestModel ClientRequestModelDeserializeDelegate(string obj);
-        /// <summary>
-        /// ClientResponseModel序列化方法委托
-        /// </summary>
-        /// <param name="obj">待序列化ClientResponseModel对象</param>
-        /// <returns>序列化文本</returns>
-        public delegate string ClientResponseModelSerializeDelegate(ClientResponseModel obj);
 
         #endregion
 
         #region --字段--
         /// <summary>
-        /// ServerRequestModel序列化委托实现
+        /// 最大的连接数
         /// </summary>
-        private ServerRequestModelSerializeDelegate serverRequestModelSerialize;
+        private int maxConnections = 1024;
         /// <summary>
-        /// ClientRequestModel逆序列化委托实现
+        /// 默认缓冲池
         /// </summary>
-        private ClientRequestModelDeserializeDelegate clientRequestModelDeserialize;
+        private int bufferSize = 1024;
         /// <summary>
-        /// ClientResponseModel序列化委托实现
+        /// 最大WebSocket缓冲池
         /// </summary>
-        private ClientResponseModelSerializeDelegate clientResponseModelSerialize;
-
-        private bool debug;
+        private int maxBufferSize = 10240;
+        /// <summary>
+        /// 多行道[C# 行道为5行道并行接收请求和处理请求（待更改）]
+        /// </summary>
+        private int numChannels = 5;
+        /// <summary>
+        /// 心跳周期
+        /// </summary>
+        private TimeSpan keepAliveInterval = TimeSpan.FromSeconds(60);
         #endregion
 
         #region --属性--
-        public ServerRequestModelSerializeDelegate ServerRequestModelSerialize { get => serverRequestModelSerialize; set => serverRequestModelSerialize = value; }
-        public ClientRequestModelDeserializeDelegate ClientRequestModelDeserialize { get => clientRequestModelDeserialize; set => clientRequestModelDeserialize = value; }
-        public ClientResponseModelSerializeDelegate ClientResponseModelSerialize { get => clientResponseModelSerialize; set => clientResponseModelSerialize = value; }
-        public bool Debug { get => debug; set => debug = value; }
+        public int BufferSize { get => bufferSize; set => bufferSize = value; }
+        public int NumChannels { get => numChannels; set => numChannels = value; }
+        public int MaxConnections { get => maxConnections; set => maxConnections = value; }
+        public int MaxBufferSize { get => maxBufferSize; set => maxBufferSize = value; }
+        public TimeSpan KeepAliveInterval { get => keepAliveInterval; set => keepAliveInterval = value; }
 
         #endregion
 
         #region --方法--
         public ServerConfig()
         {
-            serverRequestModelSerialize = (obj) => JsonConvert.SerializeObject(obj);
-            clientResponseModelSerialize = (obj) => JsonConvert.SerializeObject(obj);
-            clientRequestModelDeserialize = (obj) => JsonConvert.DeserializeObject<ClientRequestModel>(obj);
+
         }
 
         #endregion

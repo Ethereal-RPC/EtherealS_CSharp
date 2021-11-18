@@ -39,12 +39,11 @@ namespace EtherealS.Service
 
         public static T Register<T>(Net.Abstract.Net net, T service) where T : Abstract.Service
         {
-            return Register(net, service, null, null);
+            return Register(net, service, null);
         }
-        public static T Register<T>(Net.Abstract.Net net, T service, string serviceName, AbstractTypes types) where T: Abstract.Service
+        public static T Register<T>(Net.Abstract.Net net, T service, string serviceName) where T: Abstract.Service
         {
             if (serviceName != null) service.Name = serviceName;
-            if (types != null) service.Types = types;
             Abstract.Service.Register(service);
             if (!net.Services.ContainsKey(service.Name))
             {

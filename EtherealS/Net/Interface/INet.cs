@@ -13,8 +13,6 @@ namespace EtherealS.Net.Interface
         /// <returns></returns>
         public bool Publish();
 
-        public ClientResponseModel ClientRequestReceiveProcess(Token token, ClientRequestModel request);
-
         #endregion
     }
 }

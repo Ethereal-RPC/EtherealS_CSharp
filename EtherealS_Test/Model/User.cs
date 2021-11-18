@@ -1,5 +1,6 @@
 ﻿using EtherealS.Core.Model;
 using EtherealS.Server.WebSocket;
+using Newtonsoft.Json;
 
 namespace EtherealS_Test.Model
 {
@@ -18,9 +19,12 @@ namespace EtherealS_Test.Model
 
 
         #region --属性--
+        [JsonProperty]
         public long Id { get => id; set => id = value; }
+        [JsonProperty]
         public string Username { get => username; set => username = value; }
-        public object Key { get => key; set => key = (string)value; }
+        [JsonProperty]
+        public new object Key { get => base.Key; set => base.Key = (string)value; }
         #endregion
 
     }

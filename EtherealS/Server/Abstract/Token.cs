@@ -3,9 +3,11 @@ using EtherealS.Core.Delegates;
 using EtherealS.Core.Model;
 using EtherealS.Net;
 using EtherealS.Server.Interface;
+using Newtonsoft.Json;
 
 namespace EtherealS.Server.Abstract
 {
+    [JsonObject(MemberSerialization.OptIn)]
     public abstract class Token: IToken
     {
 
@@ -70,14 +72,15 @@ namespace EtherealS.Server.Abstract
         #endregion
 
         #region --字段--
-        protected Server server;
-        protected bool canRequest;
-        public object key;
+        protected bool canRequest = false;
+        protected object key;
+        protected Service.Abstract.Service service;
         #endregion
 
         #region --属性--
         public bool CanRequest { get => canRequest; set => canRequest = value; }
-        public Server Server { get => server; set => server = value; }
+        public Service.Abstract.Service Service { get => service; set => service = value; }
+        public object Key { get => key; set => key = value; }
         #endregion
 
         #region --方法--
@@ -90,9 +93,9 @@ namespace EtherealS.Server.Abstract
         {
             if (replace)
             {
-                Server.Net.Tokens.TryRemove(key, out Token token);
+                service.Tokens.TryRemove(Key, out Token token);
             }
-            return Server.Net.Tokens.TryAdd(key, this);
+            return service.Tokens.TryAdd(Key, this);
         }
         /// <summary>
         /// 从Tokens表中注销Token信息
@@ -100,8 +103,8 @@ namespace EtherealS.Server.Abstract
         /// <returns></returns>
         public bool UnRegister()
         {
-            if (key == null) return true;
-            return Server.Net.Tokens.TryRemove(key, out Token value);
+            if (Key == null) return true;
+            return service.Tokens.TryRemove(Key, out Token value);
         }
         /// <summary>
         /// 得到该Token所属的Tokens表单
@@ -109,7 +112,7 @@ namespace EtherealS.Server.Abstract
         /// <returns></returns>
         public ConcurrentDictionary<object, Token> GetTokens()
         {
-            return Server.Net.Tokens;
+            return service.Tokens;
         }
         /// <summary>
         /// 得到特定的Token信息
@@ -120,7 +123,7 @@ namespace EtherealS.Server.Abstract
         /// <returns></returns>
         public bool GetToken<T>(object key, out T value) where T : Token
         {
-            if (Server.Net.Tokens.TryGetValue(key, out Token result))
+            if (service.Tokens.TryGetValue(key, out Token result))
             {
                 value = (T)result;
                 return true;
@@ -138,7 +141,7 @@ namespace EtherealS.Server.Abstract
         /// <returns></returns>
         public ConcurrentDictionary<object, Token> GetTokens(string netName)
         {
-            return Server.Net.Tokens;
+            return service.Tokens;
         }
         #endregion
 

@@ -8,16 +8,20 @@ namespace EtherealS.Request.Attribute
     [AttributeUsage(AttributeTargets.Method)]
     public class RequestMethod : System.Attribute
     {
+        public RequestMethod(string Mapping)
+        {
+            this.mapping = Mapping;
+        }
         [Flags]
         public enum InvokeTypeFlags
         {
             Local = 0x1,
-            Remote = 0x2,
-            All = 0x4,
+            Remote = 0x2
         }
-
+        private string mapping = null;
         private InvokeTypeFlags invokeType = InvokeTypeFlags.Remote;
 
         public InvokeTypeFlags InvokeType { get => invokeType; set => invokeType = value; }
+        public string Mapping { get => mapping; set => mapping = value; }
     }
 }

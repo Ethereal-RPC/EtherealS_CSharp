@@ -10,26 +10,18 @@ namespace EtherealS.Core.Model
         [JsonIgnore]
         private ClientResponseModel result;
         private string type = "ER-1.0-ClientRequest";
-        private string methodId;
+        private string mapping;
         private string[] @params;
         private string id;
-        private string service;
         [JsonIgnore]
         private AutoResetEvent sign = new AutoResetEvent(false);
         public ClientResponseModel Result { get => result; set => result = value; } 
         public string Type { get => type; set => type = value; }
-        public string MethodId { get => methodId; set => methodId = value; }
+        public string Mapping { get => mapping; set => mapping = value; }
         public string[] Params { get => @params; set => @params = value; }
         public string Id { get => id; set => id = value; }
-        public string Service { get => service; set => service = value; }
         public AutoResetEvent Sign { get => sign; set => sign = value; }
 
-        public ClientRequestModel(string service,string methodId, string[] @params)
-        {
-            MethodId = methodId;
-            Params = @params;
-            Service = service;
-        }
 
         public void Set(ClientResponseModel result)
         {
@@ -52,10 +44,9 @@ namespace EtherealS.Core.Model
             return "ClientRequestModel{" +
                     "result=" + result +
                     ", type='" + type + '\'' +
-                    ", methodId='" + methodId + '\'' +
+                    ", methodId='" + mapping + '\'' +
                     ", params=" + string.Join(",",@params) +
                     ", id='" + id + '\'' +
-                    ", service='" + service + '\'' +
                     '}';
         }
     }

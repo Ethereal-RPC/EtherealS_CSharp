@@ -1,4 +1,6 @@
 ﻿using EtherealS.Core.Interface;
+using EtherealS.Core.Model;
+using EtherealS.Server.Abstract;
 using EtherealS.Service.Abstract;
 
 namespace EtherealS.Service.Interface
@@ -7,5 +9,6 @@ namespace EtherealS.Service.Interface
     {
         public void Initialize();
         public void UnInitialize();
+        public ClientResponseModel ClientRequestReceiveProcess(Token token, ClientRequestModel request);
     }
 }

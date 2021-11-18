@@ -24,23 +24,17 @@ namespace EtherealS.Core.Model
         /// 请求ID
         /// </summary>
         private string id = null;
-        /// <summary>
-        /// 请求服务
-        /// </summary>
-        private string service;
 
         public string Type { get => type; set => type = value; }
         public string Result { get => result; set => result = value; }
         public Error Error { get => error; set => error = value; }
         public string Id { get => id; set => id = value; }
-        public string Service { get => service; set => service = value; }
 
-        public ClientResponseModel(string result,string id, string service, Error error)
+        public ClientResponseModel(string result,string id, Error error)
         {
             Result = result;
             Error = error;
             Id = id;
-            Service = service;
         }
         public override string ToString()
         {
@@ -49,7 +43,6 @@ namespace EtherealS.Core.Model
                     ", result='" + result + '\'' +
                     ", error=" + error +
                     ", id='" + id + '\'' +
-                    ", service='" + service + '\'' +
                     '}';
         }
     }

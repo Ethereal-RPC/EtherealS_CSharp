@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using EtherealS.Core.Delegates;
 using EtherealS.Core.Model;
+using EtherealS.Request.Attribute;
 using EtherealS.Request.Interface;
+using EtherealS.Utils;
 
 namespace EtherealS.Request.Abstract
 {
     [Attribute.Request]
-    public abstract class Request : DispatchProxy,IRequest
+    public abstract class Request : IRequest
     {
 
         #region --事件字段--
@@ -51,24 +54,38 @@ namespace EtherealS.Request.Abstract
 
         #region --字段--
         protected string name;
-        protected Net.Abstract.Net net;
+        protected Service.Abstract.Service service;
         protected RequestConfig config;
+        private Dictionary<string, MethodInfo> methods = new Dictionary<string, MethodInfo>();
         protected AbstractTypes types = new AbstractTypes();
         #endregion
 
         #region --属性--
         public string Name { get => name; set => name = value; }
         public RequestConfig Config { get => config; set => config = value; }
-        public Net.Abstract.Net Net { get => net; set => net = value; }
         public AbstractTypes Types { get => types; set => types = value; }
+        public Service.Abstract.Service Service { get => service; set => service = value; }
+        protected Dictionary<string, MethodInfo> Methods { get => methods; set => methods = value; }
         #endregion
 
-        public static R Register<R,T>() where R:Request
+        #region --方法--
+        public Request()
         {
-            R proxy = Create<T, R>() as R;
-            return proxy;
+
         }
-        protected override abstract object Invoke(MethodInfo targetMethod, object[] args);
+        public static R Register<R>() where R : Request
+        {
+            R request = DynamicProxy.CreateRequestProxy<R>();
+            foreach (MethodInfo method in typeof(R).GetMethods())
+            {
+                RequestMethod attribute = method.GetCustomAttribute<RequestMethod>();
+                if (attribute != null)
+                {
+                    request.Methods.Add(attribute.Mapping, method);
+                }
+            }
+            return request;
+        }
 
         public void OnException(TrackException.ErrorCode code, string message)
         {
@@ -95,8 +112,9 @@ namespace EtherealS.Request.Abstract
                 logEvent?.Invoke(log);
             }
         }
-
+        public abstract object Invoke(string mapping, object[] args);
         public abstract void Initialize();
         public abstract void UnInitialize();
+        #endregion
     }
 }

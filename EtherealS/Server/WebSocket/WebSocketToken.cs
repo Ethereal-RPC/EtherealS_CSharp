@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using EtherealS.Core.Model;
 using EtherealS.Net;
 using EtherealS.Server.Abstract;
+using EtherealS.Service.Abstract;
 
 namespace EtherealS.Server.WebSocket
 {
-    public abstract class WebSocketToken : Token
+    public class WebSocketToken : Token
     {
         #region --字段--
         private HttpListenerWebSocketContext context;
@@ -18,7 +19,6 @@ namespace EtherealS.Server.WebSocket
         #region --属性--
         public CancellationToken CancellationToken { get => cancellationToken; set => cancellationToken = value; }
         public HttpListenerWebSocketContext Context { get => context; set => context = value; }
-        public WebSocketServerConfig Config { get => (WebSocketServerConfig)Server.Config; set => Server.Config = value; }
 
         #endregion
 
@@ -40,16 +40,17 @@ namespace EtherealS.Server.WebSocket
         internal async void ProcessData()
         {
             System.Net.WebSockets.WebSocket webSocket = Context.WebSocket;
+            ServiceConfig config = Service.Config;
             byte[] receiveBuffer = null;
             int offset = 0;
-            int free = Config.BufferSize;
+            int free = config.BufferSize;
 
             // While the WebSocket connection remains open run a simple loop that receives data and sends it back.
             while (webSocket.State == WebSocketState.Open)
             {
                 if (receiveBuffer == null)
                 {
-                    receiveBuffer = new byte[Config.BufferSize];
+                    receiveBuffer = new byte[config.BufferSize];
                 }
 
                 try
@@ -66,32 +67,22 @@ namespace EtherealS.Server.WebSocket
 
                     if (receiveResult.EndOfMessage)
                     {
-                        string data = Config.Encoding.GetString(receiveBuffer);
+                        string data = config.Encoding.GetString(receiveBuffer);
                         offset = 0;
-                        free = Config.BufferSize;
-                        string a = Config.Encoding.GetString(receiveBuffer);
+                        free = config.BufferSize;
+                        string a = config.Encoding.GetString(receiveBuffer);
                         Console.WriteLine(a);
-                        ClientRequestModel request = Config.ClientRequestModelDeserialize(Config.Encoding.GetString(receiveBuffer));
-                        string log = "--------------------------------------------------\n" +
-                                     $"{DateTime.Now}::{server.Net.Name}::[服-返回]\n{request}\n" +
-                                     "--------------------------------------------------\n";
-                        if(Config.Debug)OnLog(TrackLog.LogCode.Runtime, log);
-                        if (!NetCore.Get(server.Net.Name, out Net.Abstract.Net net))
-                        {
-                            SendClientResponse(new ClientResponseModel(null, request.Id, request.Service, new Error(Error.ErrorCode.NotFoundNet, $"Token查询{server.Net.Name} Net时 不存在", null)));
-                            DisConnect($"Token查询{server.Net.Name} Net时 不存在");
-                            return;
-                        }
-                        ClientResponseModel clientResponseModel = await Task.Run(() => net.ClientRequestReceiveProcess(this, request));
+                        ClientRequestModel request = config.ClientRequestModelDeserialize(config.Encoding.GetString(receiveBuffer));
+                        ClientResponseModel clientResponseModel = await Task.Run(() => Service.ClientRequestReceiveProcess(this, request));
                         SendClientResponse(clientResponseModel);
                     }
                     else if (free == 0)
                     {
-                        var newSize = receiveBuffer.Length + Config.BufferSize;
-                        if (newSize > Config.MaxBufferSize)
+                        var newSize = receiveBuffer.Length + config.BufferSize;
+                        if (newSize > config.MaxBufferSize)
                         {
-                            SendClientResponse(new ClientResponseModel(null, null, null, new Error(Error.ErrorCode.NotFoundNet, $"缓冲区:{newSize}-超过最大字节数:{Config.MaxBufferSize}，已断开连接！", null)));
-                            DisConnect($"缓冲区:{newSize}-超过最大字节数:{Config.MaxBufferSize}，已断开连接！");
+                            SendClientResponse(new ClientResponseModel(null, null, new Error(Error.ErrorCode.NotFoundNet, $"缓冲区:{newSize}-超过最大字节数:{config.MaxBufferSize}，已断开连接！", null)));
+                            DisConnect($"缓冲区:{newSize}-超过最大字节数:{config.MaxBufferSize}，已断开连接！");
                             return;
                         }
                         byte[] new_bytes = new byte[newSize];
@@ -103,7 +94,7 @@ namespace EtherealS.Server.WebSocket
                 }
                 catch(Exception e)
                 {
-                    SendClientResponse(new ClientResponseModel(null, null, null, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
+                    SendClientResponse(new ClientResponseModel(null, null, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
                     DisConnect("发生报错");
                     return;
                 }
@@ -111,7 +102,7 @@ namespace EtherealS.Server.WebSocket
         }
         public override void DisConnect(string reason)
         {
-            if(Config.AutoManageTokens)UnRegister();
+            if(Service.Config.AutoManageTokens)UnRegister();
             Context.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, reason, CancellationToken);
             OnDisConnect();
         }
@@ -122,12 +113,7 @@ namespace EtherealS.Server.WebSocket
             {
                 if (Context.WebSocket.State == WebSocketState.Open && canRequest)
                 {
-
-                    string log = "--------------------------------------------------\n" +
-                                $"{DateTime.Now}::{server.Net.Name}::[服-返回]\n{response}\n" +
-                                "--------------------------------------------------\n";
-                    if (Config.Debug) OnLog(TrackLog.LogCode.Runtime, log);
-                    Context.WebSocket.SendAsync(Config.Encoding.GetBytes(Config.ClientResponseModelSerialize(response)), WebSocketMessageType.Text, true, CancellationToken);
+                    Context.WebSocket.SendAsync(Service.Config.Encoding.GetBytes(Service.Config.ClientResponseModelSerialize(response)), WebSocketMessageType.Text, true, CancellationToken);
                 }
             }
             catch(TrackException e)
@@ -141,11 +127,7 @@ namespace EtherealS.Server.WebSocket
             {
                 if (Context.WebSocket.State == WebSocketState.Open && canRequest)
                 {
-                    string log = "--------------------------------------------------\n" +
-                                $"{DateTime.Now}::{server.Net.Name}::[服-请求]\n{request}\n" +
-                                "--------------------------------------------------\n";
-                    if (Config.Debug) OnLog(TrackLog.LogCode.Runtime, log);
-                    Context.WebSocket.SendAsync(Config.Encoding.GetBytes(Config.ServerRequestModelSerialize(request)), WebSocketMessageType.Text, true, CancellationToken);
+                    Context.WebSocket.SendAsync(Service.Config.Encoding.GetBytes(Service.Config.ServerRequestModelSerialize(request)), WebSocketMessageType.Text, true, CancellationToken);
                 }
             }
             catch (TrackException e)

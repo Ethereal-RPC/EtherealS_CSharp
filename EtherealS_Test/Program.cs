@@ -3,10 +3,12 @@ using EtherealS.Net;
 using EtherealS.Net.Abstract;
 using EtherealS.Net.WebSocket;
 using EtherealS.Request;
+using EtherealS.Request.Abstract;
 using EtherealS.Server;
 using EtherealS.Server.Abstract;
 using EtherealS.Server.WebSocket;
 using EtherealS.Service;
+using EtherealS.Utils;
 using EtherealS_Test.Model;
 using EtherealS_Test.RequestDemo;
 using EtherealS_Test.ServiceDemo;
@@ -17,7 +19,6 @@ namespace EtherealS_Test
 {
     public class Program
     {
-
         public static void Main()
         {
             string ip = "127.0.0.1";
@@ -43,30 +44,28 @@ namespace EtherealS_Test
                     break;
             }
             Console.Title = $"{ip}-{port}";
-            //注册数据类型
-            AbstractTypes types = new AbstractTypes();
-            types.Add<int>("Int");
-            types.Add<User>("User");
-            types.Add<long>("Long");
-            types.Add<string>("String");
-            types.Add<bool>("Bool");
             //建立网关
             Net net = NetCore.Register(new WebSocketNet("demo"));
             net.ExceptionEvent += Config_ExceptionEvent;
             net.LogEvent += Config_LogEvent;
             //向网关注册服务
-            ServerService service = ServiceCore.Register(net,new ServerService(), "Server", types);
+            ServerService service = ServiceCore.Register(net,new ServerService(), "Server");
             //向网关注册请求
-            IClientRequest request = RequestCore.Register<ClientRequest, IClientRequest>(net, "Client", types);
+            ClientRequest request = RequestCore.Register<ClientRequest>(service, "Client");
             //本例中，突出服务类可作为正常类
             service.UserRequest = request;
+            request.Say(null, null, "asd");
             //向网关注册连接(提供一个生成User的方法)
-            Server server = ServerCore.Register(net,new WebSocketServer(new List<string>(), () => new User()));
+            Server server = ServerCore.Register(net,new WebSocketServer(new List<string>()));
             server.Prefixes.Add($"ethereal://{ip}:{port}/NetDemo/");
             //发布服务
             net.Publish();
             Console.WriteLine("服务器初始化完成....");
             Console.ReadKey();
+
+            //string log = "--------------------------------------------------\n" +
+            //    $"{DateTime.Now}::{name}::[客-请求]\n{request}\n" +
+            //    "--------------------------------------------------\n";
         }
         
 

@@ -4,6 +4,7 @@ using System.Threading;
 using EtherealS.Core.Delegates;
 using EtherealS.Core.Model;
 using EtherealS.Server.Interface;
+using Newtonsoft.Json;
 
 namespace EtherealS.Server.Abstract
 {
@@ -22,12 +23,6 @@ namespace EtherealS.Server.Abstract
         /// </summary>
         /// <param name="token"></param>
         public delegate void ListenerFailDelegate(Server listener);
-
-        /// <summary>
-        /// BaseUserToken实例化方法委托
-        /// </summary>
-        /// <returns>BaseUserToken实例</returns>
-        public delegate Token CreateInstance();
         #endregion
 
         #region --事件字段--
@@ -84,16 +79,9 @@ namespace EtherealS.Server.Abstract
         protected HttpListener listener;
         protected CancellationToken cancellationToken = CancellationToken.None;
         protected List<string> prefixes;
-
-        /// <summary>
-        /// 创建实例化方法委托实现
-        /// </summary>
-        protected CreateInstance createMethod;
-
         #endregion
 
         #region --属性--
-        public CreateInstance CreateMethod { get => createMethod; set => createMethod = value; }
         public HttpListener Listener { get => listener; set => listener = value; }
         public List<string> Prefixes { get => prefixes; set => prefixes = value; }
         public ServerConfig Config { get => config; set => config = value; }
@@ -103,10 +91,9 @@ namespace EtherealS.Server.Abstract
         public abstract void Start();
         public abstract void Close();
 
-        public Server(List<string> prefixes,CreateInstance createMethod)
+        public Server(List<string> prefixes)
         {
             this.prefixes = prefixes;
-            this.createMethod = createMethod;
         }
 
         public void OnException(TrackException.ErrorCode code, string message)

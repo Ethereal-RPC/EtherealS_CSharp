@@ -42,10 +42,10 @@ namespace EtherealS.Net
                 foreach (Service.Abstract.Service service in net.Services.Values)
                 {
                     ServiceCore.UnRegister(service);
-                }
-                foreach (Request.Abstract.Request request in net.Requests.Values)
-                {
-                    RequestCore.UnRegister(request);
+                    foreach (Request.Abstract.Request request in service.Requests.Values)
+                    {
+                        RequestCore.UnRegister(request);
+                    }
                 }
                 ServerCore.UnRegister(net.Server);
                 nets.Remove(net.Name);

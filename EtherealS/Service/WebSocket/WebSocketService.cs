@@ -4,6 +4,7 @@ using System.Reflection.Emit;
 using System.Text;
 using EtherealS.Core.Model;
 using EtherealS.Server.Abstract;
+using EtherealS.Server.WebSocket;
 using EtherealS.Service.Abstract;
 
 namespace EtherealS.Service.WebSocket
@@ -21,6 +22,7 @@ namespace EtherealS.Service.WebSocket
         public WebSocketService()
         {
             config = new WebSocketServiceConfig();
+            tokenCreateInstance = () => new WebSocketToken();
         }
 
         #endregion

@@ -13,7 +13,6 @@ namespace EtherealS.Request.WebSocket
     public abstract class WebSocketRequest : Abstract.Request
     {
         #region --属性--
-
         public new WebSocketRequestConfig Config { get => (WebSocketRequestConfig)config; set => config = value; }
 
         #endregion
@@ -22,17 +21,17 @@ namespace EtherealS.Request.WebSocket
         {
             config = new WebSocketRequestConfig();
         }
-        protected override object Invoke(MethodInfo targetMethod, object[] args)    
+        public override object Invoke(string mapping, object[] args)
         {
-            Attribute.RequestMethod rpcAttribute = targetMethod.GetCustomAttribute<Attribute.RequestMethod>();
+            Methods.TryGetValue(mapping, out MethodInfo targetMethod);
+            RequestMethod rpcAttribute = targetMethod.GetCustomAttribute<RequestMethod>();
             if (rpcAttribute == null)
             {
                 return targetMethod.Invoke(this, args);
             }
             object localResult = null;
-            if ((rpcAttribute.InvokeType & Attribute.RequestMethod.InvokeTypeFlags.Local)!=0)
+            if ((rpcAttribute.InvokeType & RequestMethod.InvokeTypeFlags.Remote)!=0)
             {
-                //这里要连接字符串，发现StringBuilder效率高一些.
                 StringBuilder methodid = new StringBuilder(targetMethod.Name);
                 if (args == null) throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}首参并非BaseToken实现类！");
                 Server.Abstract.Token token = null;
@@ -46,7 +45,7 @@ namespace EtherealS.Request.WebSocket
                         token = args[i] as Server.Abstract.Token;
                     }
                     else if (Types.TypesByType.TryGetValue(parameterInfos[i].ParameterType, out AbstractType type)
-                    || Types.TypesByName.TryGetValue(parameterInfos[i].GetCustomAttribute<Core.Attribute.AbstractType>(true)?.AbstractName, out type))
+                    || Types.TypesByName.TryGetValue(parameterInfos[i].GetCustomAttribute<Core.Attribute.AbstractType>(true)?.Name, out type))
                     {
                         methodid.Append("-" + type.Name);
                         @params.Add(type.Serialize(args[i]));
@@ -56,12 +55,12 @@ namespace EtherealS.Request.WebSocket
                 ServerRequestModel request = new ServerRequestModel(Name, methodid.ToString(), @params.ToArray());
                 if (token != null)
                 {
-                    if (token.CanRequest)
+                    if (!token.CanRequest)
                     {
                         throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{methodid}传递了非WebSocket协议的Token！");
                     }
                     token.SendServerRequest(request);
-                    if ((rpcAttribute.InvokeType & Attribute.RequestMethod.InvokeTypeFlags.All) != 0)
+                    if ((rpcAttribute.InvokeType & RequestMethod.InvokeTypeFlags.Local) != 0)
                     {
                         localResult = targetMethod.Invoke(this, args);
                     }

@@ -9,8 +9,12 @@ namespace EtherealS.Core.Attribute
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
     public class AbstractType:System.Attribute
     {
-        private string abstractName;
+        public AbstractType(string Name)
+        {
+            name = Name;
+        }
+        private string name;
 
-        public string AbstractName { get => abstractName; set => abstractName = value; }
+        public string Name { get => name; set => name = value; }
     }
 }

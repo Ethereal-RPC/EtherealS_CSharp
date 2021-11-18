@@ -10,16 +10,16 @@ namespace EtherealS_Test.ServiceDemo
         /// <summary>
         /// 服务端向客户端发送请求的接口
         /// </summary>
-        private IClientRequest userRequest;
+        private ClientRequest userRequest;
         #endregion
 
         #region --属性--
-        public IClientRequest UserRequest { get => userRequest; set => userRequest = value; }
+        public ClientRequest UserRequest { get => userRequest; set => userRequest = value; }
         #endregion
 
         #region --方法--
         //Token 
-        [ServiceMethod]
+        [ServiceMethod(Mapping:"Register")]
         public bool Register([EtherealS.Server.Attribute.Token]User user, string username, long id)
         {
             user.Username = username;
@@ -34,7 +34,7 @@ namespace EtherealS_Test.ServiceDemo
         /// <param name="message"></param>
         /// <returns></returns>
 
-        [ServiceMethod]
+        [ServiceMethod(Mapping:"SendSay")]
         public bool SendSay([EtherealS.Server.Attribute.Token] User sender, long listener_id, string message)
         {
             //查找对应ID的用户 1
@@ -47,12 +47,22 @@ namespace EtherealS_Test.ServiceDemo
             else return false;
         }
 
-        [ServiceMethod]
-        public int Add([EtherealS.Server.Attribute.Token] EtherealS.Server.Abstract.Token token,int a,int b)
+        [ServiceMethod(Mapping:"Add")]
+        public int Add([EtherealS.Server.Attribute.Token] User token,int a,int b)
         {
+            token.Username = "asd";
+            userRequest.Say(token, token, token.Username);
             return a + b;
         }
-
+        public ServerService()
+        {
+            types.Add<int>("Int");
+            types.Add<User>("User");
+            types.Add<long>("Long");
+            types.Add<string>("String");
+            types.Add<bool>("Bool");
+            TokenCreateInstance = () => new User();
+        }
         public override void Initialize()
         {
             

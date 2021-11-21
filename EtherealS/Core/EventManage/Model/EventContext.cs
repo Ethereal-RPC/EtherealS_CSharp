@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 
-namespace EtherealS.Core.Event.Model
+namespace EtherealS.Core.EventManage.Model
 {
     public class EventContext
     {

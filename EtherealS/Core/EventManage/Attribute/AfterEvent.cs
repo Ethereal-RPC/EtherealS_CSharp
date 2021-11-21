@@ -1,8 +1,8 @@
-﻿using EtherealS.Core.Event.Model;
+﻿using EtherealS.Core.EventManage.Model;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace EtherealS.Core.Event.Attribute
+namespace EtherealS.Core.EventManage.Attribute
 {
     public class AfterEventContext : EventContext
     {

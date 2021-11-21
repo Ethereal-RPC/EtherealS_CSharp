@@ -1,5 +1,5 @@
-﻿using EtherealS.Core.Event.Attribute;
-using EtherealS.Core.Event.Model;
+﻿using EtherealS.Core.EventManage.Attribute;
+using EtherealS.Core.EventManage.Model;
 using System;
 
 namespace EtherealS_Test.RequestDemo

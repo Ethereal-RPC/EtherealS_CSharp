@@ -1,7 +1,7 @@
 ﻿using EtherealS.Core;
-using EtherealS.Core.Event;
-using EtherealS.Core.Event.Attribute;
-using EtherealS.Core.Event.Model;
+using EtherealS.Core.EventManage;
+using EtherealS.Core.EventManage.Attribute;
+using EtherealS.Core.EventManage.Model;
 using EtherealS.Core.Interface;
 using EtherealS.Core.Model;
 using EtherealS.Net.Extension.Plugins;

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EtherealS.Core.Event.Attribute
+namespace EtherealS.Core.EventManage.Attribute
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class EventSender : System.Attribute

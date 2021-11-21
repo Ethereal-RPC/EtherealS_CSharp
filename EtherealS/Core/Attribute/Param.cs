@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EtherealS.Core.Attribute
 {
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
-    public class AbstractType:System.Attribute
+    public class Param : System.Attribute
     {
-        public AbstractType(string Name)
+        public Param(string Name)
         {
             name = Name;
         }

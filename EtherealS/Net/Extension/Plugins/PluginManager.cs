@@ -3,9 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EtherealS.Net.Extension.Plugins
 {
@@ -49,9 +46,9 @@ namespace EtherealS.Net.Extension.Plugins
                 watcher.Deleted += Deleted;
                 watcher.EnableRaisingEvents = true;
                 //初始扫描所有文件，寻找入口
-                foreach(FileInfo fileInfo in new DirectoryInfo(config.BaseDirectory).GetFiles("*.services", SearchOption.AllDirectories))
+                foreach (FileInfo fileInfo in new DirectoryInfo(config.BaseDirectory).GetFiles("*.services", SearchOption.AllDirectories))
                 {
-                    if(!fileInfo.Directory.Name.Equals("shadow"))LoadPlugin(net, fileInfo);
+                    if (!fileInfo.Directory.Name.Equals("shadow")) LoadPlugin(net, fileInfo);
                 }
             }
             else throw new TrackException(TrackException.ErrorCode.Runtime, $"PluginManager未找到Net:{netName}");
@@ -100,7 +97,7 @@ namespace EtherealS.Net.Extension.Plugins
             }
             LoadPlugin(net, new FileInfo(e.FullPath));
         }
-        private bool LoadPlugin(Abstract.Net net,FileInfo fileInfo)
+        private bool LoadPlugin(Abstract.Net net, FileInfo fileInfo)
         {
             //判断是否已载入该插件
             PluginDomain plugin = new PluginDomain(fileInfo.FullName, fileInfo.DirectoryName,

@@ -1,14 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using System.Threading;
-using EtherealS.Core.Delegates;
+﻿using EtherealS.Core;
 using EtherealS.Core.Model;
 using EtherealS.Server.Interface;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading;
 
 namespace EtherealS.Server.Abstract
 {
-    public abstract class Server:IServer
+    public abstract class Server : IServer
     {
 
         #region --委托--
@@ -78,7 +77,7 @@ namespace EtherealS.Server.Abstract
         protected ServerConfig config;
         protected HttpListener listener;
         protected CancellationToken cancellationToken = CancellationToken.None;
-        protected List<string> prefixes;
+        protected List<string> prefixes = new List<string>();
         #endregion
 
         #region --属性--
@@ -91,6 +90,10 @@ namespace EtherealS.Server.Abstract
         public abstract void Start();
         public abstract void Close();
 
+        public Server()
+        {
+
+        }
         public Server(List<string> prefixes)
         {
             this.prefixes = prefixes;
@@ -135,8 +138,9 @@ namespace EtherealS.Server.Abstract
         {
             ListenerFailEvent?.Invoke(this);
         }
-        ~Server(){
-            
+        ~Server()
+        {
+
         }
     }
 }

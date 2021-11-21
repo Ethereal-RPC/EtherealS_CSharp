@@ -1,7 +1,4 @@
-﻿using EtherealS.Core.Model;
-using EtherealS.Net;
-using EtherealS.Server.Abstract;
-using EtherealS.Server.WebSocket;
+﻿using EtherealS.Net;
 
 namespace EtherealS.Server
 {
@@ -32,7 +29,7 @@ namespace EtherealS.Server
         /// <param name="serverIp">远程服务IP</param>
         /// <param name="port">远程服务端口</param>
         /// <returns>客户端</returns>
-        public static Abstract.Server Register(Net.Abstract.Net net,Abstract.Server server)
+        public static Abstract.Server Register(Net.Abstract.Net net, Abstract.Server server, bool startServer = true)
         {
             if (net.Server == null)
             {
@@ -40,6 +37,10 @@ namespace EtherealS.Server
                 server.Net = net;
                 server.LogEvent += net.OnLog;
                 server.ExceptionEvent += net.OnException;
+                if (startServer)
+                {
+                    server.Start();
+                }
             }
             return server;
         }

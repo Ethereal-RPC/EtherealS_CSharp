@@ -5,7 +5,7 @@ namespace EtherealS.Net.WebSocket
     /// <summary>
     /// Ethereal网关
     /// </summary>
-    public class WebSocketNetConfig:NetConfig
+    public class WebSocketNetConfig : NetConfig
     {
 
     }

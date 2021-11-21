@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using System.Threading;
-using Newtonsoft.Json;
 
 namespace EtherealS.Core.Model
 {
@@ -15,7 +13,7 @@ namespace EtherealS.Core.Model
         private string id;
         [JsonIgnore]
         private AutoResetEvent sign = new AutoResetEvent(false);
-        public ClientResponseModel Result { get => result; set => result = value; } 
+        public ClientResponseModel Result { get => result; set => result = value; }
         public string Type { get => type; set => type = value; }
         public string Mapping { get => mapping; set => mapping = value; }
         public string[] Params { get => @params; set => @params = value; }
@@ -45,7 +43,7 @@ namespace EtherealS.Core.Model
                     "result=" + result +
                     ", type='" + type + '\'' +
                     ", methodId='" + mapping + '\'' +
-                    ", params=" + string.Join(",",@params) +
+                    ", params=" + string.Join(",", @params) +
                     ", id='" + id + '\'' +
                     '}';
         }

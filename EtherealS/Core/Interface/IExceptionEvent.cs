@@ -1,5 +1,4 @@
 ﻿using EtherealS.Core.Model;
-using System;
 
 namespace EtherealS.Core.Interface
 {

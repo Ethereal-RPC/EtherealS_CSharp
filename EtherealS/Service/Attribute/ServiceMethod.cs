@@ -1,5 +1,5 @@
-﻿using System;
-using EtherealS.Service.Extension.Authority;
+﻿using EtherealS.Service.Extension.Authority;
+using System;
 
 namespace EtherealS.Service.Attribute
 {
@@ -17,7 +17,7 @@ namespace EtherealS.Service.Attribute
         /// 服务实现IAuthoritable 接口
         /// </summary>
         private object authority = null;
-        private string mapping = null; 
+        private string mapping = null;
         public object Authority { get => authority; set => authority = value; }
         public string Mapping { get => mapping; set => mapping = value; }
     }

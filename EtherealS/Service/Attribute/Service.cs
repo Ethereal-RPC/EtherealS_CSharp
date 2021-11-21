@@ -1,5 +1,5 @@
-﻿using System;
-using EtherealS.Service.Extension.Authority;
+﻿using EtherealS.Service.Extension.Authority;
+using System;
 
 namespace EtherealS.Service.Attribute
 {

@@ -1,19 +1,18 @@
 ﻿using EtherealS.Core.Model;
+using EtherealS.Request.Attribute;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EtherealS.Utils
 {
     public class DynamicProxy
     {
         //代码参考 https://gitee.com/code2roc/FastIOC/blob/master/FastIOC/Proxy/DynamictProxy.cs
-        public static T CreateRequestProxy<T>() where T:Request.Abstract.Request
+        public static T CreateRequestProxy<T>() where T : Request.Abstract.Request
         {
             Type ImpType = typeof(T);
             string nameOfAssembly = ImpType.Name + "ProxyAssembly";
@@ -33,7 +32,7 @@ namespace EtherealS.Utils
             // ---- 方法定义 ----
             foreach (var method in ImpType.GetMethods())
             {
-                Request.Attribute.RequestMethod attribute = method.GetCustomAttribute<Request.Attribute.RequestMethod>();
+                RequestMapping attribute = method.GetCustomAttribute<RequestMapping>();
                 if (attribute == null) continue;
                 else if (attribute.Mapping == null) throw new TrackException(TrackException.ErrorCode.Runtime, $"{ImpType.FullName}-{method.Name}的Mapping未赋值！");
                 var methodParameterTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
@@ -63,8 +62,34 @@ namespace EtherealS.Utils
                 }
 
                 var ilOfMethod = methodBuilder.GetILGenerator();
+                #region - Local -
+                var localResult = ilOfMethod.DeclareLocal(typeof(object));
+                ilOfMethod.Emit(OpCodes.Ldnull);
+                ilOfMethod.Emit(OpCodes.Stloc, localResult);
+                if (attribute.InvokeType.HasFlag(RequestMapping.InvokeTypeFlags.Local))
+                {
+                    //注入参数
+                    ilOfMethod.Emit(OpCodes.Ldarg_0);
+                    for (var j = 0; j < methodParameterTypes.Length; j++)
+                    {
+                        ilOfMethod.Emit(OpCodes.Ldarg, j + 1);
+                    }
+                    //调用本地方法
+                    ilOfMethod.Emit(OpCodes.Call, method);
+                    if (method.ReturnType != typeof(void))
+                    {
+                        if (method.ReturnType.IsValueType)
+                        {
+                            ilOfMethod.Emit(OpCodes.Box, method.ReturnType);
+                        }
+                        ilOfMethod.Emit(OpCodes.Stloc, localResult);
+                    }
+                }
+                #endregion
+
 
                 #region  - before -
+                //整理参数
                 var parameters = ilOfMethod.DeclareLocal(typeof(object[]));
                 ilOfMethod.Emit(OpCodes.Ldc_I4, methodParameterTypes.Length);
                 ilOfMethod.Emit(OpCodes.Newarr, typeof(object));
@@ -74,29 +99,23 @@ namespace EtherealS.Utils
                     ilOfMethod.Emit(OpCodes.Ldloc, parameters);
                     ilOfMethod.Emit(OpCodes.Ldc_I4, j);
                     ilOfMethod.Emit(OpCodes.Ldarg, j + 1);
+                    if (methodParameterTypes[j].IsValueType)
+                    {
+                        ilOfMethod.Emit(OpCodes.Box, methodParameterTypes[j]);
+                    }
                     ilOfMethod.Emit(OpCodes.Stelem_Ref);
                 }
                 //调用Before
                 ilOfMethod.Emit(OpCodes.Ldarg_0);
                 ilOfMethod.Emit(OpCodes.Ldstr, attribute.Mapping);
                 ilOfMethod.Emit(OpCodes.Ldloc, parameters);
+                ilOfMethod.Emit(OpCodes.Ldloc, localResult);
                 //调用拦截方法
-                ilOfMethod.Emit(OpCodes.Callvirt,ImpType.GetMethod("Invoke",new Type[] {typeof(string),typeof(object[])}));
+                ilOfMethod.Emit(OpCodes.Callvirt, ImpType.GetMethod("Invoke", new Type[] { typeof(string), typeof(object[]), typeof(object) }));
                 // pop the stack if return void
                 if (method.ReturnType == typeof(void))
                 {
                     ilOfMethod.Emit(OpCodes.Pop);
-                }
-                else
-                {
-                    if (method.ReturnType.IsValueType)
-                    {
-                        ilOfMethod.Emit(OpCodes.Unbox_Any, method.ReturnType);
-                    }
-                    else
-                    {
-                        ilOfMethod.Emit(OpCodes.Castclass, method.ReturnType);
-                    }
                 }
                 ilOfMethod.Emit(OpCodes.Ret);
                 #endregion

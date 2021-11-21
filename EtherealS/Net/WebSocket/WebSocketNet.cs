@@ -1,10 +1,8 @@
-﻿using EtherealS.Core.Model;
-using System;
-using System.Threading;
+﻿using System.Threading;
 
 namespace EtherealS.Net.WebSocket
 {
-    public class WebSocketNet:Abstract.Net
+    public class WebSocketNet : Abstract.Net
     {
         #region --属性--
         public new WebSocketNetConfig Config { get => (WebSocketNetConfig)config; set => config = value; }

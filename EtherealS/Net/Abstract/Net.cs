@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Reflection;
-using EtherealS.Core.Delegates;
+﻿using EtherealS.Core;
 using EtherealS.Core.Model;
 using EtherealS.Net.Extension.Plugins;
 using EtherealS.Net.Interface;
 using EtherealS.Server.Abstract;
-using EtherealS.Service.Attribute;
+using System;
+using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace EtherealS.Net.Abstract
 {
-    public abstract class Net:INet
+    public abstract class Net : INet
     {
         public enum NetType { WebSocket }
 
         #region --事件字段--
-        public delegate bool InterceptorDelegate(Net net,Service.Abstract.Service service, MethodInfo method, Token token);
+        public delegate bool InterceptorDelegate(Net net, Service.Abstract.Service service, MethodInfo method, Token token);
         private OnLogDelegate logEvent;
         private OnExceptionDelegate exceptionEvent;
         #endregion
@@ -107,7 +105,6 @@ namespace EtherealS.Net.Abstract
                 {
                     pluginManager.Listen();
                 }
-                server.Start();
             }
             catch (TrackException e)
             {
@@ -158,7 +155,7 @@ namespace EtherealS.Net.Abstract
             {
                 foreach (InterceptorDelegate item in InterceptorEvent.GetInvocationList())
                 {
-                    if (!item.Invoke(this,service, method, token)) return false;
+                    if (!item.Invoke(this, service, method, token)) return false;
                 }
                 return true;
             }

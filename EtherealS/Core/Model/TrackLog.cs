@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EtherealS.Server.Abstract;
+﻿using EtherealS.Server.Abstract;
 
 namespace EtherealS.Core.Model
 {
@@ -30,7 +27,7 @@ namespace EtherealS.Core.Model
         public Server.Abstract.Server Server { get => server; set => server = value; }
         #endregion
 
-        public TrackLog(LogCode code,string message)
+        public TrackLog(LogCode code, string message)
         {
             this.code = code;
             this.message = message;

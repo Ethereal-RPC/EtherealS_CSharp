@@ -1,14 +1,13 @@
-﻿using System.Collections.Concurrent;
-using EtherealS.Core.Delegates;
+﻿using EtherealS.Core;
 using EtherealS.Core.Model;
-using EtherealS.Net;
 using EtherealS.Server.Interface;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
 
 namespace EtherealS.Server.Abstract
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public abstract class Token: IToken
+    public abstract class Token : IToken
     {
 
         #region --委托--

@@ -3,17 +3,12 @@ using EtherealS.Net;
 using EtherealS.Net.Abstract;
 using EtherealS.Net.WebSocket;
 using EtherealS.Request;
-using EtherealS.Request.Abstract;
 using EtherealS.Server;
-using EtherealS.Server.Abstract;
 using EtherealS.Server.WebSocket;
 using EtherealS.Service;
-using EtherealS.Utils;
-using EtherealS_Test.Model;
 using EtherealS_Test.RequestDemo;
 using EtherealS_Test.ServiceDemo;
 using System;
-using System.Collections.Generic;
 
 namespace EtherealS_Test
 {
@@ -49,15 +44,15 @@ namespace EtherealS_Test
             net.ExceptionEvent += Config_ExceptionEvent;
             net.LogEvent += Config_LogEvent;
             //向网关注册服务
-            ServerService service = ServiceCore.Register(net,new ServerService(), "Server");
+            ServerService service = ServiceCore.Register(net, new ServerService(), "Server");
             //向网关注册请求
             ClientRequest request = RequestCore.Register<ClientRequest>(service, "Client");
             //本例中，突出服务类可作为正常类
             service.UserRequest = request;
-            request.Say(null, null, "asd");
             //向网关注册连接(提供一个生成User的方法)
-            Server server = ServerCore.Register(net,new WebSocketServer(new List<string>()));
+            WebSocketServer server = new WebSocketServer();
             server.Prefixes.Add($"ethereal://{ip}:{port}/NetDemo/");
+            ServerCore.Register(net, server);
             //发布服务
             net.Publish();
             Console.WriteLine("服务器初始化完成....");
@@ -67,7 +62,7 @@ namespace EtherealS_Test
             //    $"{DateTime.Now}::{name}::[客-请求]\n{request}\n" +
             //    "--------------------------------------------------\n";
         }
-        
+
 
         private static void Config_LogEvent(TrackLog log)
         {

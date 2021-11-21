@@ -17,12 +17,12 @@ namespace EtherealS.Net
         {
             return nets.TryGetValue(name, out net);
         }
-        
+
         public static Abstract.Net Register(Abstract.Net net)
         {
             if (!nets.ContainsKey(net.Name))
             {
-                nets.Add(net.Name,net);
+                nets.Add(net.Name, net);
             }
             else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name} Net 已经注册");
             return net;
@@ -37,7 +37,7 @@ namespace EtherealS.Net
         }
         public static bool UnRegister(Abstract.Net net)
         {
-            if(net != null)
+            if (net != null)
             {
                 foreach (Service.Abstract.Service service in net.Services.Values)
                 {

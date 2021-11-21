@@ -1,14 +1,11 @@
-﻿using System;
-using System.Text;
-using EtherealS.Server.Abstract;
-using static EtherealS.Server.Abstract.ServerConfig;
+﻿using EtherealS.Server.Abstract;
 
 namespace EtherealS.Server.WebSocket
 {
     /// <summary>
     /// Server配置项
     /// </summary>
-    public class WebSocketServerConfig:ServerConfig
+    public class WebSocketServerConfig : ServerConfig
     {
         #region --字段--
 

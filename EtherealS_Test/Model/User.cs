@@ -1,10 +1,9 @@
-﻿using EtherealS.Core.Model;
-using EtherealS.Server.WebSocket;
+﻿using EtherealS.Server.WebSocket;
 using Newtonsoft.Json;
 
 namespace EtherealS_Test.Model
 {
-    public class User:WebSocketToken
+    public class User : WebSocketToken
     {
         #region --字段--
         /// <summary>

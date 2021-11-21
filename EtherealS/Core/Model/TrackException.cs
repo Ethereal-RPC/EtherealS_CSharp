@@ -1,5 +1,5 @@
-﻿using System;
-using EtherealS.Server.Abstract;
+﻿using EtherealS.Server.Abstract;
+using System;
 
 namespace EtherealS.Core.Model
 {

@@ -1,6 +1,5 @@
-﻿using System.Reflection;
-using EtherealS.Server.Abstract;
-using EtherealS.Service.Attribute;
+﻿using EtherealS.Server.Abstract;
+using System.Reflection;
 
 namespace EtherealS.Service.Extension.Authority
 {
@@ -16,7 +15,7 @@ namespace EtherealS.Service.Extension.Authority
         /// <param name="method">方法信息</param>
         /// <param name="token">Token信息</param>
         /// <returns></returns>
-        public static bool ServiceCheck(Net.Abstract.Net net,Service.Abstract.Service service, MethodInfo method, Token token)
+        public static bool ServiceCheck(Net.Abstract.Net net, Service.Abstract.Service service, MethodInfo method, Token token)
         {
             Service.Attribute.ServiceMethod annotation = method.GetCustomAttribute<Service.Attribute.ServiceMethod>();
             if (annotation.Authority != null)

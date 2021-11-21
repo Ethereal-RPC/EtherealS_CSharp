@@ -1,4 +1,8 @@
-﻿using EtherealS.Core.Delegates;
+﻿using EtherealS.Core;
+using EtherealS.Core.Event;
+using EtherealS.Core.Event.Attribute;
+using EtherealS.Core.Event.Model;
+using EtherealS.Core.Interface;
 using EtherealS.Core.Model;
 using EtherealS.Net.Extension.Plugins;
 using EtherealS.Server.Abstract;
@@ -6,18 +10,17 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace EtherealS.Service.Abstract
 {
     [Attribute.Service]
-    public abstract class Service:Interface.IService
+    public abstract class Service : Interface.IService, IBaseIoc
     {
         #region --委托字段--
         private OnLogDelegate logEvent;
         private OnExceptionDelegate exceptionEvent;
 
-        public delegate bool InterceptorDelegate(Net.Abstract.Net net,Service service, MethodInfo method, Server.Abstract.Token token);
+        public delegate bool InterceptorDelegate(Net.Abstract.Net net, Service service, MethodInfo method, Server.Abstract.Token token);
         /// <summary>
         /// BaseUserToken实例化方法委托
         /// </summary>
@@ -94,6 +97,9 @@ namespace EtherealS.Service.Abstract
         public ConcurrentDictionary<object, Token> Tokens { get => tokens; set => tokens = value; }
         public TokenCreateInstanceDelegate TokenCreateInstance { get => tokenCreateInstance; set => tokenCreateInstance = value; }
         public ConcurrentDictionary<string, Request.Abstract.Request> Requests { get => requests; set => requests = value; }
+        internal protected Dictionary<string, object> IocContainer { get; set; } = new();
+        public EventManager EventManager { get; set; } = new EventManager();
+
         #endregion
 
         #region --方法--
@@ -125,7 +131,7 @@ namespace EtherealS.Service.Abstract
                     {
                         continue;
                     }
-                    Core.Attribute.AbstractType abstractTypeAttribute = parameterInfo.GetCustomAttribute<Core.Attribute.AbstractType>(true);
+                    Core.Attribute.Param abstractTypeAttribute = parameterInfo.GetCustomAttribute<Core.Attribute.Param>(true);
                     if ((abstractTypeAttribute != null && instance.Types.TypesByName.ContainsKey(abstractTypeAttribute.Name))
                         || instance.Types.TypesByType.ContainsKey(parameterInfo.ParameterType))
                     {
@@ -169,65 +175,118 @@ namespace EtherealS.Service.Abstract
         public abstract void UnInitialize();
         public ClientResponseModel ClientRequestReceiveProcess(Token token, ClientRequestModel request)
         {
+            EventContext eventContext;
+            EventSender eventSender;
+            Dictionary<string, object> @params = null;
+            if (!Methods.TryGetValue(request.Mapping, out MethodInfo method))
+            {
+                return new ClientResponseModel(null, request.Id, new Error(Error.ErrorCode.NotFoundService, $"{Name}服务中{request.Mapping}未找到!", null));
+            }
             try
             {
-                if (Methods.TryGetValue(request.Mapping, out MethodInfo method))
+                if (Net.OnInterceptor(this, method, token) &&
+                    OnInterceptor(Net, method, token))
                 {
-                    if (Net.OnInterceptor(this, method, token) &&
-                        OnInterceptor(Net, method, token))
+                    ParameterInfo[] parameterInfos = method.GetParameters();
+                    List<object> parameters = new List<object>(parameterInfos.Length);
+                    int i = 0;
+                    @params = new(parameterInfos.Length);
+                    foreach (ParameterInfo parameterInfo in parameterInfos)
                     {
-                        ParameterInfo[] parameterInfos = method.GetParameters();
-                        List<object> parameters = new List<object>(parameterInfos.Length);
-                        int i = 0;
-                        foreach (ParameterInfo parameterInfo in parameterInfos)
+                        if (parameterInfo.GetCustomAttribute<Server.Attribute.Token>(true) != null)
                         {
-                            if (parameterInfo.GetCustomAttribute<Server.Attribute.Token>(true) != null)
-                            {
-                                parameters.Add(token);
-                            }
-                            else if (Types.TypesByType.TryGetValue(parameterInfo.ParameterType, out AbstractType type)
-                                || Types.TypesByName.TryGetValue(parameterInfo.GetCustomAttribute<Core.Attribute.AbstractType>(true)?.Name, out type))
-                            {
-                                parameters.Add(type.Deserialize(request.Params[i++]));
-                            }
-                            else return new ClientResponseModel(null, request.Id,new Error(Error.ErrorCode.Intercepted, $"RPC中的{request.Params[i]}类型中尚未被注册", null));
+                            parameters.Add(token);
+                            continue;
                         }
-                        object result = method.Invoke(this, parameters.ToArray());
-                        Type return_type = method.ReturnType;
-                        if (return_type != typeof(void))
+                        Core.Attribute.Param abstractTypeAttribute = parameterInfo.GetCustomAttribute<Core.Attribute.Param>(true);
+                        if ((abstractTypeAttribute != null && Types.TypesByName.TryGetValue(abstractTypeAttribute.Name, out AbstractType type))
+                            || Types.TypesByType.TryGetValue(parameterInfo.ParameterType, out type))
                         {
-                            if (Types.TypesByType.TryGetValue(return_type, out AbstractType type)
-                            || Types.TypesByName.TryGetValue(method.GetCustomAttribute<Core.Attribute.AbstractType>(true)?.Name, out type))
-                            {
-                                return new ClientResponseModel(type.Serialize(result), request.Id,  null);
-                            }
-                            else return new ClientResponseModel(null, request.Id, new Error(Error.ErrorCode.Intercepted, $"RPC中的{return_type}类型中尚未被注册", null));
+                            object param = type.Deserialize(request.Params[i++]);
+                            parameters.Add(param);
+                            @params.Add(parameterInfo.Name, param);
                         }
-                        else
+                        else return new ClientResponseModel(null, request.Id, new Error(Error.ErrorCode.Intercepted, $"RPC中的{request.Params[i]}类型中尚未被注册", null));
+                    }
+                    eventSender = method.GetCustomAttribute<BeforeEvent>();
+                    if (eventSender != null)
+                    {
+                        eventContext = new BeforeEventContext(@params, method);
+                        EventManager.InvokeEvent(IocContainer[eventSender.InstanceName], eventSender, @params, eventContext);
+                    }
+                    object result = null;
+                    try
+                    {
+                        result = method.Invoke(this, parameters.ToArray());
+                    }
+                    catch (Exception e)
+                    {
+                        eventSender = method.GetCustomAttribute<ExceptionEvent>();
+                        if (eventSender != null)
                         {
-                            return null;
+                            (eventSender as ExceptionEvent).Exception = e;
+                            eventContext = new ExceptionEventContext(@params, method, e);
+                            EventManager.InvokeEvent(IocContainer[eventSender.InstanceName], eventSender, @params, eventContext);
+                            if ((eventSender as ExceptionEvent).IsThrow) throw;
                         }
+                        else throw;
+                    }
+                    eventSender = method.GetCustomAttribute<AfterEvent>();
+                    if (eventSender != null)
+                    {
+                        eventContext = new AfterEventContext(@params, method, result);
+                        EventManager.InvokeEvent(IocContainer[eventSender.InstanceName], eventSender, @params, eventContext);
+                    }
+                    Type return_type = method.ReturnType;
+                    if (return_type != typeof(void))
+                    {
+                        if (Types.TypesByType.TryGetValue(return_type, out AbstractType type)
+                        || Types.TypesByName.TryGetValue(method.GetCustomAttribute<Core.Attribute.Param>(true)?.Name, out type))
+                        {
+                            return new ClientResponseModel(type.Serialize(result), request.Id, null);
+                        }
+                        else return new ClientResponseModel(null, request.Id, new Error(Error.ErrorCode.Intercepted, $"RPC中的{return_type}类型中尚未被注册", null));
                     }
                     else
                     {
-                        return new ClientResponseModel(null, request.Id, new Error(Error.ErrorCode.Intercepted, $"请求已被拦截", null));
+                        return null;
                     }
                 }
                 else
                 {
-                    return new ClientResponseModel(null, request.Id,new Error(Error.ErrorCode.NotFoundMethod, $"未找到方法[{Net.Name}:{name}:{request.Mapping}]", null));
+                    return new ClientResponseModel(null, request.Id, new Error(Error.ErrorCode.Intercepted, $"请求已被拦截", null));
                 }
             }
             catch (TargetInvocationException e)
             {
-                return new ClientResponseModel(null, request.Id,new Error(Error.ErrorCode.Common, $"{e.InnerException.Message}\n {e.InnerException.StackTrace}", null));
+                return new ClientResponseModel(null, request.Id, new Error(Error.ErrorCode.Common, $"{e.InnerException.Message}\n {e.InnerException.StackTrace}", null));
             }
             catch (Exception e)
             {
-                return new ClientResponseModel(null, request.Id,new Error(Error.ErrorCode.Common, $"{e.Message}\n {e.StackTrace}", null));
+                return new ClientResponseModel(null, request.Id, new Error(Error.ErrorCode.Common, $"{e.Message}\n {e.StackTrace}", null));
             }
         }
+        public void RegisterIoc(string name, object instance)
+        {
+            if (IocContainer.ContainsKey(name))
+            {
+                throw new TrackException(TrackException.ErrorCode.Runtime, $"{Name}请求中的{name}实例已注册");
+            }
+            IocContainer.Add(name, instance);
+        }
+        public void UnRegisterIoc(string name)
+        {
+            if (IocContainer.TryGetValue(name, out object instance))
+            {
+                IocContainer.Remove(name);
+                EventManager.UnRegisterEventMethod(name, instance);
+            }
+        }
+        public bool GetIocObject(string name, out object instance)
+        {
+            return IocContainer.TryGetValue(name, out instance);
+        }
         #endregion
-        
+
     }
 }

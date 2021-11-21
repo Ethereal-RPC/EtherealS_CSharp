@@ -1,11 +1,10 @@
-﻿using System;
+﻿using EtherealS.Core.Model;
+using EtherealS.Server.Abstract;
+using EtherealS.Service.Abstract;
+using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
-using EtherealS.Core.Model;
-using EtherealS.Net;
-using EtherealS.Server.Abstract;
-using EtherealS.Service.Abstract;
 
 namespace EtherealS.Server.WebSocket
 {
@@ -92,7 +91,7 @@ namespace EtherealS.Server.WebSocket
                         continue;
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     SendClientResponse(new ClientResponseModel(null, null, new Error(Error.ErrorCode.Common, $"{e.Message}", null)));
                     DisConnect("发生报错");
@@ -102,7 +101,7 @@ namespace EtherealS.Server.WebSocket
         }
         public override void DisConnect(string reason)
         {
-            if(Service.Config.AutoManageTokens)UnRegister();
+            if (Service.Config.AutoManageTokens) UnRegister();
             Context.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, reason, CancellationToken);
             OnDisConnect();
         }
@@ -116,12 +115,12 @@ namespace EtherealS.Server.WebSocket
                     Context.WebSocket.SendAsync(Service.Config.Encoding.GetBytes(Service.Config.ClientResponseModelSerialize(response)), WebSocketMessageType.Text, true, CancellationToken);
                 }
             }
-            catch(TrackException e)
+            catch (TrackException e)
             {
                 OnException(e);
             }
         }
-        internal override void SendServerRequest(ServerRequestModel request )
+        internal override void SendServerRequest(ServerRequestModel request)
         {
             try
             {

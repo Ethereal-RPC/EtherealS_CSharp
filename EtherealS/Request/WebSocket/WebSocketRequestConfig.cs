@@ -1,5 +1,4 @@
-﻿using EtherealS.Core.Model;
-using EtherealS.Request.Abstract;
+﻿using EtherealS.Request.Abstract;
 
 namespace EtherealS.Request.WebSocket
 {

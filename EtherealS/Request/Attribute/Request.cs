@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Reflection;
-using EtherealS.Service.Extension.Authority;
 
 namespace EtherealS.Request.Attribute
 {

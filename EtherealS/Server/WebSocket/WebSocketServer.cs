@@ -1,13 +1,9 @@
+using EtherealS.Core.Model;
+using EtherealS.Service;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.WebSockets;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using EtherealS.Core.Model;
-using EtherealS.Net;
-using EtherealS.Server.Abstract;
-using EtherealS.Service;
 
 namespace EtherealS.Server.WebSocket
 {
@@ -21,11 +17,11 @@ namespace EtherealS.Server.WebSocket
         public new WebSocketServerConfig Config { get => (WebSocketServerConfig)base.Config; set => base.Config = value; }
 
         #endregion
-        public WebSocketServer(List<string> prefixes) : base(prefixes)
+        public WebSocketServer()
         {
             if (!HttpListener.IsSupported)
             {
-                OnLog(TrackLog.LogCode.Runtime,"Windows XP SP2 or Server 2003 is required to use the HttpListener class.");
+                OnLog(TrackLog.LogCode.Runtime, "Windows XP SP2 or Server 2003 is required to use the HttpListener class.");
                 return;
             }
             Config = new WebSocketServerConfig();
@@ -38,7 +34,7 @@ namespace EtherealS.Server.WebSocket
             // Add the prefixes.
             foreach (string s in prefixes)
             {
-                Listener.Prefixes.Add(s.Replace("ethereal://","http://"));
+                Listener.Prefixes.Add(s.Replace("ethereal://", "http://"));
             }
             Listener.IgnoreWriteExceptions = true;
             Listener.Start();
@@ -61,7 +57,7 @@ namespace EtherealS.Server.WebSocket
             ClientRequestModel clientRequestModel = null;
             try
             {
-                string[] urls = request.RawUrl.Split(@"/",StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                string[] urls = request.RawUrl.Split(@"/", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
                 string service_name = urls[urls.Length - 1];
                 //·ÖÎöURL
                 if (!ServiceCore.Get(net, service_name, out service))
@@ -107,7 +103,7 @@ namespace EtherealS.Server.WebSocket
                         ClientResponseModel clientResponseModel = await Task.Run(() => service.ClientRequestReceiveProcess(baseToken, clientRequestModel));
                         SendHttpModel(context, service, clientResponseModel);
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         SendHttpModel(context, service, new ClientResponseModel(null, clientRequestModel?.Id, new Error(Error.ErrorCode.Common, $"{e.Message}\n{e.StackTrace}", null)));
                     }
@@ -125,7 +121,7 @@ namespace EtherealS.Server.WebSocket
             }
         }
 
-        internal void SendHttpModel(HttpListenerContext context,Service.Abstract.Service service, ClientResponseModel clientResponse)
+        internal void SendHttpModel(HttpListenerContext context, Service.Abstract.Service service, ClientResponseModel clientResponse)
         {
             try
             {

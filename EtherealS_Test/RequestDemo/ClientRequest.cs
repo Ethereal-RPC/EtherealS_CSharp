@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using EtherealS_Test.ServiceDemo;
+using EtherealS.Core.Event.Attribute;
 using EtherealS.Request.Attribute;
 using EtherealS.Request.WebSocket;
 using EtherealS_Test.Model;
+using System;
 
 namespace EtherealS_Test.RequestDemo
 {
-    public class ClientRequest:WebSocketRequest
+    public class ClientRequest : WebSocketRequest
     {
         public ClientRequest()
         {
@@ -21,17 +19,21 @@ namespace EtherealS_Test.RequestDemo
         }
         public override void Initialize()
         {
-
+            object instance = new EventClass();
+            RegisterIoc("instance", instance);
+            EventManager.RegisterEventMethod("instance", instance);
         }
-        [RequestMethod(Mapping:"Say",InvokeType = RequestMethod.InvokeTypeFlags.Local)]
-        public void Say(User user, User sender, string message)
+        [RequestMapping(Mapping: "Say", InvokeType = RequestMapping.InvokeTypeFlags.Local)]
+        public virtual void Say(User user, User sender, string message)
         {
             Console.WriteLine("asd");
         }
-        [RequestMethod(Mapping:"asd", InvokeType = RequestMethod.InvokeTypeFlags.Remote)]
-        public string test()
+        [AfterEvent("instance", "after", "[d:ddd],s:s")]
+        [RequestMapping(Mapping: "test", InvokeType = RequestMapping.InvokeTypeFlags.Local)]
+        public virtual bool test(int d, string s)
         {
-            return "asd";
+            Console.WriteLine("Add");
+            return true;
         }
 
         public override void UnInitialize()

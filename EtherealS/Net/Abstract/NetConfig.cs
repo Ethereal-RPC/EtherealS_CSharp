@@ -1,13 +1,11 @@
 ﻿using EtherealS.Net.Interface;
-using System;
-using System.Collections.Generic;
 
 namespace EtherealS.Net.Abstract
 {
     /// <summary>
     /// Ethereal网关
     /// </summary>
-    public class NetConfig:INetConfig
+    public class NetConfig : INetConfig
     {
         #region --委托--
 

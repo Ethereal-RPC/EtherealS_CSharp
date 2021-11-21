@@ -1,6 +1,4 @@
-﻿using EtherealS.Core.Model;
-using EtherealS.Server.Interface;
-using Newtonsoft.Json;
+﻿using EtherealS.Server.Interface;
 using System;
 
 namespace EtherealS.Server.Abstract
@@ -8,7 +6,7 @@ namespace EtherealS.Server.Abstract
     /// <summary>
     /// Server配置项
     /// </summary>
-    public abstract class ServerConfig:IServerConfig
+    public abstract class ServerConfig : IServerConfig
     {
         #region --委托--
 

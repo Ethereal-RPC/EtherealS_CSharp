@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EtherealS.Core.Model
 {
@@ -57,7 +55,7 @@ namespace EtherealS.Core.Model
 
         }
 
-        public AbstractType(Type type,string name)
+        public AbstractType(Type type, string name)
         {
             this.type = type;
             this.name = name;

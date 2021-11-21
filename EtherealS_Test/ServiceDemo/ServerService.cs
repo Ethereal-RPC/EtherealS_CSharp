@@ -1,6 +1,9 @@
-﻿using EtherealS.Service.Attribute;
+﻿using EtherealS.Core.Event.Attribute;
+using EtherealS.Request.Attribute;
+using EtherealS.Service.Attribute;
 using EtherealS_Test.Model;
 using EtherealS_Test.RequestDemo;
+using System;
 
 namespace EtherealS_Test.ServiceDemo
 {
@@ -19,8 +22,8 @@ namespace EtherealS_Test.ServiceDemo
 
         #region --方法--
         //Token 
-        [ServiceMethod(Mapping:"Register")]
-        public bool Register([EtherealS.Server.Attribute.Token]User user, string username, long id)
+        [ServiceMethod(Mapping: "Register")]
+        public bool Register([EtherealS.Server.Attribute.Token] User user, string username, long id)
         {
             user.Username = username;
             user.Id = id;
@@ -34,7 +37,7 @@ namespace EtherealS_Test.ServiceDemo
         /// <param name="message"></param>
         /// <returns></returns>
 
-        [ServiceMethod(Mapping:"SendSay")]
+        [ServiceMethod(Mapping: "SendSay")]
         public bool SendSay([EtherealS.Server.Attribute.Token] User sender, long listener_id, string message)
         {
             //查找对应ID的用户 1
@@ -47,12 +50,19 @@ namespace EtherealS_Test.ServiceDemo
             else return false;
         }
 
-        [ServiceMethod(Mapping:"Add")]
-        public int Add([EtherealS.Server.Attribute.Token] User token,int a,int b)
+        [ServiceMethod(Mapping: "Add")]
+        public int Add([EtherealS.Server.Attribute.Token] User token, int a, int b)
         {
             token.Username = "asd";
             userRequest.Say(token, token, token.Username);
             return a + b;
+        }
+        [AfterEvent(instance:"instance",mapping:"after","d:ddd,[s:s]")]
+        [ServiceMethod(Mapping: "test")]
+        public virtual bool test(int d, string s)
+        {
+            Console.WriteLine("Add");
+            return true;
         }
         public ServerService()
         {
@@ -65,12 +75,14 @@ namespace EtherealS_Test.ServiceDemo
         }
         public override void Initialize()
         {
-            
+            object instance = new EventClass();
+            RegisterIoc("instance", instance);
+            EventManager.RegisterEventMethod("instance", instance);
         }
 
         public override void UnInitialize()
         {
-            
+
         }
 
         #endregion

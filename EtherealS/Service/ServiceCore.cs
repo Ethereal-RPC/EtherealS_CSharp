@@ -1,8 +1,5 @@
-﻿using System;
-using EtherealS.Core.Model;
+﻿using EtherealS.Core.Model;
 using EtherealS.Net;
-using EtherealS.Service.Abstract;
-using EtherealS.Service.WebSocket;
 
 namespace EtherealS.Service
 {
@@ -20,7 +17,7 @@ namespace EtherealS.Service
                 return false;
             }
         }
-        public static bool Get(string netName,string serviceName, out Service.Abstract.Service service)
+        public static bool Get(string netName, string serviceName, out Service.Abstract.Service service)
         {
             if (NetCore.Get(netName, out Net.Abstract.Net net))
             {
@@ -37,11 +34,7 @@ namespace EtherealS.Service
             return net.Services.TryGetValue(serviceName, out service);
         }
 
-        public static T Register<T>(Net.Abstract.Net net, T service) where T : Abstract.Service
-        {
-            return Register(net, service, null);
-        }
-        public static T Register<T>(Net.Abstract.Net net, T service, string serviceName) where T: Abstract.Service
+        public static T Register<T>(Net.Abstract.Net net, T service, string serviceName = null) where T : Abstract.Service
         {
             if (serviceName != null) service.Name = serviceName;
             Abstract.Service.Register(service);
@@ -61,10 +54,7 @@ namespace EtherealS.Service
             service.Net.Services.TryRemove(service.Name, out service);
             service.LogEvent -= service.Net.OnLog;
             service.ExceptionEvent -= service.Net.OnException;
-            service.Methods.Clear();
             service.Net = null;
-            service.Config = null;
-            service.Types = null;
             service.UnInitialize();
             return true;
         }

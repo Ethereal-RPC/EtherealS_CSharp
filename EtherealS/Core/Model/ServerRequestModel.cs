@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-
-namespace EtherealS.Core.Model
+﻿namespace EtherealS.Core.Model
 {
     public class ServerRequestModel
     {
@@ -26,19 +23,12 @@ namespace EtherealS.Core.Model
         public string Mapping { get => mapping; set => mapping = value; }
         public string[] Params { get => @params; set => @params = value; }
         public string Service { get => service; set => service = value; }
-
-        public ServerRequestModel(string service,string methodid, string[] @params)
-        {
-            Mapping = methodid;
-            Params = @params;
-            Service = service;
-        }
         public override string ToString()
         {
             return "ServerRequestModel{" +
                     "type='" + type + '\'' +
                     ", methodId='" + mapping + '\'' +
-                    ", params=" + string.Join(",",@params) +
+                    ", params=" + string.Join(",", @params) +
                     ", service='" + service + '\'' +
                     '}';
         }

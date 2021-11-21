@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace EtherealS.Core.Model
+﻿namespace EtherealS.Core.Model
 {
     /// <summary>
     /// 客户端请求返回模型
@@ -30,7 +27,7 @@ namespace EtherealS.Core.Model
         public Error Error { get => error; set => error = value; }
         public string Id { get => id; set => id = value; }
 
-        public ClientResponseModel(string result,string id, Error error)
+        public ClientResponseModel(string result, string id, Error error)
         {
             Result = result;
             Error = error;

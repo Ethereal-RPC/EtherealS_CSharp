@@ -1,5 +1,4 @@
-﻿using EtherealS.Core.EventManage.Model;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 
 namespace EtherealS.Core.EventManage.Attribute
@@ -13,9 +12,8 @@ namespace EtherealS.Core.EventManage.Attribute
     }
     public class BeforeEvent : EventSender
     {
-        public BeforeEvent(string instance, string mapping, string params_mapping = "") : base(instance, mapping, params_mapping)
+        public BeforeEvent(string function) : base(function)
         {
-
         }
     }
 }

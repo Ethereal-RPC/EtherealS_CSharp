@@ -56,7 +56,7 @@ namespace EtherealS_Test.ServiceDemo
             userRequest.Say(token, token, token.Username);
             return a + b;
         }
-        [AfterEvent(instance:"instance",mapping:"after","d:ddd,[s:s]")]
+        [AfterEvent("instance.after(ddd:d,s:s)")]
         [ServiceMethod(Mapping: "test")]
         public virtual bool test(int d, string s)
         {

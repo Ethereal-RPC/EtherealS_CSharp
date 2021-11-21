@@ -27,7 +27,7 @@ namespace EtherealS_Test.RequestDemo
         {
             Console.WriteLine("asd");
         }
-        [AfterEvent("instance", "after", "[d:ddd],s:s")]
+        [AfterEvent("instance.after(ddd:d,s:s))")]
         [RequestMapping(Mapping: "test", InvokeType = RequestMapping.InvokeTypeFlags.Local)]
         public virtual bool test(int d, string s)
         {

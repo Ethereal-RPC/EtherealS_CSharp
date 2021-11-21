@@ -15,9 +15,8 @@ namespace EtherealS.Request.Event
     }
     public class FailEvent : EventSender
     {
-        public FailEvent(string instance, string mapping, string params_mapping = "") : base(instance, mapping, params_mapping)
+        public FailEvent(string function) : base(function)
         {
-
         }
     }
 }

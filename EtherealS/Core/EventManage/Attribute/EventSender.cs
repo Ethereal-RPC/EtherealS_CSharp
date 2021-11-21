@@ -1,27 +1,39 @@
 ﻿using EtherealS.Core.Model;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace EtherealS.Core.EventManage.Attribute
 {
+    public class EventContext
+    {
+        public EventContext(Dictionary<string, object> parameters, MethodInfo method)
+        {
+            Method = method;
+            Parameters = parameters;
+        }
+
+        public MethodInfo Method { get; set; }
+        public Dictionary<string, object> Parameters { get; set; }
+    }
     [AttributeUsage(AttributeTargets.Method)]
     public class EventSender : System.Attribute
     {
+        private static Regex regex = new Regex(@"\w+");
         public string InstanceName { get; set; }
         public string Mapping { get; set; }
         public Dictionary<string, string> paramsMapping { get; set; }
-        public EventSender(string instance, string mapping, string params_mapping = "")
+        public EventSender(string function)
         {
-            InstanceName = instance;
-            Mapping = mapping;
-            params_mapping = params_mapping.Replace("[", "").Replace("]", "");
-            string[] paramsSplit = params_mapping.Split(",");
-            paramsMapping = new(params_mapping.Length);
-            foreach (string param in paramsSplit)
+            MatchCollection matches = regex.Matches(function);
+            if((matches.Count % 2)!=0 || matches.Count < 2) throw new TrackException(TrackException.ErrorCode.Core, $"{function}不合法");
+            InstanceName = matches[0].Value;
+            Mapping = matches[1].Value;
+            paramsMapping = new(matches.Count - 2);
+            for(int i = 2; i < matches.Count;)
             {
-                string[] param_mapping = param.Split(":");
-                if (param_mapping.Length != 2) throw new TrackException(TrackException.ErrorCode.Core, $"{params_mapping}中{param}不合法");
-                paramsMapping.Add(param_mapping[1], param_mapping[0]);
+                paramsMapping.Add(matches[i++].Value, matches[i++].Value);
             }
         }
     }

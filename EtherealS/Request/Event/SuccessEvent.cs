@@ -14,7 +14,7 @@ namespace EtherealS.Request.Event
     }
     public class SuccessEvent : EventSender
     {
-        public SuccessEvent(string instance, string mapping, string params_mapping = "") : base(instance, mapping, params_mapping)
+        public SuccessEvent(string function) : base(function)
         {
         }
     }

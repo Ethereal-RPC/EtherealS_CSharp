@@ -1,5 +1,4 @@
-﻿using EtherealS.Core.EventManage.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -17,7 +16,7 @@ namespace EtherealS.Core.EventManage.Attribute
     {
         public Exception Exception { get; set; }
         public bool IsThrow { get; set; }
-        public ExceptionEvent(string instance, string mapping, string paramsMapping, bool isThrow = false) : base(instance, mapping, paramsMapping)
+        public ExceptionEvent(string function, bool isThrow = false) : base(function)
         {
             IsThrow = isThrow;
         }

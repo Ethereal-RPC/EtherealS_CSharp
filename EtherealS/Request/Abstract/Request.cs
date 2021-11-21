@@ -2,7 +2,6 @@
 using EtherealS.Core.Attribute;
 using EtherealS.Core.EventManage;
 using EtherealS.Core.EventManage.Attribute;
-using EtherealS.Core.EventManage.Model;
 using EtherealS.Core.Interface;
 using EtherealS.Core.Model;
 using EtherealS.Request.Attribute;
@@ -11,7 +10,6 @@ using EtherealS.Utils;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace EtherealS.Request.Abstract
 {

@@ -13,9 +13,8 @@ namespace EtherealS.Request.Event
     }
     public class TimeoutEvent : EventSender
     {
-        public TimeoutEvent(string instance, string mapping, string params_mapping = "") : base(instance, mapping, params_mapping)
+        public TimeoutEvent(string function) : base(function)
         {
-
         }
     }
 }

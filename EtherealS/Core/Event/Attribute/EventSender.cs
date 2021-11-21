@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace EtherealS.Core.EventManage.Attribute
+namespace EtherealS.Core.Event.Attribute
 {
     public class EventContext
     {
@@ -27,11 +27,11 @@ namespace EtherealS.Core.EventManage.Attribute
         public EventSender(string function)
         {
             MatchCollection matches = regex.Matches(function);
-            if((matches.Count % 2)!=0 || matches.Count < 2) throw new TrackException(TrackException.ErrorCode.Core, $"{function}不合法");
+            if (matches.Count % 2 != 0 || matches.Count < 2) throw new TrackException(TrackException.ErrorCode.Core, $"{function}不合法");
             InstanceName = matches[0].Value;
             Mapping = matches[1].Value;
             paramsMapping = new(matches.Count - 2);
-            for(int i = 2; i < matches.Count;)
+            for (int i = 2; i < matches.Count;)
             {
                 paramsMapping.Add(matches[i++].Value, matches[i++].Value);
             }

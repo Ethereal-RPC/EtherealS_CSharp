@@ -1,4 +1,4 @@
-﻿using EtherealS.Core.EventManage.Attribute;
+﻿using EtherealS.Core.Event.Attribute;
 using EtherealS.Request.Attribute;
 using EtherealS.Request.WebSocket;
 using EtherealS_Test.Model;

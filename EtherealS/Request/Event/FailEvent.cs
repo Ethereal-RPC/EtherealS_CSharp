@@ -1,4 +1,4 @@
-﻿using EtherealS.Core.EventManage.Attribute;
+﻿using EtherealS.Core.Event.Attribute;
 using EtherealS.Core.Model;
 using System.Collections.Generic;
 using System.Reflection;

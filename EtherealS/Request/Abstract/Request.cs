@@ -1,7 +1,8 @@
-﻿using EtherealS.Core;
+﻿using Castle.DynamicProxy;
+using EtherealS.Core;
 using EtherealS.Core.Attribute;
-using EtherealS.Core.EventManage;
-using EtherealS.Core.EventManage.Attribute;
+using EtherealS.Core.Event;
+using EtherealS.Core.Event.Attribute;
 using EtherealS.Core.Interface;
 using EtherealS.Core.Model;
 using EtherealS.Request.Attribute;
@@ -81,10 +82,12 @@ namespace EtherealS.Request.Abstract
         {
 
         }
-        public static R Register<R>() where R : Request
+        public static T Register<T>() where T : Request
         {
-            R request = DynamicProxy.CreateRequestProxy<R>();
-            foreach (MethodInfo method in typeof(R).GetMethods())
+            ProxyGenerator generator = new ProxyGenerator();
+            RequestInterceptor interceptor = new RequestInterceptor();
+            T request = generator.CreateClassProxy<T>(interceptor);
+            foreach (MethodInfo method in typeof(T).GetMethods())
             {
                 RequestMapping attribute = method.GetCustomAttribute<RequestMapping>();
                 if (attribute != null)
@@ -122,81 +125,6 @@ namespace EtherealS.Request.Abstract
         }
         public abstract void Initialize();
         public abstract void UnInitialize();
-
-        public virtual object Invoke(string mapping, object[] args,object localResult)
-        {
-            MethodInfo method = null;
-            Dictionary<string, object> @params = null;
-            EventSender eventSender;
-            EventContext eventContext;
-            try
-            {
-                //方法信息获取
-                Methods.TryGetValue(mapping, out method);
-                RequestMapping attribute = method.GetCustomAttribute<RequestMapping>();
-                //注入参数
-                ParameterInfo[] parameterInfos = method.GetParameters();
-                ServerRequestModel request = new ServerRequestModel();
-                request.Mapping = attribute.Mapping;
-                request.Params = new string[parameterInfos.Length];
-                @params = new(parameterInfos.Length -1);
-                Server.Abstract.Token token = null;
-                for (int i = 0, j = 0; i < parameterInfos.Length; i++)
-                {
-                    if (parameterInfos[i].GetCustomAttribute<Server.Attribute.Token>(true) != null)
-                    {
-                        token = args[i] as Server.Abstract.Token;
-                        continue;
-                    }
-                    Param paramAttribute = parameterInfos[i].GetCustomAttribute<Param>(true);
-                    if (paramAttribute != null && Types.TypesByName.TryGetValue(paramAttribute.Name, out AbstractType type) || Types.TypesByType.TryGetValue(parameterInfos[i].ParameterType, out type))
-                    {
-                        request.Params[j++] = type.Serialize(args[i]);
-                        @params.Add(parameterInfos[i].Name, args[i]);
-                    }
-                    else throw new TrackException($"{request.Mapping}方法中的{parameterInfos[i].ParameterType}类型参数尚未注册");
-                }
-
-                eventSender = method.GetCustomAttribute<BeforeEvent>();
-                if (eventSender != null)
-                {
-                    eventContext = new BeforeEventContext(@params, method);
-                    EventManager.InvokeEvent(IocContainer[eventSender.InstanceName], eventSender, @params, eventContext);
-                }
-                if ((attribute.InvokeType & RequestMapping.InvokeTypeFlags.Remote) != 0)
-                {
-                    if (token != null)
-                    {
-                        if (!token.CanRequest)
-                        {
-                            throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{request.Mapping}传递了非WebSocket协议的Token！");
-                        }
-                        token.SendServerRequest(request);
-                    }
-                    else throw new TrackException(TrackException.ErrorCode.Runtime, $"{name}-{request.Mapping}并未提供Token！");
-                }
-                eventSender = method.GetCustomAttribute<AfterEvent>();
-                if (eventSender != null)
-                {
-                    eventContext = new AfterEventContext(@params, method, localResult);
-                    EventManager.InvokeEvent(IocContainer[eventSender.InstanceName], eventSender, @params, eventContext);
-                }
-            }
-            catch(Exception e)
-            {
-                eventSender = method.GetCustomAttribute<ExceptionEvent>();
-                if (eventSender != null)
-                {
-                    (eventSender as ExceptionEvent).Exception = e;
-                    eventContext = new ExceptionEventContext(@params, method, e);
-                    EventManager.InvokeEvent(IocContainer[eventSender.InstanceName], eventSender, @params, eventContext);
-                    if ((eventSender as ExceptionEvent).IsThrow) throw;
-                }
-                else throw;
-            }
-            return localResult;
-        }
-
 
         public void RegisterIoc(string name, object instance)
         {

@@ -9,6 +9,7 @@ using System.Reflection.Emit;
 
 namespace EtherealS.Utils
 {
+    //Emit方法弃置
     public class DynamicProxy
     {
         //代码参考 https://gitee.com/code2roc/FastIOC/blob/master/FastIOC/Proxy/DynamictProxy.cs

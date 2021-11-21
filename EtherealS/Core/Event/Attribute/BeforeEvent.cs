@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 
-namespace EtherealS.Core.EventManage.Attribute
+namespace EtherealS.Core.Event.Attribute
 {
     public class BeforeEventContext : EventContext
     {

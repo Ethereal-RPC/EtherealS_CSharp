@@ -170,8 +170,6 @@ namespace EtherealS.Service.Abstract
             }
             else return true;
         }
-        public abstract void Initialize();
-        public abstract void UnInitialize();
         public ClientResponseModel ClientRequestReceiveProcess(Token token, ClientRequestModel request)
         {
             EventContext eventContext;
@@ -285,6 +283,11 @@ namespace EtherealS.Service.Abstract
         {
             return IocContainer.TryGetValue(name, out instance);
         }
+
+        public abstract void Register();
+        public abstract void UnRegister();
+        public abstract void Initialize();
+        public abstract void UnInitialize();
         #endregion
 
     }

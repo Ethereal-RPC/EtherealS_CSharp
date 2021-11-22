@@ -36,21 +36,23 @@ namespace EtherealS.Service
 
         public static T Register<T>(Net.Abstract.Net net, T service, string serviceName = null) where T : Abstract.Service
         {
+            service.Initialize();
             if (serviceName != null) service.Name = serviceName;
-            Abstract.Service.Register(service);
             if (!net.Services.ContainsKey(service.Name))
             {
                 service.Net = net;
                 service.LogEvent += net.OnLog;
                 service.ExceptionEvent += net.OnException;
                 net.Services[service.Name] = service;
-                service.Initialize();
+                Abstract.Service.Register(service);
+                service.Register();
                 return service;
             }
             else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}-{service.Name}已注册！");
         }
         public static bool UnRegister(Abstract.Service service)
         {
+            service.UnRegister();
             service.Net.Services.TryRemove(service.Name, out service);
             service.LogEvent -= service.Net.OnLog;
             service.ExceptionEvent -= service.Net.OnException;

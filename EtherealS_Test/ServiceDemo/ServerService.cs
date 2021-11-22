@@ -63,7 +63,8 @@ namespace EtherealS_Test.ServiceDemo
             Console.WriteLine("Add");
             return true;
         }
-        public ServerService()
+
+        public override void Initialize()
         {
             types.Add<int>("Int");
             types.Add<User>("User");
@@ -72,14 +73,20 @@ namespace EtherealS_Test.ServiceDemo
             types.Add<bool>("Bool");
             TokenCreateInstance = () => new User();
         }
-        public override void Initialize()
+
+        public override void UnInitialize()
+        {
+
+        }
+
+        public override void Register()
         {
             object instance = new EventClass();
             RegisterIoc("instance", instance);
             EventManager.RegisterEventMethod("instance", instance);
         }
 
-        public override void UnInitialize()
+        public override void UnRegister()
         {
 
         }

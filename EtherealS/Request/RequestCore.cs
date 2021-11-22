@@ -14,6 +14,7 @@ namespace EtherealS.Request
         public static R Register<R>(Service.Abstract.Service service, string serviceName = null) where R : Abstract.Request
         {
             R request = Abstract.Request.Register<R>();
+            request.Initialize();
             if (serviceName != null) request.Name = serviceName;
             if (!service.Requests.ContainsKey(request.Name))
             {
@@ -21,18 +22,19 @@ namespace EtherealS.Request
                 request.LogEvent += service.OnLog;
                 request.ExceptionEvent += service.OnException;
                 service.Requests[request.Name] = request;
-                request.Initialize();
+                request.Register();
                 return request;
             }
             else throw new TrackException(TrackException.ErrorCode.Core, $"{service.Net.Name}-{service.Name}-{serviceName}已注册，无法重复注册！");
         }
         public static bool UnRegister(Abstract.Request request)
         {
-            request.UnInitialize();
+            request.UnRegister();
             request.Service.Requests.TryRemove(request.Name, out request);
             request.LogEvent -= request.Service.OnLog;
             request.ExceptionEvent -= request.Service.OnException;
-            request.Service = null; 
+            request.Service = null;
+            request.UnInitialize();
             return true;
         }
     }

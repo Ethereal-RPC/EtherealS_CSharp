@@ -70,8 +70,6 @@ namespace EtherealS.Request.Abstract
         public RequestConfig Config { get => config; set => config = value; }
         public AbstractTypes Types { get => types; set => types = value; }
         public Service.Abstract.Service Service { get => service; set => service = value; }
-        protected Dictionary<string, MethodInfo> Methods { get => methods; set => methods = value; }
-
         internal protected Dictionary<string, object> IocContainer { get; set; } = new();
         public EventManager EventManager { get; set; } = new EventManager();
 
@@ -87,14 +85,6 @@ namespace EtherealS.Request.Abstract
             ProxyGenerator generator = new ProxyGenerator();
             RequestInterceptor interceptor = new RequestInterceptor();
             T request = generator.CreateClassProxy<T>(interceptor);
-            foreach (MethodInfo method in typeof(T).GetMethods())
-            {
-                RequestMapping attribute = method.GetCustomAttribute<RequestMapping>();
-                if (attribute != null)
-                {
-                    request.Methods.Add(attribute.Mapping, method);
-                }
-            }
             return request;
         }
 
@@ -123,8 +113,6 @@ namespace EtherealS.Request.Abstract
                 logEvent?.Invoke(log);
             }
         }
-        public abstract void Initialize();
-        public abstract void UnInitialize();
 
         public void RegisterIoc(string name, object instance)
         {
@@ -133,6 +121,7 @@ namespace EtherealS.Request.Abstract
                 throw new TrackException(TrackException.ErrorCode.Runtime, $"{Name}请求中的{name}实例已注册");
             }
             IocContainer.Add(name, instance);
+            EventManager.RegisterEventMethod(name, instance);
         }
         public void UnRegisterIoc(string name)
         {
@@ -146,6 +135,11 @@ namespace EtherealS.Request.Abstract
         {
             return IocContainer.TryGetValue(name, out instance);
         }
+
+        public abstract void Initialize();
+        public abstract void Register();
+        public abstract void UnRegister();
+        public abstract void UnInitialize();
         #endregion
     }
 }

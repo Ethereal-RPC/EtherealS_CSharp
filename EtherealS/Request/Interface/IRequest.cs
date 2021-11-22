@@ -4,7 +4,9 @@ namespace EtherealS.Request.Interface
 {
     public interface IRequest : ILogEvent, IExceptionEvent
     {
-        public void Initialize();
-        public void UnInitialize();
+        void Initialize();
+        void Register();
+        void UnRegister();
+        void UnInitialize();
     }
 }

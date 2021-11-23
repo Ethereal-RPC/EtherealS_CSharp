@@ -1,14 +1,14 @@
 ﻿using EtherealS.Core;
 using EtherealS.Core.BaseCore;
 using EtherealS.Core.Model;
-using EtherealS.Server.Interface;
+using EtherealS.Service.Interface;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
-namespace EtherealS.Server.Abstract
+namespace EtherealS.Service.Abstract
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public abstract class Token : BaseCore,IToken
+    public abstract class Token : BaseCore, IToken
     {
 
         #region --委托--
@@ -44,13 +44,13 @@ namespace EtherealS.Server.Abstract
 
         protected bool canRequest = false;
         protected object key;
-        protected Service.Abstract.Service service;
+        protected Service service;
 
         #endregion
 
         #region --属性--
         public bool CanRequest { get => canRequest; set => canRequest = value; }
-        public Service.Abstract.Service Service { get => service; set => service = value; }
+        public Service Service { get => service; set => service = value; }
         public object Key { get => key; set => key = value; }
         #endregion
 

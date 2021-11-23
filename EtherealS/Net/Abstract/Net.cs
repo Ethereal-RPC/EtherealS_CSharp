@@ -3,7 +3,7 @@ using EtherealS.Core.BaseCore;
 using EtherealS.Core.Model;
 using EtherealS.Net.Extension.Plugins;
 using EtherealS.Net.Interface;
-using EtherealS.Server.Abstract;
+using EtherealS.Service.Abstract;
 using System;
 using System.Collections.Concurrent;
 using System.Reflection;
@@ -54,7 +54,8 @@ namespace EtherealS.Net.Abstract
         public Server.Abstract.Server Server { get => server; set => server = value; }
         public NetType Type { get => type; set => type = value; }
         protected PluginManager PluginManager { get => pluginManager; set => pluginManager = value; }
-        public string Name { get => name; }
+        public string Name { get => name; set => name = value; }
+
 
         #endregion
 

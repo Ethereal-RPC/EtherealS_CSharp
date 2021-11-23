@@ -1,11 +1,11 @@
 ﻿using EtherealS.Core.Manager.AbstractType;
-using EtherealS.Core.Manager.IOC;
+using EtherealS.Core.Manager.Ioc;
 
 namespace EtherealS.Core.BaseCore
 {
     public class MZCore : BaseCore
     {
-        public IOCManager IOCManager { get; set; } = new();
+        public IocManager IOCManager { get; set; } = new();
         public AbstractTypeManager Types { get; set; } = new();
 
     }

@@ -1,8 +1,9 @@
-﻿using EtherealS.Core.Model;
+﻿using EtherealS.Core.Interface;
+using EtherealS.Core.Model;
 
 namespace EtherealS.Core.BaseCore
 {
-    public class BaseCore
+    public class BaseCore : IExceptionEvent, ILogEvent
     {
         #region --事件字段--
         private OnLogDelegate logEvent;

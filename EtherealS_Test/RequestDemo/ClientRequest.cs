@@ -10,6 +10,7 @@ namespace EtherealS_Test.RequestDemo
     {
         public override void Initialize()
         {
+            Name = "Client";
             Types.Add<int>("Int");
             Types.Add<User>("User");
             Types.Add<long>("Long");

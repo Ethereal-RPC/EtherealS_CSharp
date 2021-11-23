@@ -1,6 +1,6 @@
 ﻿using EtherealS.Core.Interface;
 
-namespace EtherealS.Server.Interface
+namespace EtherealS.Service.Interface
 {
     public interface IToken : ILogEvent, IExceptionEvent
     {

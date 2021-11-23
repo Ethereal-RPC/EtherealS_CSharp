@@ -1,4 +1,4 @@
-﻿using EtherealS.Server.Abstract;
+﻿using EtherealS.Service.Abstract;
 using System.Reflection;
 
 namespace EtherealS.Service.Extension.Authority

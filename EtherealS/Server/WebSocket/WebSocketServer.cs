@@ -1,5 +1,6 @@
 using EtherealS.Core.Model;
 using EtherealS.Service;
+using EtherealS.Service.WebSocket;
 using Newtonsoft.Json;
 using System;
 using System.Net;

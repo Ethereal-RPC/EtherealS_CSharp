@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EtherealS.Server.Attribute
+namespace EtherealS.Service.Attribute
 {
     [AttributeUsage(AttributeTargets.Parameter)]
     public class Token : System.Attribute

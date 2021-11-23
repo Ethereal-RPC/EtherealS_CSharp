@@ -5,7 +5,6 @@ using EtherealS.Core.Manager.AbstractType;
 using EtherealS.Core.Manager.Event.Attribute;
 using EtherealS.Core.Model;
 using EtherealS.Net.Extension.Plugins;
-using EtherealS.Server.Abstract;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -17,7 +16,7 @@ namespace EtherealS.Service.Abstract
     public abstract class Service : MZCore,Interface.IService
     {
         #region --委托字段--
-        public delegate bool InterceptorDelegate(Net.Abstract.Net net, Service service, MethodInfo method, Server.Abstract.Token token);
+        public delegate bool InterceptorDelegate(Net.Abstract.Net net, Service service, MethodInfo method, Token token);
         /// <summary>
         /// BaseUserToken实例化方法委托
         /// </summary>
@@ -61,7 +60,7 @@ namespace EtherealS.Service.Abstract
         public TokenCreateInstanceDelegate TokenCreateInstance { get => tokenCreateInstance; set => tokenCreateInstance = value; }
         public ConcurrentDictionary<string, Request.Abstract.Request> Requests { get => requests; set => requests = value; }
         public bool Enable { get; set; } = true;
-        public string Name { get => name; }
+        public string Name { get => name; set => name = value; }
         #endregion
 
         #region --方法--
@@ -73,9 +72,17 @@ namespace EtherealS.Service.Abstract
                 Attribute.ServiceMapping attribute = method.GetCustomAttribute<Attribute.ServiceMapping>();
                 if (attribute != null)
                 {
-                    if (method.ReturnType != typeof(void) && !instance.Types.Get(method.GetCustomAttribute<Param>()?.Type, method.ReturnType, out AbstractType type))
+                    if (method.ReturnType != typeof(void))
                     {
-                        throw new TrackException(TrackException.ErrorCode.Core, $"{method.Name} 返回值未提供抽象类型方案");
+                        Param paramAttribute = method.GetCustomAttribute<Param>();
+                        if (paramAttribute != null && !instance.Types.Get(paramAttribute.Type, out AbstractType type))
+                        {
+                            throw new TrackException(TrackException.ErrorCode.Core, $"{instance.Name}-{method.Name}-{paramAttribute.Type}抽象类型未找到");
+                        }
+                        else if (!instance.Types.Get(method.ReturnType, out type))
+                        {
+                            throw new TrackException(TrackException.ErrorCode.Core, $"{instance.Name}-{method.Name}-{method.ReturnType}类型映射抽象类型");
+                        }
                     }
                     ParameterInfo[] parameterInfos = method.GetParameters();
                     foreach (ParameterInfo parameterInfo in parameterInfos)
@@ -86,8 +93,8 @@ namespace EtherealS.Service.Abstract
                             continue;
                         }
                         Param paramAttribute = parameterInfo.GetCustomAttribute<Param>();
-                        if (paramAttribute != null && !instance.Types.Get(paramAttribute.Type, out type))
-                        {
+                        if (paramAttribute != null && !instance.Types.Get(paramAttribute.Type, out AbstractType type))
+                        {   
                             throw new TrackException(TrackException.ErrorCode.Core, $"{instance.Name}-{method.Name}-{paramAttribute.Type}抽象类型未找到");
                         }
                         else if (!instance.Types.Get(parameterInfo.ParameterType, out type))
@@ -100,7 +107,7 @@ namespace EtherealS.Service.Abstract
             }
         }
 
-        internal bool OnInterceptor(Net.Abstract.Net net, MethodInfo method, Server.Abstract.Token token)
+        internal bool OnInterceptor(Net.Abstract.Net net, MethodInfo method, Token token)
         {
             if (InterceptorEvent != null)
             {
@@ -130,21 +137,21 @@ namespace EtherealS.Service.Abstract
                     EventSender eventSender;
                     ParameterInfo[] parameterInfos = method.GetParameters();
                     Dictionary<string, object> @params = new Dictionary<string, object>(parameterInfos.Length);
-                    object[] localParams = new object[parameterInfos.Length];
+                    object[] args = new object[parameterInfos.Length];
                     int idx = 0;
                     foreach (ParameterInfo parameterInfo in parameterInfos)
                     {
-                        if (parameterInfo.GetCustomAttribute<Server.Attribute.Token>(true) != null)
+                        if (parameterInfo.GetCustomAttribute<Attribute.Token>(true) != null)
                         {
-                            localParams[idx] = token;
+                            args[idx] = token;
                         }
                         else if (request.Params.TryGetValue(parameterInfo.Name, out string value))
                         {
                             Types.Get(parameterInfo, out AbstractType type);
-                            localParams[idx] = type.Deserialize(value);
+                            args[idx] = type.Deserialize(value);
                         }
                         else throw new TrackException(TrackException.ErrorCode.Runtime, $"来自服务器的{Name}服务请求中未提供{method.Name}方法的{parameterInfo.Name}参数");
-                        @params.Add(parameterInfo.Name, localParams[idx++]);
+                        @params.Add(parameterInfo.Name, args[idx++]);
                     }
                     eventSender = method.GetCustomAttribute<BeforeEvent>();
                     if (eventSender != null)
@@ -155,7 +162,7 @@ namespace EtherealS.Service.Abstract
                     object result = null;
                     try
                     {
-                        result = method.Invoke(this, localParams);
+                        result = method.Invoke(this, args);
                     }
                     catch (Exception e)
                     {

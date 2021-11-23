@@ -1,4 +1,4 @@
-﻿using EtherealS.Server.WebSocket;
+﻿using EtherealS.Service.WebSocket;
 using Newtonsoft.Json;
 
 namespace EtherealS_Test.Model

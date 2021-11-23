@@ -3,6 +3,8 @@ using EtherealS.Core.Manager.AbstractType;
 using EtherealS.Core.Manager.Event.Attribute;
 using EtherealS.Core.Model;
 using EtherealS.Request.Attribute;
+using EtherealS.Service.Abstract;
+using EtherealS.Service.Attribute;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -28,21 +30,24 @@ namespace EtherealS.Request.Abstract
             request.Mapping = attribute.Mapping;
             EventSender eventSender = null;
             EventContext eventContext = null;
-            Server.Abstract.Token token = null;
+            Service.Abstract.Token token = null;
             object localResult = null;
-            request.Params = new Dictionary<string, string>(parameterInfos.Length);
+            request.Params = new Dictionary<string, string>(parameterInfos.Length - 1);
             Dictionary<string, object> @params = new Dictionary<string, object>(parameterInfos.Length);
+            object[] args = invocation.Arguments;
             int idx = 0;
             foreach (ParameterInfo parameterInfo in parameterInfos)
             {
-                if (parameterInfo.GetCustomAttribute<Server.Attribute.Token>(true) != null)
+                if (parameterInfo.GetCustomAttribute<Service.Attribute.Token>(true) != null)
                 {
-                    @params.Add(parameterInfo.Name, invocation.Arguments[idx++]);
-                    continue;
+                    token = args[idx] as Service.Abstract.Token;
                 }
-                instance.Types.Get(parameterInfo, out AbstractType type);
-                request.Params.Add(parameterInfo.Name, type.Serialize(invocation.Arguments[idx]));
-                @params.Add(parameterInfo.Name, invocation.Arguments[idx++]);
+                else
+                {
+                    instance.Types.Get(parameterInfo, out AbstractType type);
+                    request.Params.Add(parameterInfo.Name, type.Serialize(args[idx]));
+                }
+                @params.Add(parameterInfo.Name, args[idx++]);
             }
 
             eventSender = method.GetCustomAttribute<BeforeEvent>();

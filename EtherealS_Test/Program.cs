@@ -44,9 +44,9 @@ namespace EtherealS_Test
             net.ExceptionEvent += Config_ExceptionEvent;
             net.LogEvent += Config_LogEvent;
             //向网关注册服务
-            ServerService service = ServiceCore.Register(net, new ServerService(), "Server");
+            ServerService service = ServiceCore.Register(net, new ServerService());
             //向网关注册请求
-            ClientRequest request = RequestCore.Register<ClientRequest>(service, "Client");
+            ClientRequest request = RequestCore.Register<ClientRequest>(service);
             //本例中，突出服务类可作为正常类
             service.UserRequest = request;
             //向网关注册连接(提供一个生成User的方法)

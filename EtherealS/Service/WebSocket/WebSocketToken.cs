@@ -1,12 +1,11 @@
 ﻿using EtherealS.Core.Model;
-using EtherealS.Server.Abstract;
 using EtherealS.Service.Abstract;
 using System;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EtherealS.Server.WebSocket
+namespace EtherealS.Service.WebSocket
 {
     public class WebSocketToken : Token
     {
@@ -32,7 +31,7 @@ namespace EtherealS.Server.WebSocket
         }
         internal void Connect(HttpListenerWebSocketContext context)
         {
-            this.Context = context;
+            Context = context;
             OnConnect();
             ProcessData();
         }

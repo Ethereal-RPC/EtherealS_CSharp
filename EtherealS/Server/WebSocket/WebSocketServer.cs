@@ -1,5 +1,6 @@
 using EtherealS.Core.Model;
 using EtherealS.Service;
+using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Net.WebSockets;
@@ -63,7 +64,9 @@ namespace EtherealS.Server.WebSocket
                 if (!ServiceCore.Get(net, service_name, out service))
                 {
                     context.Response.StatusCode = 404;
-                    SendHttpRaw(context, $"未找到服务{service_name}");
+                    ClientResponseModel responseModel = new ClientResponseModel();
+                    responseModel.Error = new Error(Error.ErrorCode.NotFoundService, $"未找到服务{service_name}");
+                    SendHttpHttp(context, service , responseModel);
                     return;
                 }
                 WebSocketToken baseToken = null;
@@ -81,31 +84,36 @@ namespace EtherealS.Server.WebSocket
                 }
                 else if (request.HttpMethod == "POST")
                 {
+                    ClientResponseModel responseModel = new ClientResponseModel();
                     try
                     {
                         if (request.ContentLength64 == -1)
                         {
-                            SendHttpModel(context, service, new ClientResponseModel(null, clientRequestModel?.Id, new Error(Error.ErrorCode.BufferFlow, $"HTTP请求头请携带ContentLength", null)));
+                            responseModel.Error = new Error(Error.ErrorCode.Common, $"HTTP请求头请携带ContentLength");
+                            SendHttpHttp(context, service,responseModel);
                             return;
                         }
                         //后续可以加入池优化，这里暂时先直接申请。
                         if (request.ContentLength64 > service.Config.MaxBufferSize)
                         {
-                            SendHttpModel(context, service, new ClientResponseModel(null, clientRequestModel?.Id, new Error(Error.ErrorCode.BufferFlow, $"{service.Name}最大允许接收{service.Config.MaxBufferSize}字节", null)));
+                            responseModel.Error = new Error(Error.ErrorCode.BufferFlow, $"{service.Name}最大允许接收{service.Config.MaxBufferSize}字节");
+                            SendHttpHttp(context, service, responseModel);
                             return;
                         }
                         byte[] body = new byte[request.ContentLength64];
                         await request.InputStream.ReadAsync(body, 0, body.Length);
                         clientRequestModel = service.Config.ClientRequestModelDeserialize(service.Config.Encoding.GetString(body));
+                        responseModel.Id = clientRequestModel.Id;
                         //构造处理请求环境
                         baseToken.CanRequest = false;
                         baseToken.OnConnect();
                         ClientResponseModel clientResponseModel = await Task.Run(() => service.ClientRequestReceiveProcess(baseToken, clientRequestModel));
-                        SendHttpModel(context, service, clientResponseModel);
+                        SendHttpHttp(context, service, clientResponseModel);
                     }
                     catch (Exception e)
                     {
-                        SendHttpModel(context, service, new ClientResponseModel(null, clientRequestModel?.Id, new Error(Error.ErrorCode.Common, $"{e.Message}\n{e.StackTrace}", null)));
+                        responseModel.Error = new Error(Error.ErrorCode.BufferFlow, $"{e.Message}\n{e.StackTrace}");
+                        SendHttpHttp(context, service, responseModel);
                     }
                     finally
                     {
@@ -114,33 +122,30 @@ namespace EtherealS.Server.WebSocket
                     }
                 }
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                if (service != null) SendHttpModel(context, service, new ClientResponseModel(null, clientRequestModel?.Id, new Error(Error.ErrorCode.Common, exception.Message, null)));
-                else SendHttpRaw(context, $"{exception.Message}\n{exception.StackTrace}");
+                ClientResponseModel responseModel = new ClientResponseModel();
+                responseModel.Error = new Error(Error.ErrorCode.BufferFlow, $"{e.Message}\n{e.StackTrace}");
+                SendHttpHttp(context, service, responseModel);
             }
         }
 
-        internal void SendHttpModel(HttpListenerContext context, Service.Abstract.Service service, ClientResponseModel clientResponse)
-        {
-            try
-            {
-                context.Response.ContentEncoding = service.Config.Encoding;
-                string exception_serialize = service.Config.ClientResponseModelSerialize(clientResponse);
-                byte[] exception_bytes = service.Config.Encoding.GetBytes(exception_serialize);
-                context.Response.OutputStream.Write(exception_bytes, 0, exception_bytes.Length);
-                context.Response.Close();
-            }
-            catch
-            {
 
-            }
-        }
-        internal void SendHttpRaw(HttpListenerContext context, string data)
+        internal void SendHttpHttp(HttpListenerContext context, Service.Abstract.Service service, ClientResponseModel model)
         {
             try
             {
-                context.Response.ContentEncoding = context.Request.ContentEncoding;
+                string data = null;
+                if (service != null)
+                {
+                    context.Response.ContentEncoding = service.Config.Encoding;
+                    data = service.Config.ClientResponseModelSerialize(model);
+                }
+                else
+                {
+                    context.Response.ContentEncoding = context.Request.ContentEncoding;
+                    data = JsonConvert.SerializeObject(model);
+                }
                 byte[] exception_bytes = context.Response.ContentEncoding.GetBytes(data);
                 context.Response.OutputStream.Write(exception_bytes, 0, exception_bytes.Length);
                 context.Response.Close();

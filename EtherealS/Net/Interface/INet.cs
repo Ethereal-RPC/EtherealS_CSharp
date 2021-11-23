@@ -2,7 +2,7 @@
 
 namespace EtherealS.Net.Interface
 {
-    public interface INet : ILogEvent, IExceptionEvent
+    public interface INet
     {
         #region --方法--
         /// <summary>

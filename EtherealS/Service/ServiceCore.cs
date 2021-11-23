@@ -37,7 +37,7 @@ namespace EtherealS.Service
         public static T Register<T>(Net.Abstract.Net net, T service, string serviceName = null) where T : Abstract.Service
         {
             service.Initialize();
-            if (serviceName != null) service.Name = serviceName;
+            if (serviceName != null) service.name = serviceName;
             if (!net.Services.ContainsKey(service.Name))
             {
                 service.Net = net;

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace EtherealS.Core.Model
@@ -9,14 +10,14 @@ namespace EtherealS.Core.Model
         private ClientResponseModel result;
         private string type = "ER-1.0-ClientRequest";
         private string mapping;
-        private string[] @params;
+        private Dictionary<string,string> @params;
         private string id;
         [JsonIgnore]
         private AutoResetEvent sign = new AutoResetEvent(false);
         public ClientResponseModel Result { get => result; set => result = value; }
         public string Type { get => type; set => type = value; }
         public string Mapping { get => mapping; set => mapping = value; }
-        public string[] Params { get => @params; set => @params = value; }
+        public Dictionary<string, string> Params { get => @params; set => @params = value; }
         public string Id { get => id; set => id = value; }
         public AutoResetEvent Sign { get => sign; set => sign = value; }
 

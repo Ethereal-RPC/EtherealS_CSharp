@@ -1,4 +1,4 @@
-﻿using EtherealS.Core.Event.Attribute;
+﻿using EtherealS.Core.Manager.Event.Attribute;
 using EtherealS.Request.Attribute;
 using EtherealS.Request.WebSocket;
 using EtherealS_Test.Model;
@@ -10,17 +10,17 @@ namespace EtherealS_Test.RequestDemo
     {
         public override void Initialize()
         {
-            types.Add<int>("Int");
-            types.Add<User>("User");
-            types.Add<long>("Long");
-            types.Add<string>("String");
-            types.Add<bool>("Bool");
+            Types.Add<int>("Int");
+            Types.Add<User>("User");
+            Types.Add<long>("Long");
+            Types.Add<string>("String");
+            Types.Add<bool>("Bool");
         }
 
         public override void Register()
         {
             object instance = new EventClass();
-            RegisterIoc("instance", instance);
+            IOCManager.Register("instance", instance);
         }
 
         public override void UnInitialize()

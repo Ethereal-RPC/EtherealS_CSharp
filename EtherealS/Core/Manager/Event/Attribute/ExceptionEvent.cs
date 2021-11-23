@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace EtherealS.Core.Event.Attribute
+namespace EtherealS.Core.Manager.Event.Attribute
 {
     public class ExceptionEventContext : EventContext
     {
@@ -14,11 +14,12 @@ namespace EtherealS.Core.Event.Attribute
     }
     public class ExceptionEvent : EventSender
     {
+        public ExceptionEvent(string function) : base(function)
+        {
+        }
+
         public Exception Exception { get; set; }
         public bool IsThrow { get; set; }
-        public ExceptionEvent(string function, bool isThrow = false) : base(function)
-        {
-            IsThrow = isThrow;
-        }
+
     }
 }

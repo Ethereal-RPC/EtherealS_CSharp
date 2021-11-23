@@ -47,7 +47,6 @@ namespace EtherealS_Test
             ServerService service = ServiceCore.Register(net, new ServerService(), "Server");
             //向网关注册请求
             ClientRequest request = RequestCore.Register<ClientRequest>(service, "Client");
-            request.test(123,"123");
             //本例中，突出服务类可作为正常类
             service.UserRequest = request;
             //向网关注册连接(提供一个生成User的方法)

@@ -25,6 +25,12 @@
             Message = message;
             Data = data;
         }
+        
+        public Error(ErrorCode code, string message)
+        {
+            Code = code;
+            Message = message;
+        }
 
         public override string ToString()
         {

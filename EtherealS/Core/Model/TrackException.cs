@@ -1,5 +1,4 @@
-﻿using EtherealS.Server.Abstract;
-using System;
+﻿using System;
 
 namespace EtherealS.Core.Model
 {
@@ -14,29 +13,24 @@ namespace EtherealS.Core.Model
         /// 错误代码
         /// </summary>
         private ErrorCode errorCode;
-        private Net.Abstract.Net net;
-        private Server.Abstract.Server server;
-        private Service.Abstract.Service service;
-        private Request.Abstract.Request request;
-        private Token token;
+        private object sender;
         private Exception exception;
         #endregion
 
         #region --属性--
+
         public ErrorCode Error { get => errorCode; set => errorCode = value; }
-        public Net.Abstract.Net Net { get => net; set => net = value; }
-        public Service.Abstract.Service Service { get => service; set => service = value; }
-        public Request.Abstract.Request Request { get => request; set => request = value; }
-        public Token Token { get => token; set => token = value; }
         public Exception Exception { get => exception; set => exception = value; }
-        public Server.Abstract.Server Server { get => server; set => server = value; }
+        public object Sender { get => sender; set => sender = value; }
+
+
         #endregion
 
         public TrackException(string message) : base(message)
         {
             exception = this;
         }
-        public TrackException(Exception e) : base("外部库错误\n" + e.Message)
+        public TrackException(Exception e) : base("外部库发生异常\n" + e.Message)
         {
             exception = e;
             errorCode = ErrorCode.NotEthereal;

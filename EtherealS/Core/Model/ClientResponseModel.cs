@@ -21,18 +21,24 @@
         /// 请求ID
         /// </summary>
         private string id = null;
+        public ClientResponseModel()
+        {
+
+        }
+        public ClientResponseModel(string id,string result, Error error)
+        {
+            Result = result;
+            Error = error;
+            Id = id;
+        }
 
         public string Type { get => type; set => type = value; }
         public string Result { get => result; set => result = value; }
         public Error Error { get => error; set => error = value; }
         public string Id { get => id; set => id = value; }
 
-        public ClientResponseModel(string result, string id, Error error)
-        {
-            Result = result;
-            Error = error;
-            Id = id;
-        }
+
+
         public override string ToString()
         {
             return "ClientResponseModel{" +

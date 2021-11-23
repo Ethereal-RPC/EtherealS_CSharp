@@ -1,4 +1,5 @@
 ﻿using EtherealS.Core;
+using EtherealS.Core.BaseCore;
 using EtherealS.Core.Model;
 using EtherealS.Server.Interface;
 using Newtonsoft.Json;
@@ -7,7 +8,7 @@ using System.Collections.Concurrent;
 namespace EtherealS.Server.Abstract
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public abstract class Token : IToken
+    public abstract class Token : BaseCore,IToken
     {
 
         #region --委托--
@@ -25,8 +26,7 @@ namespace EtherealS.Server.Abstract
         #endregion
 
         #region --事件字段--
-        private OnLogDelegate logEvent;
-        private OnExceptionDelegate exceptionEvent;
+
         #endregion
 
         #region --事件属性--
@@ -38,42 +38,14 @@ namespace EtherealS.Server.Abstract
         /// 断开连接事件
         /// </summary>
         public event DisConnectDelegate DisConnectEvent;
-        /// <summary>
-        /// 日志输出事件
-        /// </summary>
-        internal event OnLogDelegate LogEvent
-        {
-            add
-            {
-                logEvent -= value;
-                logEvent += value;
-            }
-            remove
-            {
-                logEvent -= value;
-            }
-        }
-        /// <summary>
-        /// 抛出异常事件
-        /// </summary>
-        internal event OnExceptionDelegate ExceptionEvent
-        {
-            add
-            {
-                exceptionEvent -= value;
-                exceptionEvent += value;
-            }
-            remove
-            {
-                exceptionEvent -= value;
-            }
-        }
         #endregion
 
         #region --字段--
+
         protected bool canRequest = false;
         protected object key;
         protected Service.Abstract.Service service;
+
         #endregion
 
         #region --属性--
@@ -151,31 +123,6 @@ namespace EtherealS.Server.Abstract
         internal abstract void SendClientResponse(ClientResponseModel response);
         internal abstract void SendServerRequest(ServerRequestModel request);
 
-        public void OnException(TrackException.ErrorCode code, string message)
-        {
-            OnException(new TrackException(code, message));
-        }
-        public void OnException(TrackException e)
-        {
-            if (exceptionEvent != null)
-            {
-                e.Token = this;
-                exceptionEvent?.Invoke(e);
-            }
-        }
-
-        public void OnLog(TrackLog.LogCode code, string message)
-        {
-            OnLog(new TrackLog(code, message));
-        }
-        public void OnLog(TrackLog log)
-        {
-            if (logEvent != null)
-            {
-                log.Token = this;
-                logEvent?.Invoke(log);
-            }
-        }
         /// <summary>
         /// 连接时激活连接事件
         /// </summary>

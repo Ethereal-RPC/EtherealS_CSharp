@@ -4,7 +4,7 @@ using EtherealS.Server.Abstract;
 
 namespace EtherealS.Service.Interface
 {
-    public interface IService : ILogEvent, IExceptionEvent
+    public interface IService
     {
         void Initialize();
         void Register();

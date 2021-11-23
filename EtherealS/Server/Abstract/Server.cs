@@ -1,5 +1,4 @@
-﻿using EtherealS.Core;
-using EtherealS.Core.Model;
+﻿using EtherealS.Core.BaseCore;
 using EtherealS.Server.Interface;
 using System.Collections.Generic;
 using System.Net;
@@ -7,7 +6,7 @@ using System.Threading;
 
 namespace EtherealS.Server.Abstract
 {
-    public abstract class Server : IServer
+    public abstract class Server : BaseCore,IServer
     {
 
         #region --委托--
@@ -25,42 +24,10 @@ namespace EtherealS.Server.Abstract
         #endregion
 
         #region --事件字段--
-        private OnLogDelegate logEvent;
-        private OnExceptionDelegate exceptionEvent;
+
         #endregion
 
         #region --事件属性--
-        /// <summary>
-        /// 日志输出事件
-        /// </summary>
-        public event OnLogDelegate LogEvent
-        {
-            add
-            {
-                logEvent -= value;
-                logEvent += value;
-            }
-            remove
-            {
-                logEvent -= value;
-            }
-        }
-        /// <summary>
-        /// 抛出异常事件
-        /// </summary>
-        public event OnExceptionDelegate ExceptionEvent
-        {
-            add
-            {
-                exceptionEvent -= value;
-                exceptionEvent += value;
-            }
-            remove
-            {
-                exceptionEvent -= value;
-            }
-
-        }
 
         /// <summary>
         /// 连接事件
@@ -84,7 +51,8 @@ namespace EtherealS.Server.Abstract
         public HttpListener Listener { get => listener; set => listener = value; }
         public List<string> Prefixes { get => prefixes; set => prefixes = value; }
         public ServerConfig Config { get => config; set => config = value; }
-        public Net.Abstract.Net Net { get => net; set => net = value; }
+        public Net.Abstract.Net Net { get => net; set => net = value; } 
+
         #endregion
 
         public abstract void Start();
@@ -97,32 +65,6 @@ namespace EtherealS.Server.Abstract
         public Server(List<string> prefixes)
         {
             this.prefixes = prefixes;
-        }
-
-        public void OnException(TrackException.ErrorCode code, string message)
-        {
-            OnException(new TrackException(code, message));
-        }
-        public void OnException(TrackException e)
-        {
-            if (exceptionEvent != null)
-            {
-                e.Server = this;
-                exceptionEvent?.Invoke(e);
-            }
-        }
-
-        public void OnLog(TrackLog.LogCode code, string message)
-        {
-            OnLog(new TrackLog(code, message));
-        }
-        public void OnLog(TrackLog log)
-        {
-            if (logEvent != null)
-            {
-                log.Server = this;
-                logEvent?.Invoke(log);
-            }
         }
         /// <summary>
         /// 连接时激活连接事件
@@ -137,10 +79,6 @@ namespace EtherealS.Server.Abstract
         protected void OnListenerFail()
         {
             ListenerFailEvent?.Invoke(this);
-        }
-        ~Server()
-        {
-
         }
     }
 }

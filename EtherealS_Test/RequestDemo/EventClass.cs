@@ -1,4 +1,4 @@
-﻿using EtherealS.Core.Event.Attribute;
+﻿using EtherealS.Core.Manager.Event.Attribute;
 using System;
 
 namespace EtherealS_Test.RequestDemo

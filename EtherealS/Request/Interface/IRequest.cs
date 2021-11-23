@@ -2,7 +2,7 @@
 
 namespace EtherealS.Request.Interface
 {
-    public interface IRequest : ILogEvent, IExceptionEvent
+    public interface IRequest
     {
         void Initialize();
         void Register();

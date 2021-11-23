@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 
-namespace EtherealS.Core.Event.Attribute
+namespace EtherealS.Core.Manager.Event.Attribute
 {
     public class AfterEventContext : EventContext
     {
@@ -15,7 +15,6 @@ namespace EtherealS.Core.Event.Attribute
     {
         public AfterEvent(string function) : base(function)
         {
-
         }
     }
 }

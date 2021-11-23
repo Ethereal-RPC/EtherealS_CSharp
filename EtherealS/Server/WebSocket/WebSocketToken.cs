@@ -43,9 +43,8 @@ namespace EtherealS.Server.WebSocket
             byte[] receiveBuffer = null;
             int offset = 0;
             int free = config.BufferSize;
-
             // While the WebSocket connection remains open run a simple loop that receives data and sends it back.
-            while (webSocket.State == WebSocketState.Open)
+            while (webSocket.State == WebSocketState.Open && service != null && service.Enable)
             {
                 if (receiveBuffer == null)
                 {
@@ -72,8 +71,8 @@ namespace EtherealS.Server.WebSocket
                         string a = config.Encoding.GetString(receiveBuffer);
                         Console.WriteLine(a);
                         ClientRequestModel request = config.ClientRequestModelDeserialize(config.Encoding.GetString(receiveBuffer));
-                        ClientResponseModel clientResponseModel = await Task.Run(() => Service.ClientRequestReceiveProcess(this, request));
-                        SendClientResponse(clientResponseModel);
+                        ClientResponseModel responseModel = await Task.Run(() => Service.ClientRequestReceiveProcess(this, request));
+                        SendClientResponse(responseModel);
                     }
                     else if (free == 0)
                     {
@@ -98,6 +97,7 @@ namespace EtherealS.Server.WebSocket
                     return;
                 }
             }
+            DisConnect("循环结束");
         }
         public override void DisConnect(string reason)
         {

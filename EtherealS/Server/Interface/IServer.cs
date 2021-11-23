@@ -2,7 +2,7 @@
 
 namespace EtherealS.Server.Interface
 {
-    interface IServer : ILogEvent, IExceptionEvent
+    interface IServer
     {
         public void Start();
         public void Close();

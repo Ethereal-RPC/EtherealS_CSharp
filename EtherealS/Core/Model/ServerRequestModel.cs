@@ -1,4 +1,6 @@
-﻿namespace EtherealS.Core.Model
+﻿using System.Collections.Generic;
+
+namespace EtherealS.Core.Model
 {
     public class ServerRequestModel
     {
@@ -13,7 +15,7 @@
         /// <summary>
         /// 方法参数
         /// </summary>
-        private string[] @params;
+        private Dictionary<string, string> @params;
         /// <summary>
         /// 请求服务
         /// </summary>
@@ -21,7 +23,7 @@
 
         public string Type { get => type; set => type = value; }
         public string Mapping { get => mapping; set => mapping = value; }
-        public string[] Params { get => @params; set => @params = value; }
+        public Dictionary<string, string> Params { get => @params; set => @params = value; }
         public string Service { get => service; set => service = value; }
         public override string ToString()
         {

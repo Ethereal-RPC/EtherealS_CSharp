@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EtherealS.Core.Event.Attribute
+namespace EtherealS.Core.Manager.Event.Attribute
 {
     [AttributeUsage(AttributeTargets.Parameter)]
     public class EventContextParam : System.Attribute

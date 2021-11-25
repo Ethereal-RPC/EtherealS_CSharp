@@ -20,8 +20,9 @@ namespace EtherealS.Request
             T request = generator.CreateClassProxy<T>(interceptor);
             request.Initialize();
             if (serviceName != null) request.name = serviceName;
-            if (!service.Requests.ContainsKey(request.Name))
+            if (!request.IsRegister)
             {
+                request.isRegister = true;
                 Abstract.Request.Register(request);
                 request.Service = service;
                 request.LogEvent += service.OnLog;
@@ -34,13 +35,21 @@ namespace EtherealS.Request
         }
         public static bool UnRegister(Abstract.Request request)
         {
-            request.UnRegister();
-            request.Service.Requests.TryRemove(request.Name, out request);
-            request.LogEvent -= request.Service.OnLog;
-            request.ExceptionEvent -= request.Service.OnException;
-            request.Service = null;
-            request.UnInitialize();
-            return true;
+            if (request.IsRegister)
+            {
+                request.UnRegister();
+                if(request.Service != null)
+                {
+                    request.Service.Requests.TryRemove(request.Name, out request);
+                    request.LogEvent -= request.Service.OnLog;
+                    request.ExceptionEvent -= request.Service.OnException;
+                    request.Service = null;
+                }
+                request.UnInitialize();
+                request.isRegister = false;
+                return true;
+            }
+            else throw new TrackException(TrackException.ErrorCode.Core, $"{request.Name}并未注册，无需UnRegister");
         }
     }
 }

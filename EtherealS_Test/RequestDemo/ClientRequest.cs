@@ -8,7 +8,7 @@ namespace EtherealS_Test.RequestDemo
 {
     public class ClientRequest : WebSocketRequest
     {
-        public override void Initialize()
+        protected override void Initialize()
         {
             Name = "Client";
             Types.Add<int>("Int");
@@ -18,21 +18,6 @@ namespace EtherealS_Test.RequestDemo
             Types.Add<bool>("Bool");
         }
 
-        public override void Register()
-        {
-            object instance = new EventClass();
-            IOCManager.Register("instance", instance);
-        }
-
-        public override void UnInitialize()
-        {
-
-        }
-
-        public override void UnRegister()
-        {
-
-        }
         [RequestMapping(Mapping: "Say", InvokeType = RequestMapping.InvokeTypeFlags.Local)]
         public virtual void Say(User user, User sender, string message)
         {
@@ -46,5 +31,20 @@ namespace EtherealS_Test.RequestDemo
             return true;
         }
 
+        protected override void Register()
+        {
+            object instance = new EventClass();
+            IOCManager.Register("instance", instance);
+        }
+
+        protected override void UnRegister()
+        {
+
+        }
+
+        protected override void UnInitialize()
+        {
+
+        }
     }
 }

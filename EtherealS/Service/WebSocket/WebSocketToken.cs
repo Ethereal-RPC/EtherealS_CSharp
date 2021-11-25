@@ -107,6 +107,7 @@ namespace EtherealS.Service.WebSocket
 
         internal override void SendClientResponse(ClientResponseModel response)
         {
+            if (response == null) return;
             try
             {
                 if (Context.WebSocket.State == WebSocketState.Open && canRequest)
@@ -121,6 +122,7 @@ namespace EtherealS.Service.WebSocket
         }
         internal override void SendServerRequest(ServerRequestModel request)
         {
+            if (request == null) return;
             try
             {
                 if (Context.WebSocket.State == WebSocketState.Open && canRequest)

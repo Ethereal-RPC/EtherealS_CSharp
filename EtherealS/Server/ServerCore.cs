@@ -1,4 +1,5 @@
-﻿using EtherealS.Net;
+﻿using EtherealS.Core.Model;
+using EtherealS.Net;
 
 namespace EtherealS.Server
 {
@@ -31,8 +32,9 @@ namespace EtherealS.Server
         /// <returns>客户端</returns>
         public static Abstract.Server Register(Net.Abstract.Net net, Abstract.Server server, bool startServer = true)
         {
-            if (net.Server == null)
+            if (!server.IsRegister)
             {
+                server.isRegister = true;
                 net.Server = server;
                 server.Net = net;
                 server.LogEvent += net.OnLog;
@@ -46,12 +48,20 @@ namespace EtherealS.Server
         }
         public static bool UnRegister(Abstract.Server server)
         {
-            server.LogEvent -= server.Net.OnLog;
-            server.ExceptionEvent -= server.Net.OnException;
-            server.Net.Server = null;
-            server.Net = null;
-            server.Close();
-            return true;
+            if (server.IsRegister)
+            {
+                if(server.Net != null)
+                {
+                    server.LogEvent -= server.Net.OnLog;
+                    server.ExceptionEvent -= server.Net.OnException;
+                    server.Net.Server = null;
+                    server.Net = null;
+                }
+                server.Close();
+                server.isRegister = false;
+                return true;
+            }
+            else throw new TrackException(TrackException.ErrorCode.Core, $"{server.Prefixes}并未注册，无需UnRegister");
         }
     }
 }

@@ -20,8 +20,9 @@ namespace EtherealS.Net
 
         public static Abstract.Net Register(Abstract.Net net)
         {
-            if (!nets.ContainsKey(net.Name))
+            if (!net.IsRegister)
             {
+                net.isRegister = true;
                 nets.Add(net.Name, net);
             }
             else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name} Net 已经注册");
@@ -37,20 +38,13 @@ namespace EtherealS.Net
         }
         public static bool UnRegister(Abstract.Net net)
         {
-            if (net != null)
+            if (net.IsRegister)
             {
-                foreach (Service.Abstract.Service service in net.Services.Values)
-                {
-                    ServiceCore.UnRegister(service);
-                    foreach (Request.Abstract.Request request in service.Requests.Values)
-                    {
-                        RequestCore.UnRegister(request);
-                    }
-                }
-                ServerCore.UnRegister(net.Server);
                 nets.Remove(net.Name);
+                net.isRegister = false;
+                return true;
             }
-            return true;
+            else throw new TrackException(TrackException.ErrorCode.Core, $"{net.Name}并未注册，无需UnRegister");
         }
     }
 }

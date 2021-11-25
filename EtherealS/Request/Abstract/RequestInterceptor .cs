@@ -77,6 +77,12 @@ namespace EtherealS.Request.Abstract
                 }
                 localResult = invocation.ReturnValue;
             }
+            eventSender = method.GetCustomAttribute<AfterEvent>();
+            if (eventSender != null)
+            {
+                eventContext = new AfterEventContext(@params, method, localResult);
+                instance.IOCManager.EventManager.InvokeEvent(instance.IOCManager.Get(eventSender.InstanceName), eventSender, @params, eventContext);
+            }
             if ((attribute.InvokeType & RequestMapping.InvokeTypeFlags.Remote) != 0)
             {
                 if (token != null)
@@ -88,12 +94,6 @@ namespace EtherealS.Request.Abstract
                     token.SendServerRequest(request);
                 }
                 else throw new TrackException(TrackException.ErrorCode.Runtime, $"{instance.Name}-{request.Mapping}并未提供Token！");
-            }
-            eventSender = method.GetCustomAttribute<AfterEvent>();
-            if (eventSender != null)
-            {
-                eventContext = new AfterEventContext(@params, method, localResult);
-                instance.IOCManager.EventManager.InvokeEvent(instance.IOCManager.Get(eventSender.InstanceName), eventSender, @params, eventContext);
             }
         }
     }

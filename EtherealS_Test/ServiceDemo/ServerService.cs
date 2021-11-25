@@ -59,13 +59,13 @@ namespace EtherealS_Test.ServiceDemo
         }
         [ServiceMapping(Mapping: "test")]
         [AfterEvent("instance.after(ddd:d,s:s)")]
-        public bool Test([Token] User token, [Param("Int1")] int d, string s, int k)
+        public bool Test([Token] User token, int d, string s, int k)
         {
             Console.WriteLine($"token:{token} d:{d} s:{s} k:{k}");
-            return false;
+            return true;
         }
 
-        public override void Initialize()
+        protected override void Initialize()
         {
             Name = "Server";
             Types.Add<int>("Int");
@@ -77,18 +77,18 @@ namespace EtherealS_Test.ServiceDemo
             TokenCreateInstance = () => new User();
         }
 
-        public override void UnInitialize()
+        protected override void UnInitialize()
         {
 
         }
 
-        public override void Register()
+        protected override void Register()
         {
             object instance = new EventClass();
             IOCManager.Register("instance", instance);
         }
 
-        public override void UnRegister()
+        protected override void UnRegister()
         {
 
         }

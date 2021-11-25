@@ -38,8 +38,9 @@ namespace EtherealS.Service
         {
             service.Initialize();
             if (serviceName != null) service.name = serviceName;
-            if (!net.Services.ContainsKey(service.Name))
+            if (!service.IsRegister)
             {
+                service.isRegister = true;
                 service.Net = net;
                 service.LogEvent += net.OnLog;
                 service.ExceptionEvent += net.OnException;
@@ -52,13 +53,21 @@ namespace EtherealS.Service
         }
         public static bool UnRegister(Abstract.Service service)
         {
-            service.UnRegister();
-            service.Net.Services.TryRemove(service.Name, out service);
-            service.LogEvent -= service.Net.OnLog;
-            service.ExceptionEvent -= service.Net.OnException;
-            service.Net = null;
-            service.UnInitialize();
-            return true;
+            if (service.IsRegister)
+            {
+                service.UnRegister();
+                if(service.Net != null)
+                {
+                    service.Net.Services.TryRemove(service.Name, out service);
+                    service.LogEvent -= service.Net.OnLog;
+                    service.ExceptionEvent -= service.Net.OnException;
+                    service.Net = null;
+                }
+                service.UnInitialize();
+                service.isRegister = false;
+                return true;
+            }
+            else throw new TrackException(TrackException.ErrorCode.Core, $"{service.Name}并未注册，无需UnRegister");
         }
     }
 }

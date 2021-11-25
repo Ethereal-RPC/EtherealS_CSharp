@@ -134,6 +134,7 @@ namespace EtherealS.Server.WebSocket
 
         internal void SendHttpHttp(HttpListenerContext context, Service.Abstract.Service service, ClientResponseModel model)
         {
+            if (model == null) return;
             try
             {
                 string data = null;

@@ -45,11 +45,13 @@ namespace EtherealS.Core.BaseCore
 
         #region -- 字段 --
 
+        internal protected bool isRegister = false;
 
         #endregion
 
         #region -- 属性 --
 
+        public bool IsRegister { get => isRegister; }
 
         #endregion
 

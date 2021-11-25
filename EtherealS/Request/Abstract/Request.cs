@@ -72,10 +72,15 @@ namespace EtherealS.Request.Abstract
             }
         }
 
-        public abstract void Initialize();
-        public abstract void Register();
-        public abstract void UnRegister();
-        public abstract void UnInitialize();
+        #endregion
+
+        #region -- 生命周期 --
+
+        internal protected abstract void Initialize();
+        internal protected abstract void Register();
+        internal protected abstract void UnRegister();
+        internal protected abstract void UnInitialize();
+
         #endregion
     }
 }

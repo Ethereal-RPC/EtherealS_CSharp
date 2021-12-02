@@ -33,7 +33,7 @@ namespace EtherealS.Utils
             // ---- 方法定义 ----
             foreach (var method in ImpType.GetMethods())
             {
-                RequestMapping attribute = method.GetCustomAttribute<RequestMapping>();
+                RequestMappingAttribute attribute = method.GetCustomAttribute<RequestMappingAttribute>();
                 if (attribute == null) continue;
                 else if (attribute.Mapping == null) throw new TrackException(TrackException.ErrorCode.Runtime, $"{ImpType.FullName}-{method.Name}的Mapping未赋值！");
                 var methodParameterTypes = method.GetParameters().Select(p => p.ParameterType).ToArray();
@@ -67,7 +67,7 @@ namespace EtherealS.Utils
                 var localResult = ilOfMethod.DeclareLocal(typeof(object));
                 ilOfMethod.Emit(OpCodes.Ldnull);
                 ilOfMethod.Emit(OpCodes.Stloc, localResult);
-                if (attribute.InvokeType.HasFlag(RequestMapping.InvokeTypeFlags.Local))
+                if (attribute.InvokeType.HasFlag(RequestMappingAttribute.InvokeTypeFlags.Local))
                 {
                     //注入参数
                     ilOfMethod.Emit(OpCodes.Ldarg_0);

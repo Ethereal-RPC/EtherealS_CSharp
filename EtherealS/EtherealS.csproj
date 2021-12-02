@@ -4,7 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <Authors>Jianxian</Authors>
     <Company>XianYu</Company>
-    <Version>1.2.9</Version>
+    <Version>1.3.7</Version>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 

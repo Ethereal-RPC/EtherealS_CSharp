@@ -12,7 +12,7 @@ namespace EtherealS.Request.Event
             RemoteResult = remoteResult;
         }
     }
-    public class SuccessEvent : EventSender
+    public class SuccessEvent : EventSenderAttribute
     {
         public SuccessEvent(string function) : base(function)
         {

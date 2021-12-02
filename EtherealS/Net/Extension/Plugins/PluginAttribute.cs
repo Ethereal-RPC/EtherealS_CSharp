@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EtherealS.Core.Attribute
+namespace EtherealS.Net.Extension.Plugins
 {
-    public class BaseParam : System.Attribute
+    [AttributeUsage(AttributeTargets.Class)]
+    public class PluginAttribute:Attribute
     {
 
     }

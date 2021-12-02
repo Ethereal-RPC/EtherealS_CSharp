@@ -3,9 +3,9 @@
 namespace EtherealS.Core.Manager.AbstractType
 {
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method)]
-    public class Param : System.Attribute
+    public class ParamAttribute : System.Attribute
     {
-        public Param(string Type)
+        public ParamAttribute(string Type)
         {
             this.Type = Type;
         }

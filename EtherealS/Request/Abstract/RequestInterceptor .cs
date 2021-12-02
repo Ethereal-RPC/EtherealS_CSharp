@@ -17,7 +17,7 @@ namespace EtherealS.Request.Abstract
         public void Intercept(IInvocation invocation)
         {
             MethodInfo method = invocation.Method;
-            RequestMapping attribute = method.GetCustomAttribute<RequestMapping>();
+            RequestMappingAttribute attribute = method.GetCustomAttribute<RequestMappingAttribute>();
             if (attribute == null)
             {
                 invocation.Proceed();
@@ -28,7 +28,7 @@ namespace EtherealS.Request.Abstract
             ParameterInfo[] parameterInfos = method.GetParameters();
             ServerRequestModel request = new ServerRequestModel();
             request.Mapping = attribute.Mapping;
-            EventSender eventSender = null;
+            EventSenderAttribute eventSender = null;
             EventContext eventContext = null;
             Service.Abstract.Token token = null;
             object localResult = null;
@@ -38,7 +38,7 @@ namespace EtherealS.Request.Abstract
             int idx = 0;
             foreach (ParameterInfo parameterInfo in parameterInfos)
             {
-                if (parameterInfo.GetCustomAttribute<Service.Attribute.Token>(true) != null)
+                if (parameterInfo.GetCustomAttribute<Service.Attribute.TokenParamAttribute>(true) != null)
                 {
                     token = args[idx] as Service.Abstract.Token;
                 }
@@ -50,13 +50,13 @@ namespace EtherealS.Request.Abstract
                 @params.Add(parameterInfo.Name, args[idx++]);
             }
 
-            eventSender = method.GetCustomAttribute<BeforeEvent>();
+            eventSender = method.GetCustomAttribute<BeforeEventAttribute>();
             if (eventSender != null)
             {
                 eventContext = new BeforeEventContext(@params, method);
                 instance.IOCManager.EventManager.InvokeEvent(instance.IOCManager.Get(eventSender.InstanceName), eventSender, @params, eventContext);
             }
-            if (attribute.InvokeType.HasFlag(RequestMapping.InvokeTypeFlags.Local))
+            if (attribute.InvokeType.HasFlag(RequestMappingAttribute.InvokeTypeFlags.Local))
             {
                 try
                 {
@@ -65,25 +65,25 @@ namespace EtherealS.Request.Abstract
                 }
                 catch(Exception e)
                 {
-                    eventSender = method.GetCustomAttribute<ExceptionEvent>();
+                    eventSender = method.GetCustomAttribute<ExceptionEventAttribute>();
                     if (eventSender != null)
                     {
-                        (eventSender as ExceptionEvent).Exception = e;
+                        (eventSender as ExceptionEventAttribute).Exception = e;
                         eventContext = new ExceptionEventContext(@params, method, e);
                         instance.IOCManager.EventManager.InvokeEvent(instance.IOCManager.Get(eventSender.InstanceName), eventSender, @params, eventContext);
-                        if ((eventSender as ExceptionEvent).IsThrow) throw;
+                        if ((eventSender as ExceptionEventAttribute).IsThrow) throw;
                     }
                     else throw;
                 }
                 localResult = invocation.ReturnValue;
             }
-            eventSender = method.GetCustomAttribute<AfterEvent>();
+            eventSender = method.GetCustomAttribute<AfterEventAttribute>();
             if (eventSender != null)
             {
                 eventContext = new AfterEventContext(@params, method, localResult);
                 instance.IOCManager.EventManager.InvokeEvent(instance.IOCManager.Get(eventSender.InstanceName), eventSender, @params, eventContext);
             }
-            if ((attribute.InvokeType & RequestMapping.InvokeTypeFlags.Remote) != 0)
+            if ((attribute.InvokeType & RequestMappingAttribute.InvokeTypeFlags.Remote) != 0)
             {
                 if (token != null)
                 {

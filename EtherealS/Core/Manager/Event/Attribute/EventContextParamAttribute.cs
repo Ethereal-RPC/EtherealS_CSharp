@@ -3,7 +3,7 @@
 namespace EtherealS.Core.Manager.Event.Attribute
 {
     [AttributeUsage(AttributeTargets.Parameter)]
-    public class EventContextParam : System.Attribute
+    public class EventContextParamAttribute : System.Attribute
     {
 
     }

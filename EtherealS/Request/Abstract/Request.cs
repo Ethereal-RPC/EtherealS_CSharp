@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace EtherealS.Request.Abstract
 {
-    [Attribute.Request]
+    [Attribute.RequestAttribute]
     public abstract class Request : MZCore,IRequest
     {
 
@@ -47,18 +47,18 @@ namespace EtherealS.Request.Abstract
         {
             foreach (MethodInfo method in instance.GetType().GetMethods())
             {
-                Attribute.RequestMapping attribute = method.GetCustomAttribute<Attribute.RequestMapping>();
+                Attribute.RequestMappingAttribute attribute = method.GetCustomAttribute<Attribute.RequestMappingAttribute>();
                 if (attribute != null)
                 {
                     ParameterInfo[] parameterInfos = method.GetParameters();
                     foreach (ParameterInfo parameterInfo in parameterInfos)
                     {
-                        BaseParam paramsAttribute = parameterInfo.GetCustomAttribute<BaseParam>(true);
+                        BaseParamAttribute paramsAttribute = parameterInfo.GetCustomAttribute<BaseParamAttribute>(true);
                         if (paramsAttribute != null)
                         {
                             continue;
                         }
-                        Param paramAttribute = parameterInfo.GetCustomAttribute<Param>();
+                        ParamAttribute paramAttribute = parameterInfo.GetCustomAttribute<ParamAttribute>();
                         if (paramAttribute != null && !instance.Types.Get(paramAttribute.Type, out AbstractType type))
                         {
                             throw new TrackException(TrackException.ErrorCode.Core, $"{instance.Name}-{method.Name}-{paramAttribute.Type}抽象类型未找到");

@@ -18,13 +18,13 @@ namespace EtherealS_Test.RequestDemo
             Types.Add<bool>("Bool");
         }
 
-        [RequestMapping(Mapping: "Say", InvokeType = RequestMapping.InvokeTypeFlags.Local)]
+        [RequestMappingAttribute(Mapping: "Say", InvokeType = RequestMappingAttribute.InvokeTypeFlags.Local)]
         public virtual void Say(User user, User sender, string message)
         {
             Console.WriteLine("asd");
         }
-        [AfterEvent("instance.after(ddd:d,s:s))")]
-        [RequestMapping(Mapping: "test", InvokeType = RequestMapping.InvokeTypeFlags.Local)]
+        [AfterEventAttribute("instance.after(ddd:d,s:s))")]
+        [RequestMappingAttribute(Mapping: "test", InvokeType = RequestMappingAttribute.InvokeTypeFlags.Local)]
         public virtual bool test(int d, string s)
         {
             Console.WriteLine("Add");

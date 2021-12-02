@@ -27,7 +27,7 @@ namespace EtherealS.Net.Abstract
 
         #region --字段--
 
-        internal string name;
+        protected string name;
         /// <summary>
         /// Service映射表
         /// </summary>
@@ -87,7 +87,7 @@ namespace EtherealS.Net.Abstract
         public Net(string name)
         {
             this.name = name;
-            pluginManager = new PluginManager(name);
+            pluginManager = new PluginManager(this);
         }
 
         public bool OnInterceptor(Service.Abstract.Service service, MethodInfo method, Token token)

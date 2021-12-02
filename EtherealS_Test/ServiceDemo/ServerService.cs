@@ -23,7 +23,7 @@ namespace EtherealS_Test.ServiceDemo
         #region --方法--
         //Token 
         [ServiceMapping(Mapping: "Register")]
-        public bool Register([EtherealS.Service.Attribute.Token] User user, string username, long id)
+        public bool Register([TokenParam] User user, string username, long id)
         {
             user.Username = username;
             user.Id = id;
@@ -38,7 +38,7 @@ namespace EtherealS_Test.ServiceDemo
         /// <returns></returns>
 
         [ServiceMapping(Mapping: "SendSay")]
-        public bool SendSay([Token] User sender, long listener_id, string message)
+        public bool SendSay([TokenParam] User sender, long listener_id, string message)
         {
             //查找对应ID的用户 1
             if (sender.GetToken(listener_id, out User listener))
@@ -51,15 +51,15 @@ namespace EtherealS_Test.ServiceDemo
         }
 
         [ServiceMapping(Mapping: "Add")]
-        public int Add([Token] User token, int a, int b)
+        public int Add([TokenParam] User token, int a, int b)
         {
             token.Username = "asd";
             userRequest.Say(token, token, token.Username);
             return a + b;
         }
         [ServiceMapping(Mapping: "test")]
-        [AfterEvent("instance.after(ddd:d,s:s)")]
-        public bool Test([Token] User token, int d, string s, int k)
+        [AfterEventAttribute("instance.after(ddd:d,s:s)")]
+        public bool Test([TokenParam] User token, int d, string s, int k)
         {
             Console.WriteLine($"token:{token} d:{d} s:{s} k:{k}");
             return true;

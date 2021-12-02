@@ -3,9 +3,9 @@
 namespace EtherealS.Core.Manager.Event.Attribute
 {
     [AttributeUsage(AttributeTargets.Method)]
-    public class Event : System.Attribute
+    public class EventAttribute : System.Attribute
     {
-        public Event(string Mapping)
+        public EventAttribute(string Mapping)
         {
             this.Mapping = Mapping;
         }

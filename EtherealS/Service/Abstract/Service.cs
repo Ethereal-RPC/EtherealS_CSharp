@@ -12,7 +12,7 @@ using System.Reflection;
 
 namespace EtherealS.Service.Abstract
 {
-    [Attribute.Service]
+    [Attribute.ServiceAttribute]
     public abstract class Service : MZCore,Interface.IService
     {
         #region --委托字段--
@@ -36,7 +36,6 @@ namespace EtherealS.Service.Abstract
         protected Net.Abstract.Net net;
         protected Dictionary<string, MethodInfo> methods = new Dictionary<string, MethodInfo>();
         protected ServiceConfig config;
-        protected PluginDomain pluginDomain;
         /// <summary>
         /// 创建实例化方法委托实现
         /// </summary>
@@ -55,7 +54,6 @@ namespace EtherealS.Service.Abstract
         public Dictionary<string, MethodInfo> Methods { get => methods; set => methods = value; }
         public ServiceConfig Config { get => config; set => config = value; }
         public Net.Abstract.Net Net { get => net; set => net = value; }
-        public PluginDomain PluginDomain { get => pluginDomain; set => pluginDomain = value; }
         public ConcurrentDictionary<object, Token> Tokens { get => tokens; set => tokens = value; }
         public TokenCreateInstanceDelegate TokenCreateInstance { get => tokenCreateInstance; set => tokenCreateInstance = value; }
         public ConcurrentDictionary<string, Request.Abstract.Request> Requests { get => requests; set => requests = value; }
@@ -69,12 +67,12 @@ namespace EtherealS.Service.Abstract
         {
             foreach (MethodInfo method in instance.GetType().GetMethods())
             {
-                Attribute.ServiceMapping attribute = method.GetCustomAttribute<Attribute.ServiceMapping>();
+                Attribute.ServiceMappingAttribute attribute = method.GetCustomAttribute<Attribute.ServiceMappingAttribute>();
                 if (attribute != null)
                 {
                     if (method.ReturnType != typeof(void))
                     {
-                        Param paramAttribute = method.GetCustomAttribute<Param>();
+                        ParamAttribute paramAttribute = method.GetCustomAttribute<ParamAttribute>();
                         if (paramAttribute != null && !instance.Types.Get(paramAttribute.Type, out AbstractType type))
                         {
                             throw new TrackException(TrackException.ErrorCode.Core, $"{instance.Name}-{method.Name}-{paramAttribute.Type}抽象类型未找到");
@@ -87,12 +85,12 @@ namespace EtherealS.Service.Abstract
                     ParameterInfo[] parameterInfos = method.GetParameters();
                     foreach (ParameterInfo parameterInfo in parameterInfos)
                     {
-                        BaseParam paramsAttribute = parameterInfo.GetCustomAttribute<BaseParam>(true);
+                        BaseParamAttribute paramsAttribute = parameterInfo.GetCustomAttribute<BaseParamAttribute>(true);
                         if (paramsAttribute != null)
                         {
                             continue;
                         }
-                        Param paramAttribute = parameterInfo.GetCustomAttribute<Param>();
+                        ParamAttribute paramAttribute = parameterInfo.GetCustomAttribute<ParamAttribute>();
                         if (paramAttribute != null && !instance.Types.Get(paramAttribute.Type, out AbstractType type))
                         {   
                             throw new TrackException(TrackException.ErrorCode.Core, $"{instance.Name}-{method.Name}-{paramAttribute.Type}抽象类型未找到");
@@ -134,14 +132,14 @@ namespace EtherealS.Service.Abstract
                     OnInterceptor(Net, method, token))
                 {
                     EventContext eventContext;
-                    EventSender eventSender;
+                    EventSenderAttribute eventSender;
                     ParameterInfo[] parameterInfos = method.GetParameters();
                     Dictionary<string, object> @params = new Dictionary<string, object>(parameterInfos.Length);
                     object[] args = new object[parameterInfos.Length];
                     int idx = 0;
                     foreach (ParameterInfo parameterInfo in parameterInfos)
                     {
-                        if (parameterInfo.GetCustomAttribute<Attribute.Token>(true) != null)
+                        if (parameterInfo.GetCustomAttribute<Attribute.TokenParamAttribute>(true) != null)
                         {
                             args[idx] = token;
                         }
@@ -153,7 +151,7 @@ namespace EtherealS.Service.Abstract
                         else throw new TrackException(TrackException.ErrorCode.Runtime, $"来自服务器的{Name}服务请求中未提供{method.Name}方法的{parameterInfo.Name}参数");
                         @params.Add(parameterInfo.Name, args[idx++]);
                     }
-                    eventSender = method.GetCustomAttribute<BeforeEvent>();
+                    eventSender = method.GetCustomAttribute<BeforeEventAttribute>();
                     if (eventSender != null)
                     {
                         eventContext = new BeforeEventContext(@params, method);
@@ -166,17 +164,17 @@ namespace EtherealS.Service.Abstract
                     }
                     catch (Exception e)
                     {
-                        eventSender = method.GetCustomAttribute<ExceptionEvent>();
+                        eventSender = method.GetCustomAttribute<ExceptionEventAttribute>();
                         if (eventSender != null)
                         {
-                            (eventSender as ExceptionEvent).Exception = e;
+                            (eventSender as ExceptionEventAttribute).Exception = e;
                             eventContext = new ExceptionEventContext(@params, method, e);
                             IOCManager.EventManager.InvokeEvent(IOCManager.Get(eventSender.InstanceName), eventSender, @params, eventContext);
-                            if ((eventSender as ExceptionEvent).IsThrow) throw;
+                            if ((eventSender as ExceptionEventAttribute).IsThrow) throw;
                         }
                         else throw;
                     }
-                    eventSender = method.GetCustomAttribute<AfterEvent>();
+                    eventSender = method.GetCustomAttribute<AfterEventAttribute>();
                     if (eventSender != null)
                     {
                         eventContext = new AfterEventContext(@params, method, result);
@@ -185,7 +183,7 @@ namespace EtherealS.Service.Abstract
                     Type return_type = method.ReturnType;
                     if (return_type != typeof(void))
                     {
-                        Types.Get(method.GetCustomAttribute<Param>()?.Type, return_type, out AbstractType type);
+                        Types.Get(method.GetCustomAttribute<ParamAttribute>()?.Type, return_type, out AbstractType type);
                         response.Result = type.Serialize(result);
                         return response;
                     }

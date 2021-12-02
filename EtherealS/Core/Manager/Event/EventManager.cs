@@ -9,7 +9,7 @@ namespace EtherealS.Core.Manager.Event
     {
         public Dictionary<(string, string), MethodInfo> MethodEvents { get; set; } = new Dictionary<(string, string), MethodInfo>();
 
-        internal void InvokeEvent(object instance, EventSender requestEvent, Dictionary<string, object> @params, EventContext context)
+        internal void InvokeEvent(object instance, EventSenderAttribute requestEvent, Dictionary<string, object> @params, EventContext context)
         {
             if (!MethodEvents.TryGetValue((requestEvent.InstanceName, requestEvent.Mapping), out MethodInfo method))
             {
@@ -19,7 +19,7 @@ namespace EtherealS.Core.Manager.Event
             object[] eventParams = new object[parameterInfos.Length];
             for (int i = 0; i < eventParams.Length; i++)
             {
-                EventContextParam context_attribute = parameterInfos[i].GetCustomAttribute<EventContextParam>();
+                EventContextParamAttribute context_attribute = parameterInfos[i].GetCustomAttribute<EventContextParamAttribute>();
                 if (context_attribute != null)
                 {
                     eventParams[i] = context;
@@ -40,7 +40,7 @@ namespace EtherealS.Core.Manager.Event
         {
             foreach (MethodInfo method in instance.GetType().GetMethods())
             {
-                Attribute.Event attribute = method.GetCustomAttribute<Attribute.Event>();
+                EventAttribute attribute = method.GetCustomAttribute<EventAttribute>();
                 if (attribute != null)
                 {
                     MethodEvents.Add((name, attribute.Mapping), method);
@@ -51,7 +51,7 @@ namespace EtherealS.Core.Manager.Event
         {
             foreach (MethodInfo method in instance.GetType().GetMethods())
             {
-                Attribute.Event attribute = method.GetCustomAttribute<Attribute.Event>();
+                Attribute.EventAttribute attribute = method.GetCustomAttribute<Attribute.EventAttribute>();
                 if (attribute != null)
                 {
                     MethodEvents.Remove((name, attribute.Mapping));

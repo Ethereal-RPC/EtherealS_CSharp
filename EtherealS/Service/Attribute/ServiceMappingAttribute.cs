@@ -7,9 +7,9 @@ namespace EtherealS.Service.Attribute
     /// 作为服务器服务方法的标注类
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class ServiceMapping : System.Attribute, IAuthoritable
+    public class ServiceMappingAttribute : System.Attribute, IAuthoritable
     {
-        public ServiceMapping(string Mapping)
+        public ServiceMappingAttribute(string Mapping)
         {
             mapping = Mapping;
         }

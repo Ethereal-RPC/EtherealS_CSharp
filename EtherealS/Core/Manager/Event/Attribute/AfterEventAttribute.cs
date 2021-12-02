@@ -11,9 +11,9 @@ namespace EtherealS.Core.Manager.Event.Attribute
             Result = result;
         }
     }
-    public class AfterEvent : EventSender
+    public class AfterEventAttribute : EventSenderAttribute
     {
-        public AfterEvent(string function) : base(function)
+        public AfterEventAttribute(string function) : base(function)
         {
         }
     }

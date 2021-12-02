@@ -18,13 +18,13 @@ namespace EtherealS.Core.Manager.Event.Attribute
         public Dictionary<string, object> Parameters { get; set; }
     }
     [AttributeUsage(AttributeTargets.Method)]
-    public class EventSender : System.Attribute
+    public class EventSenderAttribute : System.Attribute
     {
         private static Regex regex = new Regex(@"\w+");
         public string InstanceName { get; set; }
         public string Mapping { get; set; }
         public Dictionary<string, string> paramsMapping { get; set; }
-        public EventSender(string function)
+        public EventSenderAttribute(string function)
         {
             MatchCollection matches = regex.Matches(function);
             if (matches.Count % 2 != 0 || matches.Count < 2) throw new TrackException(TrackException.ErrorCode.Core, $"{function}不合法");

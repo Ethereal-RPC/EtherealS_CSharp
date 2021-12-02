@@ -55,7 +55,7 @@ namespace EtherealS.Core.Manager.AbstractType
 
         internal bool Get(ParameterInfo parameterInfo, out AbstractType type)
         {
-            Param paramAttribute = parameterInfo.GetCustomAttribute<Param>();
+            ParamAttribute paramAttribute = parameterInfo.GetCustomAttribute<ParamAttribute>();
             if (paramAttribute != null)
             {
                 return AbstractTypesByName.TryGetValue(paramAttribute.Type, out type);

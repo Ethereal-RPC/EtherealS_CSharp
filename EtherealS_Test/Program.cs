@@ -57,10 +57,6 @@ namespace EtherealS_Test
             net.Publish();
             Console.WriteLine("服务器初始化完成....");
             Console.ReadKey();
-
-            //string log = "--------------------------------------------------\n" +
-            //    $"{DateTime.Now}::{name}::[客-请求]\n{request}\n" +
-            //    "--------------------------------------------------\n";
         }
 
 
@@ -72,6 +68,7 @@ namespace EtherealS_Test
         private static void Config_ExceptionEvent(Exception exception)
         {
             Console.WriteLine(exception.Message);
+            throw exception;
         }
     }
 }

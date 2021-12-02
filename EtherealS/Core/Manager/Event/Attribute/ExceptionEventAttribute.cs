@@ -12,9 +12,9 @@ namespace EtherealS.Core.Manager.Event.Attribute
             Exception = exception;
         }
     }
-    public class ExceptionEvent : EventSender
+    public class ExceptionEventAttribute : EventSenderAttribute
     {
-        public ExceptionEvent(string function) : base(function)
+        public ExceptionEventAttribute(string function) : base(function)
         {
         }
 

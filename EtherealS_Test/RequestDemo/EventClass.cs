@@ -5,8 +5,8 @@ namespace EtherealS_Test.RequestDemo
 {
     internal class EventClass
     {
-        [Event("after")]
-        public void After(int ddd, [EventContextParam] EventContext context, string s)
+        [EventAttribute("after")]
+        public void After(int ddd, [EventContextParamAttribute] EventContext context, string s)
         {
             Console.WriteLine(ddd);
             Console.WriteLine(s);

@@ -11,8 +11,6 @@ namespace EtherealS.Net.Extension.Plugins
     {
         #region --字段--
         private AssemblyLoadContext assemlyLoad;
-        private PluginManager manager;
-        private List<Service.Abstract.Service> services = new List<Service.Abstract.Service>();
         #endregion
 
         #region --属性--
@@ -57,7 +55,7 @@ namespace EtherealS.Net.Extension.Plugins
         /// </summary>
         public bool IsDisposed { get; set; }
         public AssemblyLoadContext AssemlyLoad { get => assemlyLoad; set => assemlyLoad = value; }
-        public PluginManager Manager { get => manager; set => manager = value; }
+        public Plugin Plugin {get;set;}
         #endregion
 
         /// <summary>
@@ -118,6 +116,7 @@ namespace EtherealS.Net.Extension.Plugins
         public bool Initialize(Abstract.Net net)
         {
             assemlyLoad = new AssemblyLoadContext(null, true);
+
             #region 加载Lib
             //将所有Lib复制到卷影目录
             foreach (FileInfo fileInfo in new DirectoryInfo(PrivateLibDirectory).GetFiles("*.dll", SearchOption.AllDirectories))
@@ -138,32 +137,29 @@ namespace EtherealS.Net.Extension.Plugins
             File.Copy(AssemblyPath, AssemblyShadowCopyPath, true);
             //加载Assembly
             Assembly assembly = assemlyLoad.LoadFromAssemblyPath(this.AssemblyShadowCopyPath);
-            //扫描Service
+            //扫描IPlugin
             foreach (var type in assembly.GetTypes())
             {
-                Service.Attribute.Service serviceAttribute = type.GetCustomAttribute<Service.Attribute.Service>();
-                if (serviceAttribute != null && serviceAttribute.Plugin)
+                if(type.GetCustomAttribute<PluginAttribute>() != null)
                 {
-                    Service.Abstract.Service service = Activator.CreateInstance(type) as Service.Abstract.Service;
-                    ServiceCore.Register(net, service);
-                    services.Add(service);
-                    service.PluginDomain = this;
+                    Plugin = Activator.CreateInstance(type) as Plugin;
+                    IsInitialized = true;
+                    Plugin.Initialize(net);
                 }
             }
             #endregion
-            IsInitialized = true;
             return true;
         }
-        public bool UnInitialize()
+        public bool UnInitialize(Abstract.Net net)
         {
-            if (IsInitialized && !IsDisposed)
+            if (IsInitialized)
             {
-                foreach (Service.Abstract.Service service in services)
-                {
-                    service.PluginDomain = null;
-                    ServiceCore.UnRegister(service);
-                }
-                services.Clear();
+                Plugin.UnInitialize(net);
+                Plugin = null;
+                IsInitialized = false;
+            }
+            if (!IsDisposed)
+            {
                 //创建弱引用，跟踪销毁情况。
                 WeakReference weakReference = new WeakReference(assemlyLoad, true);
                 assemlyLoad = null;

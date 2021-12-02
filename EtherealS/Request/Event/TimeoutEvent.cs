@@ -11,7 +11,7 @@ namespace EtherealS.Request.Event
 
         }
     }
-    public class TimeoutEvent : EventSender
+    public class TimeoutEvent : EventSenderAttribute
     {
         public TimeoutEvent(string function) : base(function)
         {

@@ -110,9 +110,9 @@ namespace EtherealS.Service.Abstract
         /// </summary>
         /// <param name="serverkey"></param>
         /// <returns></returns>
-        public ConcurrentDictionary<object, Token> GetTokens(string netName)
+        public ConcurrentDictionary<object, T> GetTokens<T>()
         {
-            return service.Tokens;
+            return service.Tokens as ConcurrentDictionary<object, T>;
         }
         #endregion
 

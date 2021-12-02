@@ -6,9 +6,9 @@ namespace EtherealS.Request.Attribute
     /// 作为服务器请求方法的标注类
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
-    public class RequestMapping : System.Attribute
+    public class RequestMappingAttribute : System.Attribute
     {
-        public RequestMapping(string Mapping)
+        public RequestMappingAttribute(string Mapping)
         {
             this.mapping = Mapping;
         }

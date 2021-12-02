@@ -13,7 +13,7 @@ namespace EtherealS.Request.Event
             Error = error;
         }
     }
-    public class FailEvent : EventSender
+    public class FailEvent : EventSenderAttribute
     {
         public FailEvent(string function) : base(function)
         {
